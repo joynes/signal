@@ -1,9 +1,4 @@
-import {
-  getTempo,
-  isTimeSignatureEvent,
-  Measure,
-  UNASSIGNED_TRACK_ID,
-} from "@signal-app/core"
+import { getTempo, UNASSIGNED_TRACK_ID } from "@signal-app/core"
 import { useCallback, useMemo, useSyncExternalStore } from "react"
 import { DEFAULT_TEMPO } from "../Constants"
 import { usePlayer } from "./usePlayer"
@@ -13,21 +8,13 @@ import { useTrackEvents } from "./useTrack"
 const noop = () => () => {}
 
 export function useConductorTrack() {
-  const { conductorTrack, timebase } = useSong()
+  const { conductorTrack } = useSong()
   const events = useSyncExternalStore(
     conductorTrack?.onEventsChanged.subscribe ?? noop,
     useCallback(
       () => conductorTrack?.getEventsSnapshot() ?? [],
       [conductorTrack],
     ),
-  )
-  const timeSignatures = useMemo(
-    () => events.filter(isTimeSignatureEvent),
-    [events],
-  )
-  const measures = useMemo(
-    () => Measure.fromTimeSignatures(timeSignatures, timebase),
-    [timeSignatures, timebase],
   )
 
   return {
@@ -47,8 +34,6 @@ export function useConductorTrack() {
         [events, position],
       )
     },
-    timeSignatures,
-    measures,
     getEvents: useCallback(
       () => conductorTrack?.events ?? [],
       [conductorTrack],
