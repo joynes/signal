@@ -3,10 +3,6 @@ import { makePersistable } from "mobx-persist-store"
 import { MIDIInput } from "../services/MIDIInput"
 
 export class MIDIDeviceStore {
-  inputs: WebMidi.MIDIInput[] = []
-  outputs: WebMidi.MIDIOutput[] = []
-  requestError: Error | null = null
-  isLoading = false
   enabledOutputs: { [deviceId: string]: boolean } = {}
   enabledInputs: { [deviceId: string]: boolean } = {}
   isFactorySoundEnabled = true
@@ -14,10 +10,6 @@ export class MIDIDeviceStore {
 
   constructor(private readonly midiInput: MIDIInput) {
     makeObservable(this, {
-      inputs: observable,
-      outputs: observable,
-      requestError: observable,
-      isLoading: observable,
       enabledOutputs: observable,
       enabledInputs: observable,
       isFactorySoundEnabled: observable,
@@ -37,49 +29,29 @@ export class MIDIDeviceStore {
       ],
       storage: window.localStorage,
     })
-
-    this.requestMIDIAccess()
   }
 
-  requestMIDIAccess = async () => {
-    this.isLoading = true
-    this.inputs = []
-    this.outputs = []
-
+  requestMIDIAccess = async (
+    onStateChange: (midiAccess: WebMidi.MIDIAccess) => void,
+  ) => {
     if (navigator.requestMIDIAccess === undefined) {
-      this.isLoading = false
-      this.requestError = new Error(
-        "Web MIDI API is not supported by your browser",
-      )
-      return
+      throw new Error("Web MIDI API is not supported by your browser")
     }
 
-    try {
-      const midiAccess = (await navigator.requestMIDIAccess({
-        sysex: true,
-      })) as WebMidi.MIDIAccess
+    const midiAccess = (await navigator.requestMIDIAccess({
+      sysex: true,
+    })) as WebMidi.MIDIAccess
 
-      this.updatePorts(midiAccess)
-      midiAccess.onstatechange = () => {
-        this.updatePorts(midiAccess)
-      }
-      for (const input of midiAccess.inputs.values()) {
-        input.onmidimessage = (event) => {
-          if (this.enabledInputs[input.id]) {
-            this.midiInput.onMidiMessage(event)
-          }
+    midiAccess.onstatechange = () => {
+      onStateChange(midiAccess)
+    }
+    for (const input of midiAccess.inputs.values()) {
+      input.onmidimessage = (event) => {
+        if (this.enabledInputs[input.id]) {
+          this.midiInput.onMidiMessage(event)
         }
       }
-    } catch (error) {
-      this.requestError = error as Error
-    } finally {
-      this.isLoading = false
     }
-  }
-
-  private updatePorts(midiAccess: WebMidi.MIDIAccess) {
-    this.inputs = Array.from(midiAccess.inputs.values())
-    this.outputs = Array.from(midiAccess.outputs.values())
   }
 
   setInputEnable = (deviceId: string, enabled: boolean) => {
