@@ -45,12 +45,12 @@ export default class RootStore {
       this.songStore,
       this.player,
       this.midiDeviceStore,
+      this.midiInput,
     )
     this.midiMonitor = new MIDIMonitor(this.player, this.midiDeviceStore)
 
     this.midiInput.on("midiMessage", (e) => {
       this.midiMonitor.onMessage(e)
-      this.midiRecorder.onMessage(e)
     })
 
     this.autoSaveService = new AutoSaveService(this.songStore)

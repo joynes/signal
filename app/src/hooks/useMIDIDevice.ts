@@ -2,7 +2,6 @@ import { atom, useAtomValue } from "jotai"
 import { useAtomCallback } from "jotai/utils"
 import { useCallback, useEffect, useSyncExternalStore } from "react"
 import MIDIOutput from "../services/MIDIOutput"
-import { useMobxGetter } from "./useMobxSelector"
 import { usePlayer } from "./usePlayer"
 import { useStores } from "./useStores"
 
@@ -146,7 +145,10 @@ const factorySound = {
 
 export const useCanRecord = () => {
   const { midiDeviceStore } = useStores()
-  const enabledInputs = useMobxGetter(midiDeviceStore, "enabledInputs")
+  const enabledInputs = useSyncExternalStore(
+    midiDeviceStore.onEnabledInputsChanged.subscribe,
+    useCallback(() => midiDeviceStore.enabledInputs, [midiDeviceStore]),
+  )
 
   return Object.values(enabledInputs).filter((e) => e).length > 0
 }
@@ -162,10 +164,13 @@ function useSyncOutputDevices() {
   const { allSoundsOff } = usePlayer()
   const { midiDeviceStore, synthGroup, synth } = useStores()
   const outputs = useAtomValue(outputsAtom)
-  const enabledOutputs = useMobxGetter(midiDeviceStore, "enabledOutputs")
-  const isFactorySoundEnabled = useMobxGetter(
-    midiDeviceStore,
-    "isFactorySoundEnabled",
+  const enabledOutputs = useSyncExternalStore(
+    midiDeviceStore.onEnabledOutputsChanged.subscribe,
+    useCallback(() => midiDeviceStore.enabledOutputs, [midiDeviceStore]),
+  )
+  const isFactorySoundEnabled = useSyncExternalStore(
+    midiDeviceStore.onIsFactorySoundEnabledChanged.subscribe,
+    useCallback(() => midiDeviceStore.isFactorySoundEnabled, [midiDeviceStore]),
   )
 
   return useEffect(() => {

@@ -1,37 +1,31 @@
-import { observe, reaction } from "mobx"
+import { reaction } from "mobx"
 import RootStore from "./RootStore"
 
-export const registerReactions = (rootStore: RootStore) => {
-  observe(
-    rootStore.midiRecorder,
-    "isRecording",
-    disableSeekWhileRecording(rootStore),
-  )
+export const registerReactions = ({
+  songStore,
+  player,
+  midiRecorder,
+  autoSaveService,
+}: RootStore) => {
+  // disable seeking while recording
+  midiRecorder.onIsRecordingChanged.subscribe(() => {
+    player.disableSeek = midiRecorder.isRecording
+  })
 
-  observe(rootStore.player, "isPlaying", stopRecordingWhenStopPlayer(rootStore))
+  // stop recording when stop player
+  player.onIsPlayingChanged.subscribe(() => {
+    if (!player.isPlaying) {
+      midiRecorder.stop()
+    }
+  })
 
   // Watch for song changes and set the auto-save flag
   reaction(
-    () => rootStore.songStore.song.isSaved,
+    () => songStore.song.isSaved,
     (isSaved) => {
       if (!isSaved) {
-        rootStore.autoSaveService.onSongChanged()
+        autoSaveService.onSongChanged()
       }
     },
   )
 }
-
-type Reaction = (rootStore: RootStore) => () => void
-
-const disableSeekWhileRecording: Reaction =
-  ({ player, midiRecorder }) =>
-  () =>
-    (player.disableSeek = midiRecorder.isRecording)
-
-const stopRecordingWhenStopPlayer: Reaction =
-  ({ player, midiRecorder }) =>
-  () => {
-    if (!player.isPlaying) {
-      midiRecorder.isRecording = false
-    }
-  }
