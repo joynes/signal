@@ -49,24 +49,6 @@ export const useSong = () => {
     setSong: useMobxSetter(songStore, "song"),
     setSaved: useMobxSetter(song, "isSaved"),
     setFilepath: useMobxSetter(song, "filepath"),
-    addTrack: useCallback(
-      (track: Track) => {
-        song.addTrack(track)
-      },
-      [song],
-    ),
-    insertTrack: useCallback(
-      (track: Track, index: number) => {
-        song.insertTrack(track, index)
-      },
-      [song],
-    ),
-    moveTrack: useCallback(
-      (from: number, to: number) => {
-        song.moveTrack(from, to)
-      },
-      [song],
-    ),
     removeTrack: useCallback(
       (trackId: TrackId) => {
         song.removeTrack(trackId)
