@@ -26,7 +26,7 @@ export function MIDIDeviceProvider({
 }
 
 export function useMIDIDevice() {
-  const { midiDeviceStore, bluetoothMIDIDeviceStore } = useStores()
+  const { midiDeviceStore, bluetoothMIDIDeviceStore, midiInput } = useStores()
 
   const inputs = useAtomValue(inputsAtom)
   const outputs = useAtomValue(outputsAtom)
@@ -83,17 +83,28 @@ export function useMIDIDevice() {
           set(isLoadingAtom, true)
           set(inputsAtom, [])
           set(outputsAtom, [])
-          await midiDeviceStore.requestMIDIAccess((midiAccess) => {
+
+          if (navigator.requestMIDIAccess === undefined) {
+            throw new Error("Web MIDI API is not supported by your browser")
+          }
+
+          const midiAccess = (await navigator.requestMIDIAccess({
+            sysex: true,
+          })) as WebMidi.MIDIAccess
+
+          midiAccess.onstatechange = () => {
             set(inputsAtom, Array.from(midiAccess.inputs.values()))
             set(outputsAtom, Array.from(midiAccess.outputs.values()))
-          })
+          }
+
+          midiInput.connect(midiAccess)
         } catch (error) {
           set(requestErrorAtom, error as Error)
         } finally {
           set(isLoadingAtom, false)
         }
       },
-      [midiDeviceStore],
+      [midiInput],
     ),
   )
 

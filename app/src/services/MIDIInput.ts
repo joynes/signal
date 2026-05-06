@@ -1,4 +1,5 @@
 import { AnyEvent, deserializeSingleEvent, Stream } from "midifile-ts"
+import { MIDIDeviceStore } from "../stores/MIDIDeviceStore"
 
 export interface MIDIInputEvent {
   message: AnyEvent
@@ -10,6 +11,18 @@ interface MIDIMessageEvent {
 
 export class MIDIInput {
   private listeners: ((e: MIDIInputEvent) => void)[] = []
+
+  constructor(private readonly midiDeviceStore: MIDIDeviceStore) {}
+
+  connect(midiAccess: WebMidi.MIDIAccess) {
+    for (const input of midiAccess.inputs.values()) {
+      input.onmidimessage = (event) => {
+        if (this.midiDeviceStore.enabledInputs[input.id]) {
+          this.onMidiMessage?.(event)
+        }
+      }
+    }
+  }
 
   readonly onMidiMessage = (e: MIDIMessageEvent) => {
     const stream = new Stream(e.data)

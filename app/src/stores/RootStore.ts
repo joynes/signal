@@ -19,7 +19,7 @@ export default class RootStore {
   readonly synth: SoundFontSynth
   readonly metronomeSynth: SoundFontSynth
   readonly synthGroup: GroupOutput
-  readonly midiInput = new MIDIInput()
+  readonly midiInput: MIDIInput
   readonly midiRecorder: MIDIRecorder
   readonly midiMonitor: MIDIMonitor
   readonly bluetoothMIDIDeviceStore: BluetoothMIDIDeviceStore
@@ -36,7 +36,8 @@ export default class RootStore {
     const eventSource = new EventSource(this.songStore)
     this.player = new Player(this.synthGroup, eventSource)
 
-    this.midiDeviceStore = new MIDIDeviceStore(this.midiInput)
+    this.midiDeviceStore = new MIDIDeviceStore()
+    this.midiInput = new MIDIInput(this.midiDeviceStore)
     this.bluetoothMIDIDeviceStore = new BluetoothMIDIDeviceStore(this.midiInput)
     this.midiRecorder = new MIDIRecorder(
       this.songStore,
