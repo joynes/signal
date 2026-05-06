@@ -13,7 +13,6 @@ import { InitializeErrorDialog } from "./InitializeErrorDialog"
 
 export const OnInit: FC = () => {
   const rootStore = useStores()
-  const { soundFontStore } = rootStore
   const setSong = useSetSong()
   const loadSongFromExternalMidiFile = useLoadSongFromExternalMidiFile()
 
@@ -23,14 +22,13 @@ export const OnInit: FC = () => {
   const { show: showProgress } = useProgress()
   const localized = useLocalization()
   const { shouldShowAutoSaveDialog } = useAutoSave()
-  const { loadSelectedSoundFont } = useSoundFont()
+  const { initSoundFont } = useSoundFont()
 
   const init = async () => {
     const closeProgress = showProgress(localized["initializing"])
     try {
       await rootStore.init()
-      await soundFontStore.init()
-      await loadSelectedSoundFont()
+      await initSoundFont()
     } catch (e) {
       setIsErrorDialogOpen(true)
       setErrorMessage((e as Error).message)

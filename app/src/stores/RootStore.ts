@@ -8,12 +8,10 @@ import { MIDIActivity } from "../services/MIDIActivity"
 import { MIDIInput } from "../services/MIDIInput"
 import { MIDIMonitor } from "../services/MIDIMonitor"
 import { MIDIRecorder } from "../services/MIDIRecorder"
-import { soundFontRepository } from "../services/repositories"
 import { BluetoothMIDIDeviceStore } from "./BluetoothMIDIDeviceStore"
 import { MIDIDeviceStore } from "./MIDIDeviceStore"
 import { registerReactions } from "./reactions"
 import { SongStore } from "./SongStore"
-import { SoundFontStore } from "./SoundFontStore"
 
 export default class RootStore {
   readonly songStore = new SongStore()
@@ -26,7 +24,6 @@ export default class RootStore {
   readonly midiRecorder: MIDIRecorder
   readonly midiMonitor: MIDIMonitor
   readonly midiActivity: MIDIActivity
-  readonly soundFontStore: SoundFontStore
   readonly bluetoothMIDIDeviceStore: BluetoothMIDIDeviceStore
   readonly autoSaveService: AutoSaveService
   readonly commands = new CommandService(this.songStore)
@@ -40,8 +37,6 @@ export default class RootStore {
 
     const eventSource = new EventSource(this.songStore)
     this.player = new Player(this.synthGroup, eventSource)
-
-    this.soundFontStore = new SoundFontStore(soundFontRepository)
 
     this.midiDeviceStore = new MIDIDeviceStore(this.midiInput)
     this.bluetoothMIDIDeviceStore = new BluetoothMIDIDeviceStore(this.midiInput)
