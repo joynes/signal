@@ -1,5 +1,5 @@
 import { Measure } from "@signal-app/core"
-import { useCallback } from "react"
+import { useCallback, useSyncExternalStore } from "react"
 import {
   useFastForwardOneBar,
   useRewindOneBar,
@@ -7,7 +7,7 @@ import {
   useToggleRecording,
 } from "../actions"
 import { useCanRecord } from "./useMIDIDevice"
-import { useMobxGetter, useMobxSelector } from "./useMobxSelector"
+import { useMobxSelector } from "./useMobxSelector"
 import { usePlayer } from "./usePlayer"
 import { useStores } from "./useStores"
 
@@ -24,17 +24,23 @@ export function useTransportPanel() {
     toggleRecording: useToggleRecording(),
     toggleEnableLoop,
     toggleMetronome: useCallback(() => {
-      synthGroup.isMetronomeEnabled = !synthGroup.isMetronomeEnabled
+      synthGroup.setIsMetronomeEnabled(!synthGroup.isMetronomeEnabled)
     }, [synthGroup]),
     isPlaying,
     isLoopEnabled: loop !== null,
     isLoopActive: loop?.enabled ?? false,
     canRecording,
     get isRecording() {
-      return useMobxGetter(midiRecorder, "isRecording")
+      return useSyncExternalStore(
+        midiRecorder.onIsRecordingChanged.subscribe,
+        useCallback(() => midiRecorder.isRecording, [midiRecorder]),
+      )
     },
     get isMetronomeEnabled() {
-      return useMobxGetter(synthGroup, "isMetronomeEnabled")
+      return useSyncExternalStore(
+        synthGroup.onIsMetronomeEnabledChanged.subscribe,
+        useCallback(() => synthGroup.isMetronomeEnabled, [synthGroup]),
+      )
     },
     get currentMBTTime() {
       return useMobxSelector(
