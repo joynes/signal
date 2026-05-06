@@ -67,12 +67,12 @@ export class Track {
       endOfTrack: observable,
     })
     this.onIdChanged = mobxToObservable(this, "id")
-    this.onIsRhythmTrackChanged = mobxToObservable(this, "channel")
-    this.onIsConductorTrackChanged = mobxToObservable(this, "channel")
+    this.onIsRhythmTrackChanged = mobxToObservable(this, "isRhythmTrack")
+    this.onIsConductorTrackChanged = mobxToObservable(this, "isConductorTrack")
     this.onChannelChanged = mobxToObservable(this, "channel")
-    this.onNameChanged = mobxToObservableDeep(this, "events")
+    this.onNameChanged = mobxToObservable(this, "name")
     this.onEventsChanged = mobxToObservableDeep(this, "events")
-    this.onColorChanged = mobxToObservableDeep(this, "events")
+    this.onColorChanged = mobxToObservable(this, "color")
 
     reaction(
       () => toJS(this._events.getArray()),
