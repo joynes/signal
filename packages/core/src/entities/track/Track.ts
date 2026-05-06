@@ -1,6 +1,8 @@
 import { action, computed, makeObservable, observable, transaction } from "mobx"
 import { createModelSchema, object, primitive } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
+import { mobxToObservable } from "../../helpers/mobxToObservable"
+import { Observable } from "../../helpers/observable"
 import { Branded } from "../../types"
 import { isNoteEvent } from "./identify"
 import {
@@ -27,6 +29,13 @@ export class Track {
 
   getEventById = (id: number): TrackEvent | undefined => this._events.get(id)
 
+  readonly onIsRhythmTrackChanged: Observable
+  readonly onIsConductorTrackChanged: Observable
+  readonly onChannelChanged: Observable
+  readonly onNameChanged: Observable
+  readonly onEventsChanged: Observable
+  readonly onColorChanged: Observable
+
   constructor() {
     makeObservable(this, {
       updateEvent: action,
@@ -44,6 +53,12 @@ export class Track {
       channel: observable,
       endOfTrack: observable,
     })
+    this.onIsRhythmTrackChanged = mobxToObservable(this, "channel")
+    this.onIsConductorTrackChanged = mobxToObservable(this, "channel")
+    this.onChannelChanged = mobxToObservable(this, "channel")
+    this.onNameChanged = mobxToObservable(this, "events")
+    this.onEventsChanged = mobxToObservable(this, "events")
+    this.onColorChanged = mobxToObservable(this, "events")
   }
 
   get events(): readonly TrackEvent[] {

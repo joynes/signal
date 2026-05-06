@@ -82,5 +82,6 @@ export const useSong = () => {
     updateEndOfSong: useCallback(() => {
       song.updateEndOfSong()
     }, [song]),
+    observeTracks: song.onTracksChanged.subscribe,
   }
 }

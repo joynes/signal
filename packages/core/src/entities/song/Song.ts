@@ -14,6 +14,11 @@ import {
   primitive,
   serialize,
 } from "serializr"
+import {
+  mobxToObservable,
+  mobxToObservableDeep,
+} from "../../helpers/mobxToObservable"
+import { Observable } from "../../helpers/observable"
 import { Measure } from "../measure/Measure"
 import { isTimeSignatureEvent, Track, TrackId } from "../track"
 import { collectAllEvents } from "./collectAllEvents"
@@ -33,6 +38,8 @@ export class Song {
 
   private lastTrackId = 0
 
+  readonly onTracksChanged: Observable
+
   constructor() {
     makeObservable(this, {
       addTrack: action,
@@ -49,6 +56,8 @@ export class Song {
       name: observable,
       isSaved: observable,
     })
+
+    this.onTracksChanged = mobxToObservableDeep(this, "tracks")
 
     reaction(
       () => {
