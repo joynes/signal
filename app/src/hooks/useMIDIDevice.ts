@@ -1,8 +1,10 @@
 import { atom, useAtomValue } from "jotai"
 import { useAtomCallback } from "jotai/utils"
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 import { BLEMIDI } from "web-ble-midi"
+import MIDIOutput from "../services/MIDIOutput"
 import { useMobxGetter } from "./useMobxSelector"
+import { usePlayer } from "./usePlayer"
 import { useStores } from "./useStores"
 
 export interface Device {
@@ -11,6 +13,16 @@ export interface Device {
   isConnected: boolean
   isEnabled: boolean
   isBluetooth?: boolean
+}
+
+export function MIDIDeviceProvider({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  useSyncOutputDevices()
+
+  return children
 }
 
 export function useMIDIDevice() {
@@ -155,3 +167,39 @@ const isLoadingAtom = atom(false)
 const requestErrorAtom = atom<Error | null>(null)
 const inputsAtom = atom<readonly WebMidi.MIDIInput[]>([])
 const outputsAtom = atom<readonly WebMidi.MIDIOutput[]>([])
+
+// sync synthGroup.output to enabledOutputIds/isFactorySoundEnabled
+function useSyncOutputDevices() {
+  const { allSoundsOff } = usePlayer()
+  const { midiDeviceStore, synthGroup, synth } = useStores()
+  const outputs = useAtomValue(outputsAtom)
+  const enabledOutputs = useMobxGetter(midiDeviceStore, "enabledOutputs")
+  const isFactorySoundEnabled = useMobxGetter(
+    midiDeviceStore,
+    "isFactorySoundEnabled",
+  )
+
+  return useEffect(() => {
+    allSoundsOff()
+
+    const midiDeviceEntries = outputs.map((device) => ({
+      synth: new MIDIOutput(device),
+      isEnabled: enabledOutputs[device.id],
+    }))
+
+    synthGroup.outputs = [
+      {
+        synth,
+        isEnabled: isFactorySoundEnabled,
+      },
+      ...midiDeviceEntries,
+    ]
+  }, [
+    outputs,
+    enabledOutputs,
+    isFactorySoundEnabled,
+    allSoundsOff,
+    synthGroup,
+    synth,
+  ])
+}

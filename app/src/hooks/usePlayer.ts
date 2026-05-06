@@ -43,6 +43,7 @@ export function usePlayer() {
       },
       [player],
     ),
+    allSoundsOff: player.allSoundsOff,
     allSoundsOffChannel: player.allSoundsOffChannel,
     allSoundsOffExclude: player.allSoundsOffExclude,
   }
