@@ -1,5 +1,5 @@
 import { Track, TrackId } from "@signal-app/core"
-import { useCallback } from "react"
+import { useCallback, useSyncExternalStore } from "react"
 import { useMobxGetter, useMobxSetter } from "./useMobxSelector"
 import { useStores } from "./useStores"
 
@@ -37,6 +37,12 @@ export const useSong = () => {
     },
     get endOfSong() {
       return useMobxGetter(song, "endOfSong")
+    },
+    get conductorTrack() {
+      return useSyncExternalStore(
+        song.onConductorTrackChanged.subscribe,
+        useCallback(() => song.conductorTrack, [song]),
+      )
     },
     setName: useMobxSetter(song, "name"),
     getSong: useCallback(() => songStore.song, [songStore]),

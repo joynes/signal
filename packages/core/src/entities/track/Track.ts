@@ -1,7 +1,18 @@
-import { action, computed, makeObservable, observable, transaction } from "mobx"
+import {
+  action,
+  computed,
+  makeObservable,
+  observable,
+  reaction,
+  toJS,
+  transaction,
+} from "mobx"
 import { createModelSchema, object, primitive } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
-import { mobxToObservable } from "../../helpers/mobxToObservable"
+import {
+  mobxToObservable,
+  mobxToObservableDeep,
+} from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
 import { Branded } from "../../types"
 import { isNoteEvent } from "./identify"
@@ -24,11 +35,13 @@ export const UNASSIGNED_TRACK_ID = -1 as TrackId
 export class Track {
   id: TrackId = UNASSIGNED_TRACK_ID
   private readonly _events = new TickOrderedArray<TrackEvent>()
+  private _eventsSnapshot: TrackEvent[] = []
   endOfTrack: number = 0
   channel: number | undefined = undefined
 
   getEventById = (id: number): TrackEvent | undefined => this._events.get(id)
 
+  readonly onIdChanged: Observable
   readonly onIsRhythmTrackChanged: Observable
   readonly onIsConductorTrackChanged: Observable
   readonly onChannelChanged: Observable
@@ -53,16 +66,28 @@ export class Track {
       channel: observable,
       endOfTrack: observable,
     })
+    this.onIdChanged = mobxToObservable(this, "id")
     this.onIsRhythmTrackChanged = mobxToObservable(this, "channel")
     this.onIsConductorTrackChanged = mobxToObservable(this, "channel")
     this.onChannelChanged = mobxToObservable(this, "channel")
-    this.onNameChanged = mobxToObservable(this, "events")
-    this.onEventsChanged = mobxToObservable(this, "events")
-    this.onColorChanged = mobxToObservable(this, "events")
+    this.onNameChanged = mobxToObservableDeep(this, "events")
+    this.onEventsChanged = mobxToObservableDeep(this, "events")
+    this.onColorChanged = mobxToObservableDeep(this, "events")
+
+    reaction(
+      () => toJS(this._events.getArray()),
+      (events) => {
+        this._eventsSnapshot = [...events]
+      },
+    )
   }
 
   get events(): readonly TrackEvent[] {
     return this._events.getArray()
+  }
+
+  getEventsSnapshot = (): readonly TrackEvent[] => {
+    return this._eventsSnapshot
   }
 
   updateEvent<T extends TrackEvent>(id: number, obj: Partial<T>): T | null {

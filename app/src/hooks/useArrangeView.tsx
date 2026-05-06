@@ -2,15 +2,20 @@ import { ArrangeSelection } from "@signal-app/core"
 import { atom, useAtomValue, useSetAtom, useStore } from "jotai"
 import { Store } from "jotai/vanilla/store"
 import { cloneDeep } from "lodash"
-import { createContext, useCallback, useContext, useMemo } from "react"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+} from "react"
 import { MaxNoteNumber } from "../Constants"
 import { ArrangeCoordTransform } from "../entities/transform/ArrangeCoordTransform"
 import { KeyTransform } from "../entities/transform/KeyTransform"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { BeatsProvider, createBeatsScope } from "./useBeats"
-import { useMobxSelector } from "./useMobxSelector"
 import { createQuantizerScope, QuantizerProvider } from "./useQuantizer"
-import { useStores } from "./useStores"
+import { useSong } from "./useSong"
 import {
   createTickScrollScope,
   TickScrollProvider,
@@ -21,6 +26,7 @@ import {
   TrackScrollProvider,
   useTrackScroll,
 } from "./useTrackScroll"
+
 export type { ArrangeSelection } from "@signal-app/core"
 
 type ArrangeViewStore = {
@@ -101,11 +107,14 @@ export function useArrangeView() {
       return useAtomValue(selectedTrackIndexAtom)
     },
     get selectedTrackId() {
-      const { songStore } = useStores()
+      const { tracks, observeTracks } = useSong()
       const selectedTrackIndex = useAtomValue(selectedTrackIndexAtom)
-      return useMobxSelector(
-        () => songStore.song.tracks[selectedTrackIndex]?.id,
-        [songStore, selectedTrackIndex],
+      return useSyncExternalStore(
+        observeTracks,
+        useCallback(
+          () => tracks[selectedTrackIndex]?.id,
+          [selectedTrackIndex, tracks],
+        ),
       )
     },
     get selection() {

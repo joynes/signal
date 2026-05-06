@@ -59,7 +59,7 @@ export function useTrack(id: TrackId) {
     get events() {
       return useSyncExternalStore(
         track?.onEventsChanged.subscribe ?? noop,
-        useCallback(() => track?.events ?? [], [track]),
+        useCallback(() => track?.getEventsSnapshot() ?? [], [track]),
       )
     },
     getEvents() {

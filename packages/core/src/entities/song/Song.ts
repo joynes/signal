@@ -28,6 +28,7 @@ const DEFAULT_TIME_BASE = 480
 
 export class Song {
   tracks: readonly Track[] = []
+  private _tracksSnapshot: Track[] = []
   filepath: string = ""
   timebase: number = DEFAULT_TIME_BASE
   name: string = ""
@@ -39,6 +40,7 @@ export class Song {
   private lastTrackId = 0
 
   readonly onTracksChanged: Observable
+  readonly onConductorTrackChanged: Observable
 
   constructor() {
     makeObservable(this, {
@@ -58,6 +60,7 @@ export class Song {
     })
 
     this.onTracksChanged = mobxToObservableDeep(this, "tracks")
+    this.onConductorTrackChanged = mobxToObservable(this, "conductorTrack")
 
     reaction(
       () => {
@@ -109,6 +112,10 @@ export class Song {
 
   getTrack(id: TrackId): Track | undefined {
     return this.tracks.find((t) => t.id === id)
+  }
+
+  getTracksSnapshot = (): readonly Track[] => {
+    return this._tracksSnapshot
   }
 
   get measures(): Measure[] {
