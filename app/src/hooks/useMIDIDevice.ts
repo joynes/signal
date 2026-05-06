@@ -1,7 +1,6 @@
 import { atom, useAtomValue } from "jotai"
 import { useAtomCallback } from "jotai/utils"
 import { useCallback, useEffect } from "react"
-import { BLEMIDI } from "web-ble-midi"
 import MIDIOutput from "../services/MIDIOutput"
 import { useMobxGetter } from "./useMobxSelector"
 import { usePlayer } from "./usePlayer"
@@ -26,15 +25,10 @@ export function MIDIDeviceProvider({
 }
 
 export function useMIDIDevice() {
-  const { midiDeviceStore, bluetoothMIDIDeviceStore, midiInput } = useStores()
+  const { midiDeviceStore, midiInput } = useStores()
 
   const inputs = useAtomValue(inputsAtom)
   const outputs = useAtomValue(outputsAtom)
-  const btInputs = useMobxGetter(bluetoothMIDIDeviceStore, "inputs")
-  const btEnabledInputs = useMobxGetter(
-    bluetoothMIDIDeviceStore,
-    "enabledInputs",
-  )
 
   const enabledInputs = useMobxGetter(midiDeviceStore, "enabledInputs")
   const enabledOutputs = useMobxGetter(midiDeviceStore, "enabledOutputs")
@@ -44,23 +38,13 @@ export function useMIDIDevice() {
     "isFactorySoundEnabled",
   )
 
-  // 通常MIDI + Bluetooth MIDI
-  const inputDevices: Device[] = [
-    ...inputs.map((device) => ({
-      id: device.id,
-      name: formatName(device),
-      isConnected: device.state === "connected",
-      isEnabled: enabledInputs[device.id],
-      isBluetooth: false,
-    })),
-    ...btInputs.map((d) => ({
-      id: d.id,
-      name: d.name ?? "Bluetooth MIDI Device",
-      isConnected: btInputs.some((i) => i.id === d.id),
-      isEnabled: btEnabledInputs[d.id],
-      isBluetooth: true,
-    })),
-  ]
+  const inputDevices: Device[] = inputs.map((device) => ({
+    id: device.id,
+    name: formatName(device),
+    isConnected: device.state === "connected",
+    isEnabled: enabledInputs[device.id],
+    isBluetooth: false,
+  }))
 
   const outputDevices: Device[] = [
     {
@@ -112,35 +96,20 @@ export function useMIDIDevice() {
     inputDevices,
     outputDevices,
     get isLoading() {
-      const isLoading = useAtomValue(isLoadingAtom)
-      const isLoadingBT = useMobxGetter(bluetoothMIDIDeviceStore, "isLoading")
-      return isLoading || isLoadingBT
+      return useAtomValue(isLoadingAtom)
     },
     get requestError() {
-      const requestError = useAtomValue(requestErrorAtom)
-      const requestErrorBT = useMobxGetter(
-        bluetoothMIDIDeviceStore,
-        "requestError",
-      )
-      return requestError || requestErrorBT
+      return useAtomValue(requestErrorAtom)
     },
     get midiInputRouting() {
       return useMobxGetter(midiDeviceStore, "midiInputRouting")
     },
-    isBluetoothSupported: BLEMIDI.isSupported(),
     initMIDIDevice: requestMIDIAccess,
-    requestBluetoothMIDIDevice: useCallback(() => {
-      bluetoothMIDIDeviceStore.requestDevice()
-    }, [bluetoothMIDIDeviceStore]),
     setInputEnable: useCallback(
       (deviceId: string, isEnabled: boolean) => {
-        if (btInputs.some((d) => d.id === deviceId)) {
-          bluetoothMIDIDeviceStore.setInputEnable(deviceId, isEnabled)
-        } else {
-          midiDeviceStore.setInputEnable(deviceId, isEnabled)
-        }
+        midiDeviceStore.setInputEnable(deviceId, isEnabled)
       },
-      [midiDeviceStore, bluetoothMIDIDeviceStore, btInputs],
+      [midiDeviceStore],
     ),
     setMidiInputRouting: midiDeviceStore.setMidiInputRouting,
     setOutputEnable: useCallback(
