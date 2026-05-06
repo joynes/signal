@@ -1,4 +1,6 @@
 import {
+  MIDIDeviceStore,
+  MIDIInputEvent,
   NoteEvent,
   TrackEvent,
   TrackId,
@@ -6,9 +8,7 @@ import {
 } from "@signal-app/core"
 import { Player } from "@signal-app/player"
 import { makeObservable, observable, observe } from "mobx"
-import { MIDIDeviceStore } from "../stores/MIDIDeviceStore"
 import { SongStore } from "../stores/SongStore"
-import { MIDIInputEvent } from "./MIDIInput"
 
 export class MIDIRecorder {
   private recordedNotes: { [key: TrackId]: NoteEvent[] } = {}

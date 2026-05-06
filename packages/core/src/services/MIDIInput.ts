@@ -18,7 +18,10 @@ export class MIDIInput {
     for (const input of midiAccess.inputs.values()) {
       input.onmidimessage = (event) => {
         if (this.midiDeviceStore.enabledInputs[input.id]) {
-          this.onMidiMessage?.(event)
+          const data = event.data
+          if (data !== null) {
+            this.onMidiMessage?.({ data })
+          }
         }
       }
     }

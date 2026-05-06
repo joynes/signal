@@ -1,14 +1,16 @@
-import { CommandService } from "@signal-app/core"
+import {
+  BluetoothMIDIDeviceStore,
+  CommandService,
+  MIDIDeviceStore,
+  MIDIInput,
+} from "@signal-app/core"
 import { Player, SoundFont, SoundFontSynth } from "@signal-app/player"
 import { isRunningInElectron } from "../helpers/platform"
 import { EventSource } from "../player/EventSource"
 import { AutoSaveService } from "../services/AutoSaveService"
 import { GroupOutput } from "../services/GroupOutput"
-import { MIDIInput } from "../services/MIDIInput"
 import { MIDIMonitor } from "../services/MIDIMonitor"
 import { MIDIRecorder } from "../services/MIDIRecorder"
-import { BluetoothMIDIDeviceStore } from "./BluetoothMIDIDeviceStore"
-import { MIDIDeviceStore } from "./MIDIDeviceStore"
 import { registerReactions } from "./reactions"
 import { SongStore } from "./SongStore"
 
