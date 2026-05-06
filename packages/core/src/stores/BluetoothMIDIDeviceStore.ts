@@ -1,11 +1,16 @@
 import { action, makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import { BLEMIDIDevice, MIDIMessageEvent } from "web-ble-midi"
+import { mobxToObservable } from "../helpers/mobxToObservable"
+import { Observable } from "../helpers/observable"
 import { MIDIInput } from "../services/MIDIInput"
 
 export class BluetoothMIDIDeviceStore {
   inputs: BLEMIDIDevice[] = []
   enabledInputs: { [deviceId: string]: boolean } = {}
+
+  readonly onInputsChanged: Observable
+  readonly onEnabledInputsChanged: Observable
 
   constructor(private readonly midiInput: MIDIInput) {
     makeObservable(this, {
@@ -20,6 +25,9 @@ export class BluetoothMIDIDeviceStore {
       properties: ["enabledInputs"],
       storage: window.localStorage,
     })
+
+    this.onInputsChanged = mobxToObservable(this, "inputs")
+    this.onEnabledInputsChanged = mobxToObservable(this, "enabledInputs")
   }
 
   async setInputEnable(deviceId: string, enabled: boolean) {

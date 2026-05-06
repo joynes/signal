@@ -1,6 +1,6 @@
 import { atom, useAtomValue } from "jotai"
 import { useAtomCallback } from "jotai/utils"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useSyncExternalStore } from "react"
 import MIDIOutput from "../services/MIDIOutput"
 import { useMobxGetter } from "./useMobxSelector"
 import { usePlayer } from "./usePlayer"
@@ -30,12 +30,18 @@ export function useMIDIDevice() {
   const inputs = useAtomValue(inputsAtom)
   const outputs = useAtomValue(outputsAtom)
 
-  const enabledInputs = useMobxGetter(midiDeviceStore, "enabledInputs")
-  const enabledOutputs = useMobxGetter(midiDeviceStore, "enabledOutputs")
+  const enabledInputs = useSyncExternalStore(
+    midiDeviceStore.onEnabledInputsChanged.subscribe,
+    useCallback(() => midiDeviceStore.enabledInputs, [midiDeviceStore]),
+  )
+  const enabledOutputs = useSyncExternalStore(
+    midiDeviceStore.onEnabledOutputsChanged.subscribe,
+    useCallback(() => midiDeviceStore.enabledOutputs, [midiDeviceStore]),
+  )
 
-  const isFactorySoundEnabled = useMobxGetter(
-    midiDeviceStore,
-    "isFactorySoundEnabled",
+  const isFactorySoundEnabled = useSyncExternalStore(
+    midiDeviceStore.onIsFactorySoundEnabledChanged.subscribe,
+    useCallback(() => midiDeviceStore.isFactorySoundEnabled, [midiDeviceStore]),
   )
 
   const inputDevices: Device[] = inputs.map((device) => ({
@@ -102,7 +108,10 @@ export function useMIDIDevice() {
       return useAtomValue(requestErrorAtom)
     },
     get midiInputRouting() {
-      return useMobxGetter(midiDeviceStore, "midiInputRouting")
+      return useSyncExternalStore(
+        midiDeviceStore.onMidiInputRoutingChanged.subscribe,
+        useCallback(() => midiDeviceStore.midiInputRouting, [midiDeviceStore]),
+      )
     },
     initMIDIDevice: requestMIDIAccess,
     setInputEnable: useCallback(

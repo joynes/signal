@@ -1,18 +1,26 @@
 import { atom, useAtomValue } from "jotai"
 import { useAtomCallback } from "jotai/utils"
-import { useCallback } from "react"
+import { useCallback, useSyncExternalStore } from "react"
 import { BLEMIDI } from "web-ble-midi"
 import { Device } from "./useMIDIDevice"
-import { useMobxGetter } from "./useMobxSelector"
 import { useStores } from "./useStores"
 
 export function useBLEMIDIDevice() {
   const { bluetoothMIDIDeviceStore } = useStores()
 
-  const btInputs = useMobxGetter(bluetoothMIDIDeviceStore, "inputs")
-  const btEnabledInputs = useMobxGetter(
-    bluetoothMIDIDeviceStore,
-    "enabledInputs",
+  const btInputs = useSyncExternalStore(
+    bluetoothMIDIDeviceStore.onInputsChanged.subscribe,
+    useCallback(
+      () => bluetoothMIDIDeviceStore.inputs,
+      [bluetoothMIDIDeviceStore],
+    ),
+  )
+  const btEnabledInputs = useSyncExternalStore(
+    bluetoothMIDIDeviceStore.onEnabledInputsChanged.subscribe,
+    useCallback(
+      () => bluetoothMIDIDeviceStore.enabledInputs,
+      [bluetoothMIDIDeviceStore],
+    ),
   )
   const inputDevices: Device[] = btInputs.map((d) => ({
     id: d.id,
