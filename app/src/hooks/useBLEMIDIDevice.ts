@@ -1,3 +1,5 @@
+import { atom, useAtomValue } from "jotai"
+import { useAtomCallback } from "jotai/utils"
 import { useCallback } from "react"
 import { BLEMIDI } from "web-ble-midi"
 import { Device } from "./useMIDIDevice"
@@ -20,18 +22,35 @@ export function useBLEMIDIDevice() {
     isBluetooth: true,
   }))
 
+  const requestBluetoothMIDIDevice = useAtomCallback(
+    useCallback(
+      async (_get, set) => {
+        set(isLoadingAtom, true)
+        set(requestErrorAtom, null)
+        try {
+          const device = await BLEMIDI.scan()
+          bluetoothMIDIDeviceStore.registerDevice(device)
+          await bluetoothMIDIDeviceStore.setInputEnable(device.id, true)
+        } catch (e) {
+          set(requestErrorAtom, e as Error)
+        } finally {
+          set(isLoadingAtom, false)
+        }
+      },
+      [bluetoothMIDIDeviceStore],
+    ),
+  )
+
   return {
     inputDevices,
     isBluetoothSupported: BLEMIDI.isSupported(),
     get isLoading() {
-      return useMobxGetter(bluetoothMIDIDeviceStore, "isLoading")
+      return useAtomValue(isLoadingAtom)
     },
     get requestError() {
-      return useMobxGetter(bluetoothMIDIDeviceStore, "requestError")
+      return useAtomValue(requestErrorAtom)
     },
-    requestBluetoothMIDIDevice: useCallback(() => {
-      bluetoothMIDIDeviceStore.requestDevice()
-    }, [bluetoothMIDIDeviceStore]),
+    requestBluetoothMIDIDevice,
     setInputEnable: useCallback(
       (deviceId: string, isEnabled: boolean) => {
         bluetoothMIDIDeviceStore.setInputEnable(deviceId, isEnabled)
@@ -40,3 +59,7 @@ export function useBLEMIDIDevice() {
     ),
   }
 }
+
+// atoms
+const isLoadingAtom = atom(false)
+const requestErrorAtom = atom<Error | null>(null)
