@@ -4,7 +4,6 @@ import { isRunningInElectron } from "../helpers/platform"
 import { EventSource } from "../player/EventSource"
 import { AutoSaveService } from "../services/AutoSaveService"
 import { GroupOutput } from "../services/GroupOutput"
-import { MIDIActivity } from "../services/MIDIActivity"
 import { MIDIInput } from "../services/MIDIInput"
 import { MIDIMonitor } from "../services/MIDIMonitor"
 import { MIDIRecorder } from "../services/MIDIRecorder"
@@ -23,7 +22,6 @@ export default class RootStore {
   readonly midiInput = new MIDIInput()
   readonly midiRecorder: MIDIRecorder
   readonly midiMonitor: MIDIMonitor
-  readonly midiActivity: MIDIActivity
   readonly bluetoothMIDIDeviceStore: BluetoothMIDIDeviceStore
   readonly autoSaveService: AutoSaveService
   readonly commands = new CommandService(this.songStore)
@@ -46,14 +44,8 @@ export default class RootStore {
       this.midiDeviceStore,
     )
     this.midiMonitor = new MIDIMonitor(this.player, this.midiDeviceStore)
-    this.midiActivity = new MIDIActivity(
-      this.midiDeviceStore,
-      this.midiRecorder,
-      this.songStore,
-    )
 
     this.midiInput.on("midiMessage", (e) => {
-      this.midiActivity.onMessage(e)
       this.midiMonitor.onMessage(e)
       this.midiRecorder.onMessage(e)
     })
