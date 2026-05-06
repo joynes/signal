@@ -3,7 +3,6 @@ import { SetTempoEvent } from "midifile-ts"
 import { transaction } from "mobx"
 import {
   isSetTempoEvent,
-  isTimeSignatureEvent,
   Measure,
   TempoEventsClipboardData,
   TrackEventOf,
@@ -119,25 +118,14 @@ export class ConductorTrackCommandService {
     })
   }
 
-  private getTimeSignatureEvents = () => {
-    const conductorTrack = this.songStore.song.conductorTrack
-    return conductorTrack?.events.filter(isTimeSignatureEvent) ?? []
-  }
-
-  private getMeasures = () => {
-    const timeSignatureEvents = this.getTimeSignatureEvents()
-    const timebase = this.songStore.song.timebase
-    return Measure.fromTimeSignatures(timeSignatureEvents, timebase)
-  }
-
   getMeasureStartTick = (tick: number) => {
-    const timebase = this.songStore.song.timebase
-    return Measure.getMeasureStart(this.getMeasures(), tick, timebase).tick
+    const { timebase, measures } = this.songStore.song
+    return Measure.getMeasureStart(measures, tick, timebase).tick
   }
 
   hasTimeSignatureAt = (tick: number) => {
-    const events = this.getTimeSignatureEvents()
-    return events.some((e) => e.tick === tick)
+    const { timeSignatures } = this.songStore.song
+    return timeSignatures.some((e) => e.tick === tick)
   }
 
   addTimeSignature = (tick: number, numerator: number, denominator: number) => {
