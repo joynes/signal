@@ -41,6 +41,14 @@ export class Song {
 
   readonly onTracksChanged: Observable
   readonly onConductorTrackChanged: Observable
+  readonly onNameChanged: Observable
+  readonly onTimebaseChanged: Observable
+  readonly onFilepathChanged: Observable
+  readonly onIsSavedChanged: Observable
+  readonly onMeasuresChanged: Observable
+  readonly onTimeSignaturesChanged: Observable
+  readonly onCloudSongIdChanged: Observable
+  readonly onEndOfSongChanged: Observable
 
   constructor() {
     makeObservable(this, {
@@ -61,6 +69,14 @@ export class Song {
 
     this.onTracksChanged = mobxToObservableDeep(this, "tracks")
     this.onConductorTrackChanged = mobxToObservable(this, "conductorTrack")
+    this.onNameChanged = mobxToObservable(this, "name")
+    this.onTimebaseChanged = mobxToObservable(this, "timebase")
+    this.onFilepathChanged = mobxToObservable(this, "filepath")
+    this.onIsSavedChanged = mobxToObservable(this, "isSaved")
+    this.onMeasuresChanged = mobxToObservable(this, "measures")
+    this.onTimeSignaturesChanged = mobxToObservable(this, "timeSignatures")
+    this.onCloudSongIdChanged = mobxToObservable(this, "cloudSongId")
+    this.onEndOfSongChanged = mobxToObservable(this, "endOfSong")
 
     reaction(
       () => {

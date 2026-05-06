@@ -1,24 +1,38 @@
-import { Track, TrackId } from "@signal-app/core"
+import { Song, TrackId } from "@signal-app/core"
 import { useCallback, useSyncExternalStore } from "react"
-import { useMobxGetter, useMobxSetter } from "./useMobxSelector"
 import { useStores } from "./useStores"
 
 export const useSong = () => {
   const { songStore } = useStores()
-  const song = useMobxGetter(songStore, "song")
+  const song = useSyncExternalStore(
+    songStore.onSongChanged.subscribe,
+    useCallback(() => songStore.song, [songStore]),
+  )
 
   return {
     get name() {
-      return useMobxGetter(song, "name")
+      return useSyncExternalStore(
+        song.onNameChanged.subscribe,
+        useCallback(() => song.name, [song]),
+      )
     },
     get timebase() {
-      return useMobxGetter(song, "timebase")
+      return useSyncExternalStore(
+        song.onTimebaseChanged.subscribe,
+        useCallback(() => song.timebase, [song]),
+      )
     },
     get measures() {
-      return useMobxGetter(song, "measures")
+      return useSyncExternalStore(
+        song.onMeasuresChanged.subscribe,
+        useCallback(() => song.measures, [song]),
+      )
     },
     get timeSignatures() {
-      return useMobxGetter(song, "timeSignatures")
+      return useSyncExternalStore(
+        song.onTimeSignaturesChanged.subscribe,
+        useCallback(() => song.timeSignatures, [song]),
+      )
     },
     get tracks() {
       return useSyncExternalStore(
@@ -27,19 +41,34 @@ export const useSong = () => {
       )
     },
     get isSaved() {
-      return useMobxGetter(song, "isSaved")
+      return useSyncExternalStore(
+        song.onIsSavedChanged.subscribe,
+        useCallback(() => song.isSaved, [song]),
+      )
     },
     get filepath() {
-      return useMobxGetter(song, "filepath")
+      return useSyncExternalStore(
+        song.onFilepathChanged.subscribe,
+        useCallback(() => song.filepath, [song]),
+      )
     },
     get fileHandle() {
-      return useMobxGetter(song, "fileHandle")
+      return useSyncExternalStore(
+        song.onFilepathChanged.subscribe,
+        useCallback(() => song.fileHandle, [song]),
+      )
     },
     get cloudSongId() {
-      return useMobxGetter(song, "cloudSongId")
+      return useSyncExternalStore(
+        song.onCloudSongIdChanged.subscribe,
+        useCallback(() => song.cloudSongId, [song]),
+      )
     },
     get endOfSong() {
-      return useMobxGetter(song, "endOfSong")
+      return useSyncExternalStore(
+        song.onEndOfSongChanged.subscribe,
+        useCallback(() => song.endOfSong, [song]),
+      )
     },
     get conductorTrack() {
       return useSyncExternalStore(
@@ -47,11 +76,31 @@ export const useSong = () => {
         useCallback(() => song.conductorTrack, [song]),
       )
     },
-    setName: useMobxSetter(song, "name"),
+    setName: useCallback(
+      (name: string) => {
+        song.name = name
+      },
+      [song],
+    ),
     getSong: useCallback(() => songStore.song, [songStore]),
-    setSong: useMobxSetter(songStore, "song"),
-    setSaved: useMobxSetter(song, "isSaved"),
-    setFilepath: useMobxSetter(song, "filepath"),
+    setSong: useCallback(
+      (song: Song) => {
+        songStore.song = song
+      },
+      [songStore],
+    ),
+    setSaved: useCallback(
+      (isSaved: boolean) => {
+        song.isSaved = isSaved
+      },
+      [song],
+    ),
+    setFilepath: useCallback(
+      (filepath: string) => {
+        song.filepath = filepath
+      },
+      [song],
+    ),
     removeTrack: useCallback(
       (trackId: TrackId) => {
         song.removeTrack(trackId)
