@@ -1,5 +1,5 @@
 import { Measure } from "@signal-app/core"
-import { useCallback, useSyncExternalStore } from "react"
+import { useCallback, useMemo, useSyncExternalStore } from "react"
 import {
   useFastForwardOneBar,
   useRewindOneBar,
@@ -7,12 +7,12 @@ import {
   useToggleRecording,
 } from "../actions"
 import { useCanRecord } from "./useMIDIDevice"
-import { useMobxSelector } from "./useMobxSelector"
 import { usePlayer } from "./usePlayer"
+import { useSong } from "./useSong"
 import { useStores } from "./useStores"
 
 export function useTransportPanel() {
-  const { songStore, player, synthGroup, midiRecorder } = useStores()
+  const { synthGroup, midiRecorder } = useStores()
   const canRecording = useCanRecord()
   const { isPlaying, loop, playOrPause, toggleEnableLoop } = usePlayer()
 
@@ -43,14 +43,12 @@ export function useTransportPanel() {
       )
     },
     get currentMBTTime() {
-      return useMobxSelector(
-        () =>
-          Measure.getMBTString(
-            songStore.song.measures,
-            player.position,
-            songStore.song.timebase,
-          ),
-        [songStore, player],
+      const { measures, timebase } = useSong()
+      const { position } = usePlayer()
+
+      return useMemo(
+        () => Measure.getMBTString(measures, position, timebase),
+        [measures, timebase, position],
       )
     },
   }
