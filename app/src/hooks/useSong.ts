@@ -21,7 +21,10 @@ export const useSong = () => {
       return useMobxGetter(song, "timeSignatures")
     },
     get tracks() {
-      return useMobxGetter(song, "tracks")
+      return useSyncExternalStore(
+        song.onTracksChanged.subscribe,
+        song.getTracksSnapshot,
+      )
     },
     get isSaved() {
       return useMobxGetter(song, "isSaved")
@@ -70,6 +73,5 @@ export const useSong = () => {
     updateEndOfSong: useCallback(() => {
       song.updateEndOfSong()
     }, [song]),
-    observeTracks: song.onTracksChanged.subscribe,
   }
 }

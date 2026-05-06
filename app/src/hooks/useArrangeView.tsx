@@ -2,13 +2,7 @@ import { ArrangeSelection } from "@signal-app/core"
 import { atom, useAtomValue, useSetAtom, useStore } from "jotai"
 import { Store } from "jotai/vanilla/store"
 import { cloneDeep } from "lodash"
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useSyncExternalStore,
-} from "react"
+import { createContext, useCallback, useContext, useMemo } from "react"
 import { MaxNoteNumber } from "../Constants"
 import { ArrangeCoordTransform } from "../entities/transform/ArrangeCoordTransform"
 import { KeyTransform } from "../entities/transform/KeyTransform"
@@ -107,14 +101,11 @@ export function useArrangeView() {
       return useAtomValue(selectedTrackIndexAtom)
     },
     get selectedTrackId() {
-      const { tracks, observeTracks } = useSong()
+      const { tracks } = useSong()
       const selectedTrackIndex = useAtomValue(selectedTrackIndexAtom)
-      return useSyncExternalStore(
-        observeTracks,
-        useCallback(
-          () => tracks[selectedTrackIndex]?.id,
-          [selectedTrackIndex, tracks],
-        ),
+      return useMemo(
+        () => tracks[selectedTrackIndex]?.id,
+        [selectedTrackIndex, tracks],
       )
     },
     get selection() {

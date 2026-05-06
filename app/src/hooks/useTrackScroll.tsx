@@ -7,6 +7,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useSyncExternalStore,
 } from "react"
 import { Layout } from "../Constants"
@@ -40,11 +41,8 @@ export function TrackScrollProvider({
   scope: Store
   children: React.ReactNode
 }) {
-  const { observeTracks, tracks } = useSong()
-  const trackCount = useSyncExternalStore(
-    observeTracks,
-    useCallback(() => tracks.length, [tracks]),
-  )
+  const { tracks } = useSong()
+  const trackCount = useMemo(() => tracks.length, [tracks])
   const setTrackCount = useSetAtom(trackCountAtom, { store: scope })
 
   // keep trackCountAtom updated

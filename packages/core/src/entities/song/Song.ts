@@ -74,6 +74,13 @@ export class Song {
       },
       () => (this.isSaved = false),
     )
+
+    reaction(
+      () => toJS(this.tracks),
+      (tracks) => {
+        this._tracksSnapshot = [...tracks]
+      },
+    )
   }
 
   private generateTrackId(): TrackId {

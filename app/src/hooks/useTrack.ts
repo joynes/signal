@@ -5,7 +5,7 @@ import {
   TrackEvent,
   TrackId,
 } from "@signal-app/core"
-import { useCallback, useSyncExternalStore } from "react"
+import { useCallback, useMemo, useSyncExternalStore } from "react"
 import { TrackMute } from "../trackMute/TrackMute"
 import { usePlayer } from "./usePlayer"
 import { useSong } from "./useSong"
@@ -14,11 +14,8 @@ import { useTrackMute } from "./useTrackMute"
 const noop = () => () => {}
 
 export function useTrack(id: TrackId) {
-  const song = useSong()
-  const track = useSyncExternalStore(
-    song.observeTracks ?? noop,
-    useCallback(() => song.getTrack(id), [song, id]),
-  )
+  const { tracks } = useSong()
+  const track = useMemo(() => tracks.find((t) => t.id === id), [tracks, id])
 
   return {
     get isRhythmTrack() {

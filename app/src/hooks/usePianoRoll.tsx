@@ -1,9 +1,9 @@
 import { TrackId, UNASSIGNED_TRACK_ID } from "@signal-app/core"
 import { atom, useAtom, useAtomValue, useSetAtom, useStore } from "jotai"
-import { atomEffect } from "jotai-effect"
 import { useAtomCallback } from "jotai/utils"
 import { Store } from "jotai/vanilla/store"
-import { cloneDeep, isEqual } from "lodash"
+import { atomEffect } from "jotai-effect"
+import { cloneDeep } from "lodash"
 import { deserializeSingleEvent, Stream } from "midifile-ts"
 import {
   createContext,
@@ -20,12 +20,12 @@ import { addedSet, deletedSet } from "../helpers/set"
 import { BeatsProvider, createBeatsScope } from "./useBeats"
 import { EventViewProvider } from "./useEventView"
 import { useKeyScroll } from "./useKeyScroll"
-import { useMobxSelector } from "./useMobxSelector"
 import {
   createQuantizerScope,
   QuantizerProvider,
   useQuantizer,
 } from "./useQuantizer"
+import { useSong } from "./useSong"
 import { useStores } from "./useStores"
 import {
   createTickScrollScope,
@@ -153,20 +153,22 @@ export function usePianoRoll() {
       return useAtomValue(selectionAtom, { store })
     },
     get selectedTrack() {
+      const { tracks } = useSong()
       const selectedTrackId = useAtomValue(selectedTrackIdAtom, { store })
-      return useMobxSelector(
-        () => songStore.song.getTrack(selectedTrackId),
-        [songStore, selectedTrackId],
+      return useMemo(
+        () => tracks.find((track) => track.id === selectedTrackId),
+        [tracks, selectedTrackId],
       )
     },
     get selectedTrackId() {
       return useAtomValue(selectedTrackIdAtom, { store })
     },
     get selectedTrackIndex() {
+      const { tracks } = useSong()
       const selectedTrackId = useAtomValue(selectedTrackIdAtom, { store })
-      return useMobxSelector(
-        () => songStore.song.tracks.findIndex((t) => t.id === selectedTrackId),
-        [songStore, selectedTrackId],
+      return useMemo(
+        () => tracks.findIndex((t) => t.id === selectedTrackId),
+        [tracks, selectedTrackId],
       )
     },
     get selectedNoteIds() {
@@ -181,12 +183,12 @@ export function usePianoRoll() {
       )
     },
     get ghostTrackIds() {
+      const { tracks } = useSong()
       const notGhostTrackIds = useAtomValue(notGhostTrackIdsAtom, { store })
       const selectedTrackId = useAtomValue(selectedTrackIdAtom, { store })
-      const allTrackIds = useMobxSelector(
-        () => songStore.song.tracks.map((track) => track.id),
-        [songStore.song.tracks],
-        isEqual,
+      const allTrackIds = useMemo(
+        () => tracks.map((track) => track.id),
+        [tracks],
       )
       return useMemo(
         () =>
@@ -322,7 +324,7 @@ const removePreviewingNoteNumbersAtom = atom(
 )
 const getSelectionAtom = atom(null, (get) => get(selectionAtom))
 const getSelectedNoteIdsAtom = atom(null, (get) => get(selectedNoteIdsAtom))
-const toggleToolAtom = atom(null, (get, set) =>
+const toggleToolAtom = atom(null, (_get, set) =>
   set(mouseModeAtom, (prev) => (prev === "pencil" ? "selection" : "pencil")),
 )
 const serializeAtom = atom(null, (get) => ({
