@@ -1,5 +1,4 @@
 import { Player } from "@signal-app/player"
-import { deserializeSingleEvent, Stream } from "midifile-ts"
 import { MIDIDeviceStore } from "../stores/MIDIDeviceStore"
 import { MIDIInputEvent } from "./MIDIInput"
 
@@ -12,15 +11,21 @@ export class MIDIMonitor {
   ) {}
 
   onMessage(e: MIDIInputEvent) {
-    const stream = new Stream(e.data)
-    const event = deserializeSingleEvent(stream)
+    const event = e.message
 
     // Only allow channel and SysEx events
-    if (event.type !== "channel" && event.type !== "sysEx" && event.type !== "dividedSysEx") {
+    if (
+      event.type !== "channel" &&
+      event.type !== "sysEx" &&
+      event.type !== "dividedSysEx"
+    ) {
       return
     }
 
-    if (this.midiDeviceStore.midiInputRouting === "selectedTrack" && event.type === "channel") {
+    if (
+      this.midiDeviceStore.midiInputRouting === "selectedTrack" &&
+      event.type === "channel"
+    ) {
       // modify channel to the selected track channel
       event.channel = this.channel
     }

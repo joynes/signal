@@ -43,23 +43,19 @@ export const useMIDIActivity = (trackId: TrackId, onActivity: () => void) => {
 }
 
 function checkActivityEvent(e: MIDIInputEvent): { channel: number } | null {
-  if (e.data.length === 0) {
-    return null
-  }
-  const statusByte = e.data[0]
+  const message = e.message
   // Only handle channel messages (0x80–0xEF)
-  if (statusByte < 0x80 || statusByte >= 0xf0) {
+  if (message.type !== "channel") {
     return null
   }
-  const msgType = (statusByte >> 4) & 0x0f
   // Ignore note-off (0x8n) and note-on with velocity 0 (0x9n, velocity=0)
   if (
-    msgType === 0x8 ||
-    (msgType === 0x9 && e.data.length >= 3 && e.data[2] === 0)
+    message.subtype === "noteOff" ||
+    (message.subtype === "noteOn" && message.velocity === 0)
   ) {
     return null
   }
 
-  const channel = statusByte & 0x0f
+  const channel = message.channel
   return { channel }
 }

@@ -5,7 +5,6 @@ import {
   UNASSIGNED_TRACK_ID,
 } from "@signal-app/core"
 import { Player } from "@signal-app/player"
-import { deserializeSingleEvent, Stream } from "midifile-ts"
 import { makeObservable, observable, observe } from "mobx"
 import { MIDIDeviceStore } from "../stores/MIDIDeviceStore"
 import { SongStore } from "../stores/SongStore"
@@ -67,8 +66,7 @@ export class MIDIRecorder {
       return
     }
 
-    const stream = new Stream(e.data)
-    const message = deserializeSingleEvent(stream)
+    const message = e.message
 
     if (message.type !== "channel") {
       return

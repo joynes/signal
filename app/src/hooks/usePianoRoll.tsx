@@ -88,8 +88,7 @@ function PianoRollProviderInner({ children }: { children: React.ReactNode }) {
   useEffect(
     () =>
       midiInput.on("midiMessage", (e) => {
-        const stream = new Stream(e.data)
-        const event = deserializeSingleEvent(stream)
+        const event = e.message
 
         if (event.type !== "channel") {
           return

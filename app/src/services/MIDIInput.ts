@@ -1,12 +1,21 @@
+import { AnyEvent, deserializeSingleEvent, Stream } from "midifile-ts"
+
 export interface MIDIInputEvent {
+  message: AnyEvent
+}
+
+interface MIDIMessageEvent {
   data: Uint8Array
 }
 
 export class MIDIInput {
   private listeners: ((e: MIDIInputEvent) => void)[] = []
 
-  readonly onMidiMessage = (e: MIDIInputEvent) => {
-    this.listeners.forEach((callback) => callback(e))
+  readonly onMidiMessage = (e: MIDIMessageEvent) => {
+    const stream = new Stream(e.data)
+    const message = deserializeSingleEvent(stream)
+    const event = { data: e.data, message }
+    this.listeners.forEach((callback) => callback(event))
   }
 
   on(event: "midiMessage", callback: (e: MIDIInputEvent) => void) {
