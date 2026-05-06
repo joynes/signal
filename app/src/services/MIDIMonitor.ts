@@ -1,6 +1,5 @@
+import { MIDIDeviceStore, MIDIInputEvent } from "@signal-app/core"
 import { Player } from "@signal-app/player"
-import { MIDIInputEvent } from "../../../packages/core/src/services/MIDIInput"
-import { MIDIDeviceStore } from "../../../packages/core/src/stores/MIDIDeviceStore"
 
 export class MIDIMonitor {
   channel: number = 0

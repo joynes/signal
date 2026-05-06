@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { Unsubscribe } from "../types"
 import RootStore from "./RootStore"
 
 export const registerReactions = ({
@@ -20,12 +20,13 @@ export const registerReactions = ({
   })
 
   // Watch for song changes and set the auto-save flag
-  reaction(
-    () => songStore.song.isSaved,
-    (isSaved) => {
-      if (!isSaved) {
+  let unsubscribeSong: Unsubscribe | null = null
+  songStore.onSongChanged.subscribe(() => {
+    unsubscribeSong?.() // Unsubscribe from previous song changes
+    unsubscribeSong = songStore.song.onIsSavedChanged.subscribe(() => {
+      if (!songStore.song.isSaved) {
         autoSaveService.onSongChanged()
       }
-    },
-  )
+    })
+  })
 }

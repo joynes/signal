@@ -3,6 +3,7 @@ import {
   CommandService,
   MIDIDeviceStore,
   MIDIInput,
+  SongStore,
 } from "@signal-app/core"
 import { Player, SoundFont, SoundFontSynth } from "@signal-app/player"
 import { isRunningInElectron } from "../helpers/platform"
@@ -12,7 +13,6 @@ import { GroupOutput } from "../services/GroupOutput"
 import { MIDIMonitor } from "../services/MIDIMonitor"
 import { MIDIRecorder } from "../services/MIDIRecorder"
 import { registerReactions } from "./reactions"
-import { SongStore } from "./SongStore"
 
 export default class RootStore {
   readonly songStore = new SongStore()

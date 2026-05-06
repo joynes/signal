@@ -1,10 +1,10 @@
-import { emptySong, Song } from "@signal-app/core"
-import { Observable } from "@signal-app/player/dist/helpers/observable"
 import { makeObservable, observable } from "mobx"
-import { mobxToObservable } from "../../../packages/core/src/helpers/mobxToObservable"
+import { emptySong } from "../entities"
+import { mobxToObservable } from "../helpers/mobxToObservable"
+import { Observable } from "../helpers/observable"
 
 export class SongStore {
-  song: Song = emptySong()
+  song = emptySong()
 
   readonly onSongChanged: Observable
 
