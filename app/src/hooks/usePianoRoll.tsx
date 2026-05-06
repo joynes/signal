@@ -64,15 +64,9 @@ export function PianoRollProvider({ children }: { children: React.ReactNode }) {
 }
 
 function PianoRollProviderInner({ children }: { children: React.ReactNode }) {
-  const { songStore, midiInput, midiMonitor, midiRecorder } = useStores()
+  const { songStore, midiMonitor, midiRecorder } = useStores()
   const store = useStore()
-  const {
-    addPreviewingNoteNumbers,
-    removePreviewingNoteNumbers,
-    selectedTrack,
-    selectedTrackId,
-    setSelectedTrackId,
-  } = usePianoRoll()
+  const { selectedTrack, selectedTrackId, setSelectedTrackId } = usePianoRoll()
 
   useAtom(resetSelectionEffectAtom, { store })
 
@@ -83,25 +77,6 @@ function PianoRollProviderInner({ children }: { children: React.ReactNode }) {
         UNASSIGNED_TRACK_ID,
     )
   }, [setSelectedTrackId, songStore])
-
-  // highlight notes when receiving MIDI input
-  useEffect(
-    () =>
-      midiInput.on("midiMessage", (e) => {
-        const event = e.message
-
-        if (event.type !== "channel") {
-          return
-        }
-
-        if (event.subtype === "noteOn") {
-          addPreviewingNoteNumbers(event.noteNumber)
-        } else if (event.subtype === "noteOff") {
-          removePreviewingNoteNumbers(event.noteNumber)
-        }
-      }),
-    [midiInput, addPreviewingNoteNumbers, removePreviewingNoteNumbers],
-  )
 
   // sync MIDIMonitor channel with selected track
   useEffect(() => {
