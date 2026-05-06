@@ -8,6 +8,7 @@ import { MIDIActivity } from "../services/MIDIActivity"
 import { MIDIInput } from "../services/MIDIInput"
 import { MIDIMonitor } from "../services/MIDIMonitor"
 import { MIDIRecorder } from "../services/MIDIRecorder"
+import { soundFontRepository } from "../services/repositories"
 import { BluetoothMIDIDeviceStore } from "./BluetoothMIDIDeviceStore"
 import { MIDIDeviceStore } from "./MIDIDeviceStore"
 import { registerReactions } from "./reactions"
@@ -40,7 +41,7 @@ export default class RootStore {
     const eventSource = new EventSource(this.songStore)
     this.player = new Player(this.synthGroup, eventSource)
 
-    this.soundFontStore = new SoundFontStore(this.synth)
+    this.soundFontStore = new SoundFontStore(soundFontRepository)
 
     this.midiDeviceStore = new MIDIDeviceStore(this.midiInput)
     this.bluetoothMIDIDeviceStore = new BluetoothMIDIDeviceStore(this.midiInput)
@@ -69,7 +70,6 @@ export default class RootStore {
 
   async init() {
     await this.synth.setup()
-    await this.soundFontStore.init()
     this.setupMetronomeSynth()
     this.autoSaveService.startAutoSave()
     this.bluetoothMIDIDeviceStore.autoConnect()
