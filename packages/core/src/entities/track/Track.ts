@@ -1,21 +1,22 @@
 import {
   action,
   computed,
+  IObservableArray,
   makeObservable,
   observable,
+  observe,
   reaction,
   toJS,
   transaction,
 } from "mobx"
 import { createModelSchema, object, primitive } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
-import {
-  mobxToObservable,
-  mobxToObservableDeep,
-} from "../../helpers/mobxToObservable"
+import { Emitter } from "../../helpers/emitter"
+import { getChangedItems } from "../../helpers/getChangedItems"
+import { mobxToObservable } from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
 import { Branded } from "../../types"
-import { isNoteEvent } from "./identify"
+import { isNoteEvent, isProgramChangeEvent } from "./identify"
 import {
   getPan,
   getProgramNumberEvent,
@@ -47,6 +48,7 @@ export class Track {
   readonly onChannelChanged: Observable
   readonly onNameChanged: Observable
   readonly onEventsChanged: Observable
+  readonly onProgramChangeEventsChanged: Observable
   readonly onColorChanged: Observable
 
   constructor() {
@@ -71,7 +73,7 @@ export class Track {
     this.onIsConductorTrackChanged = mobxToObservable(this, "isConductorTrack")
     this.onChannelChanged = mobxToObservable(this, "channel")
     this.onNameChanged = mobxToObservable(this, "name")
-    this.onEventsChanged = mobxToObservableDeep(this, "events")
+    this.onEventsChanged = mobxToObservable(this, "events")
     this.onColorChanged = mobxToObservable(this, "color")
 
     reaction(
@@ -80,6 +82,19 @@ export class Track {
         this._eventsSnapshot = [...events]
       },
     )
+
+    const onProgramChangeEventsChanged = new Emitter()
+    this.onProgramChangeEventsChanged = onProgramChangeEventsChanged
+
+    observe(this.events as IObservableArray<TrackEvent>, (change) => {
+      const changedEvents = getChangedItems(change)
+      if (
+        onProgramChangeEventsChanged.listenerCount > 0 &&
+        changedEvents.some(isProgramChangeEvent)
+      ) {
+        onProgramChangeEventsChanged.emit()
+      }
+    })
   }
 
   get events(): readonly TrackEvent[] {
