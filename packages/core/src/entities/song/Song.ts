@@ -14,10 +14,7 @@ import {
   primitive,
   serialize,
 } from "serializr"
-import {
-  mobxToObservable,
-  mobxToObservableDeep,
-} from "../../helpers/mobxToObservable"
+import { mobxToObservable } from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
 import { Measure } from "../measure/Measure"
 import { isTimeSignatureEvent, Track, TrackId } from "../track"
@@ -67,7 +64,7 @@ export class Song {
       isSaved: observable,
     })
 
-    this.onTracksChanged = mobxToObservableDeep(this, "tracks")
+    this.onTracksChanged = mobxToObservable(this, "tracks")
     this.onConductorTrackChanged = mobxToObservable(this, "conductorTrack")
     this.onNameChanged = mobxToObservable(this, "name")
     this.onTimebaseChanged = mobxToObservable(this, "timebase")
