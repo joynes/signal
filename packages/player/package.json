@@ -10,6 +10,7 @@
     "dev": "tsc -w",
     "test": "vitest run",
     "lint": "biome lint .",
+    "lint:fix": "biome check . --write",
     "format": "biome format . --write"
   },
   "author": "ryohey",

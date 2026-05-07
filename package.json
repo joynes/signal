@@ -9,6 +9,7 @@
     "serve": "npx http-server dist",
     "test": "turbo test",
     "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
     "format": "turbo format",
     "format:check": "turbo format:check",
     "check": "turbo check",
