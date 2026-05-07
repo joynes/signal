@@ -9,8 +9,8 @@
     "build": "tsc",
     "dev": "tsc -w",
     "test": "vitest run",
-    "lint": "prettier --check src",
-    "format": "prettier --write src"
+    "lint": "biome lint .",
+    "format": "biome format . --write"
   },
   "author": "ryohey",
   "license": "MIT",
