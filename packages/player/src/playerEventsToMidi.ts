@@ -14,19 +14,19 @@ function addEvent(midi: MIDIBuilder, track: number, e: PlayerEvent) {
         case "noteOn":
           midi.addNoteOn(ticks, track, ch, e.noteNumber, e.velocity)
           break
-        
+
         case "noteOff":
           midi.addNoteOff(ticks, track, ch, e.noteNumber, e.velocity)
           break
-        
+
         case "controller":
           midi.addControllerChange(ticks, track, ch, e.controllerType, e.value)
           break
-        
+
         case "programChange":
           midi.addProgramChange(ticks, track, ch, e.value)
           break
-        
+
         case "pitchBend": {
           const v = e.value
           const lsb = v & 0x7f
@@ -34,7 +34,7 @@ function addEvent(midi: MIDIBuilder, track: number, e: PlayerEvent) {
           midi.addPitchWheel(ticks, track, ch, msb, lsb)
           break
         }
-        
+
         case "channelAftertouch":
           midi.addEvent(
             ticks,
@@ -43,7 +43,7 @@ function addEvent(midi: MIDIBuilder, track: number, e: PlayerEvent) {
             [e.amount],
           )
           break
-        
+
         case "noteAftertouch":
           midi.addEvent(
             ticks,
@@ -55,7 +55,7 @@ function addEvent(midi: MIDIBuilder, track: number, e: PlayerEvent) {
       }
       return
     }
-    
+
     case "dividedSysEx":
     case "sysEx":
       midi.addEvent(ticks, track, midiMessageTypes.systemExclusive, e.data)
