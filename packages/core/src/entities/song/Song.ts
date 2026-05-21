@@ -47,6 +47,8 @@ export class Song {
   readonly onCloudSongIdChanged: Observable
   readonly onEndOfSongChanged: Observable
 
+  private unsubscribeReactions: (() => void)[] = []
+
   constructor() {
     makeObservable(this, {
       addTrack: action,
@@ -74,26 +76,36 @@ export class Song {
     this.onTimeSignaturesChanged = mobxToObservable(this, "timeSignatures")
     this.onCloudSongIdChanged = mobxToObservable(this, "cloudSongId")
     this.onEndOfSongChanged = mobxToObservable(this, "endOfSong")
+    this.setupReactions()
+  }
 
-    reaction(
-      () => {
-        return [
-          this.tracks.map((t) => ({
-            channel: t.channel,
-            events: toJS(t.events),
-          })),
-          this.name,
-        ]
-      },
-      () => (this.isSaved = false),
-    )
+  private setupReactions() {
+    this.unsubscribeReactions.forEach((unsubscribe) => unsubscribe())
+    this.unsubscribeReactions = [
+      reaction(
+        () => {
+          return [
+            this.tracks.map((t) => ({
+              channel: t.channel,
+              events: toJS(t.events),
+            })),
+            this.name,
+          ]
+        },
+        () => (this.isSaved = false),
+      ),
+      reaction(
+        () => toJS(this.tracks),
+        (tracks) => {
+          this._tracksSnapshot = [...tracks]
+        },
+      ),
+    ]
+  }
 
-    reaction(
-      () => toJS(this.tracks),
-      (tracks) => {
-        this._tracksSnapshot = [...tracks]
-      },
-    )
+  private afterDeserialize() {
+    this._tracksSnapshot = [...this.tracks]
+    this.setupReactions()
   }
 
   private generateTrackId(): TrackId {
@@ -171,8 +183,12 @@ export class Song {
     return serialize(this)
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: We need to accept any JSON object here
   static deserialize(json: any): Song {
-    return deserialize(Song, json)
+    const song = deserialize(Song, json)
+    song.afterDeserialize()
+    song.tracks.forEach((t) => t.afterDeserialize())
+    return song
   }
 }
 
