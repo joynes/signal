@@ -16,7 +16,7 @@ import { getChangedItems } from "../../helpers/getChangedItems"
 import { mobxToObservable } from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
 import { Branded } from "../../types"
-import { isNoteEvent, isProgramChangeEvent } from "./identify"
+import { isNoteEvent, isProgramChangeEvent, isSetTempoEvent } from "./identify"
 import {
   getPan,
   getProgramNumberEvent,
@@ -49,6 +49,7 @@ export class Track {
   readonly onNameChanged: Observable
   readonly onEventsChanged: Observable
   readonly onProgramChangeEventsChanged: Observable
+  readonly onSetTempoEventsChanged: Observable
   readonly onColorChanged: Observable
 
   constructor() {
@@ -86,6 +87,9 @@ export class Track {
     const onProgramChangeEventsChanged = new Emitter()
     this.onProgramChangeEventsChanged = onProgramChangeEventsChanged
 
+    const onSetTempoEventsChanged = new Emitter()
+    this.onSetTempoEventsChanged = onSetTempoEventsChanged
+
     observe(this.events as IObservableArray<TrackEvent>, (change) => {
       const changedEvents = getChangedItems(change)
       if (
@@ -93,6 +97,12 @@ export class Track {
         changedEvents.some(isProgramChangeEvent)
       ) {
         onProgramChangeEventsChanged.emit()
+      }
+      if (
+        onSetTempoEventsChanged.listenerCount > 0 &&
+        changedEvents.some(isSetTempoEvent)
+      ) {
+        onSetTempoEventsChanged.emit()
       }
     })
   }
