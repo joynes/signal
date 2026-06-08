@@ -3,7 +3,6 @@ import { Point } from "../entities/geometry/Point"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { useKeyScroll } from "./useKeyScroll"
 import { usePianoRollTickScroll } from "./usePianoRoll"
-import { useTickScroll } from "./useTickScroll"
 
 export function useNoteCoordTransform() {
   return {
@@ -16,7 +15,7 @@ export function useNoteCoordTransform() {
       )
     },
     get scrollBy() {
-      const { setScrollLeftInPixels } = useTickScroll()
+      const { setScrollLeftInPixels } = usePianoRollTickScroll()
       const { setScrollTopInPixels } = useKeyScroll()
       return useCallback(
         (dx: number, dy: number) => {
@@ -28,7 +27,7 @@ export function useNoteCoordTransform() {
     },
     // convert mouse position to the local coordinate on the canvas
     get getLocal() {
-      const { scrollLeft } = useTickScroll()
+      const { scrollLeft } = usePianoRollTickScroll()
       const { scrollTop } = useKeyScroll()
       return useCallback(
         (e: { offsetX: number; offsetY: number }): Point => ({
