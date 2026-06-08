@@ -1,18 +1,18 @@
 import { TrackId } from "@signal-app/core"
 import { range } from "lodash"
 import { FC, useEffect, useState } from "react"
-import { useTrack } from "../../hooks/useTrack"
-import { Localized } from "../../localize/useLocalization"
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../Dialog/Dialog"
-import { Button, PrimaryButton } from "../ui/Button"
-import { Label } from "../ui/Label"
-import { Select } from "../ui/Select"
-import { TextField } from "../ui/TextField"
+} from "../../../components/Dialog/Dialog"
+import { Button, PrimaryButton } from "../../../components/ui/Button"
+import { Label } from "../../../components/ui/Label"
+import { Select } from "../../../components/ui/Select"
+import { TextField } from "../../../components/ui/TextField"
+import { useTrack } from "../../../hooks/useTrack"
+import { Localized } from "../../../localize/useLocalization"
 import { TrackName } from "./TrackName"
 
 export interface TrackDialogProps {

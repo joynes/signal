@@ -3,15 +3,15 @@ import type { TrackEventOf } from "@signal-app/core"
 import type { ProgramChangeEvent } from "midifile-ts"
 import { type FC, useCallback, useMemo, useState } from "react"
 import { InstrumentBrowser } from "../../../components/InstrumentBrowser/InstrumentBrowser"
-import {
-  InstrumentEmoji,
-  InstrumentName,
-} from "../../../components/TrackList/InstrumentName"
 import type { TickTransform } from "../../../entities/transform/TickTransform"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
 import { useTrack } from "../../../hooks/useTrack"
+import {
+  InstrumentEmoji,
+  InstrumentName,
+} from "../../track-list/components/InstrumentName"
 import { usePianoRoll } from "../hooks/usePianoRoll"
 
 const Container = styled.div`

@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
 import Add from "mdi-react/AddIcon"
 import { FC } from "react"
-import { useAddTrack } from "../../actions"
-import { Localized } from "../../localize/useLocalization"
+import { useAddTrack } from "../../../actions"
+import { Localized } from "../../../localize/useLocalization"
 
 const Wrapper = styled.div`
   display: flex;

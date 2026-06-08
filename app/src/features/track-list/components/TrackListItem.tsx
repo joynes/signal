@@ -16,14 +16,14 @@ import {
   useSelectTrack,
   useToggleAllGhostTracks,
   useToggleGhostTrack,
-} from "../../actions"
-import { usePianoRoll } from "../../features/piano-roll/hooks/usePianoRoll"
-import { useContextMenu } from "../../hooks/useContextMenu"
-import { useMIDIActivity } from "../../hooks/useMIDIActivity"
-import { useRouter } from "../../hooks/useRouter"
-import { useTrack } from "../../hooks/useTrack"
-import { useTrackMute } from "../../hooks/useTrackMute"
-import { InstrumentBrowser } from "../InstrumentBrowser/InstrumentBrowser"
+} from "../../../actions"
+import { InstrumentBrowser } from "../../../components/InstrumentBrowser/InstrumentBrowser"
+import { useContextMenu } from "../../../hooks/useContextMenu"
+import { useMIDIActivity } from "../../../hooks/useMIDIActivity"
+import { useRouter } from "../../../hooks/useRouter"
+import { useTrack } from "../../../hooks/useTrack"
+import { useTrackMute } from "../../../hooks/useTrackMute"
+import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
 import { InstrumentEmoji, InstrumentName } from "./InstrumentName"
 import { TrackDialog } from "./TrackDialog"
 import { TrackListContextMenu } from "./TrackListContextMenu"

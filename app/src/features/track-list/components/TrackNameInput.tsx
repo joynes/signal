@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
 import { FC, useState } from "react"
-import { TrackName } from "../../../../components/TrackList/TrackName"
-import { useTrack } from "../../../../hooks/useTrack"
-import { usePianoRoll } from "../../hooks/usePianoRoll"
+import { useTrack } from "../../../hooks/useTrack"
+import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
+import { TrackName } from "./TrackName"
 
 const TrackNameWrapper = styled.span`
   font-weight: bold;

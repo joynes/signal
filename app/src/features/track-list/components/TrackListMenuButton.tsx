@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import ArrowLeft from "mdi-react/MenuLeftIcon"
 import { FC, useCallback, useRef } from "react"
-import { useTrackList } from "../../hooks/useTrackList"
+import { useTrackList } from "../hooks/useTrackList"
 
 const NavBackButton = styled.button`
   -webkit-appearance: none;
