@@ -17,9 +17,9 @@ import {
   useToggleAllGhostTracks,
   useToggleGhostTrack,
 } from "../../actions"
+import { usePianoRoll } from "../../features/piano-roll/hooks/usePianoRoll"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useMIDIActivity } from "../../hooks/useMIDIActivity"
-import { usePianoRoll } from "../../hooks/usePianoRoll"
 import { useRouter } from "../../hooks/useRouter"
 import { useTrack } from "../../hooks/useTrack"
 import { useTrackMute } from "../../hooks/useTrackMute"

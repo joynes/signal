@@ -70,7 +70,10 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = ({
       width={width}
       height={height}
       onMouseDown={onMouseDown}
-      onContextMenu={useCallback((e: any) => e.preventDefault(), [])}
+      onContextMenu={useCallback(
+        (e: React.MouseEvent) => e.preventDefault(),
+        [],
+      )}
       style={{ backgroundColor: theme.editorBackgroundColor }}
     >
       <Transform matrix={scrollYMatrix}>

@@ -7,10 +7,13 @@ import {
 } from "@signal-app/core"
 import { useCallback } from "react"
 import { useArrangeView } from "../features/arrange/hooks/useArrangeView"
+import {
+  usePianoRoll,
+  usePianoRollTickScroll,
+} from "../features/piano-roll/hooks/usePianoRoll"
 import { useAutoSave } from "../hooks/useAutoSave"
 import { useCommands } from "../hooks/useCommands"
 import { useHistory } from "../hooks/useHistory"
-import { usePianoRoll, usePianoRollTickScroll } from "../hooks/usePianoRoll"
 import { usePlayer } from "../hooks/usePlayer"
 import { useSong } from "../hooks/useSong"
 import { useTrackList } from "../hooks/useTrackList"
