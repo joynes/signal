@@ -18,7 +18,7 @@ import {
   createTrackScrollScope,
   TrackScrollProvider,
   useTrackScroll,
-} from "../../../hooks/useTrackScroll"
+} from "./useTrackScroll"
 
 export type { ArrangeSelection } from "@signal-app/core"
 

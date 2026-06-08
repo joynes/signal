@@ -3,8 +3,8 @@ import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { useTickScroll } from "../../../hooks/useTickScroll"
-import { useTrackScroll } from "../../../hooks/useTrackScroll"
 import { useCreateSelectionGesture } from "./useCreateSelectionGesture"
+import { useTrackScroll } from "./useTrackScroll"
 
 export const useSelectionGesture = (): MouseDownHandler<[], MouseEvent> => {
   const { scrollTop } = useTrackScroll()

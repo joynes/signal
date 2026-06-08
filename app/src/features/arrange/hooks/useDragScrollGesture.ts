@@ -3,7 +3,7 @@ import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { observeDrag } from "../../../helpers/observeDrag"
 import { useTickScroll } from "../../../hooks/useTickScroll"
-import { useTrackScroll } from "../../../hooks/useTrackScroll"
+import { useTrackScroll } from "./useTrackScroll"
 
 export const useDragScrollGesture = (): MouseDownHandler<
   [],
