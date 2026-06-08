@@ -5,11 +5,11 @@ import {
   useRewindOneBar,
   useStop,
   useToggleRecording,
-} from "../actions"
-import { useCanRecord } from "./useMIDIDevice"
-import { usePlayer } from "./usePlayer"
-import { useSong } from "./useSong"
-import { useStores } from "./useStores"
+} from "../../../actions"
+import { useCanRecord } from "../../../hooks/useMIDIDevice"
+import { usePlayer } from "../../../hooks/usePlayer"
+import { useSong } from "../../../hooks/useSong"
+import { useStores } from "../../../hooks/useStores"
 
 export function useTransportPanel() {
   const { synthGroup, midiRecorder } = useStores()

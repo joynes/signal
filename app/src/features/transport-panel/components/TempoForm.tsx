@@ -1,9 +1,9 @@
 import styled from "@emotion/styled"
 import { DEFAULT_TEMPO } from "@signal-app/player"
 import { FC } from "react"
-import { useConductorTrack } from "../../hooks/useConductorTrack"
-import { usePlayer } from "../../hooks/usePlayer"
-import { NumberInput } from "../inputs/NumberInput"
+import { NumberInput } from "../../../components/inputs/NumberInput"
+import { useConductorTrack } from "../../../hooks/useConductorTrack"
+import { usePlayer } from "../../../hooks/usePlayer"
 
 const TempoInput = styled(NumberInput)`
   background: transparent;

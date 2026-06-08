@@ -2,8 +2,8 @@ import styled from "@emotion/styled"
 import Pause from "mdi-react/PauseIcon"
 import PlayArrow from "mdi-react/PlayArrowIcon"
 import { FC } from "react"
-import { Localized } from "../../localize/useLocalization"
-import { Tooltip } from "../ui/Tooltip"
+import { Tooltip } from "../../../components/ui/Tooltip"
+import { Localized } from "../../../localize/useLocalization"
 import { CircleButton } from "./CircleButton"
 
 export const StyledButton = styled(CircleButton)`
