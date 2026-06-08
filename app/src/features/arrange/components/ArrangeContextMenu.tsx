@@ -1,21 +1,21 @@
 import { FC, useCallback, useMemo } from "react"
 import {
+  ContextMenu,
+  ContextMenuProps,
+  ContextMenuHotKey as HotKey,
+} from "../../../components/ContextMenu/ContextMenu"
+import { MenuDivider, MenuItem } from "../../../components/ui/Menu"
+import { useCommands } from "../../../hooks/useCommands"
+import { envString } from "../../../localize/envString"
+import { Localized } from "../../../localize/useLocalization"
+import {
   useArrangeCopySelection,
   useArrangeDeleteSelection,
   useArrangeDuplicateSelection,
   useArrangePasteSelection,
   useArrangeTransposeSelection,
-} from "../../actions"
-import { useArrangeView } from "../../hooks/useArrangeView"
-import { useCommands } from "../../hooks/useCommands"
-import { envString } from "../../localize/envString"
-import { Localized } from "../../localize/useLocalization"
-import {
-  ContextMenu,
-  ContextMenuProps,
-  ContextMenuHotKey as HotKey,
-} from "../ContextMenu/ContextMenu"
-import { MenuDivider, MenuItem } from "../ui/Menu"
+} from "../hooks/arrangeView"
+import { useArrangeView } from "../hooks/useArrangeView"
 
 export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
   const { handleClose } = props

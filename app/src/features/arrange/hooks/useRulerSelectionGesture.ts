@@ -1,11 +1,11 @@
 import { ArrangeSelection, Range } from "@signal-app/core"
 import { MouseEvent, useCallback } from "react"
-import { MouseDownHandler } from "../../gesture/MouseGesture"
-import { observeDrag } from "../../helpers/observeDrag"
-import { useArrangeView } from "../../hooks/useArrangeView"
-import { useQuantizer } from "../../hooks/useQuantizer"
-import { useSong } from "../../hooks/useSong"
-import { useTickScroll } from "../../hooks/useTickScroll"
+import { MouseDownHandler } from "../../../gesture/MouseGesture"
+import { observeDrag } from "../../../helpers/observeDrag"
+import { useQuantizer } from "../../../hooks/useQuantizer"
+import { useSong } from "../../../hooks/useSong"
+import { useTickScroll } from "../../../hooks/useTickScroll"
+import { useArrangeView } from "./useArrangeView"
 
 export const useRulerSelectionGesture = (): MouseDownHandler<
   [],

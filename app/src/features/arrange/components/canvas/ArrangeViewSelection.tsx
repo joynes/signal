@@ -1,12 +1,12 @@
 import { HitArea } from "@ryohey/webgl-react"
 import { useCallback, useMemo } from "react"
-import { Rect } from "../../../entities/geometry/Rect"
-import { getClientPos } from "../../../helpers/mouseEvent"
-import { useArrangeTransform } from "../../../hooks/useArrangeTransform"
-import { useArrangeView } from "../../../hooks/useArrangeView"
-import { useTickScroll } from "../../../hooks/useTickScroll"
-import { Selection } from "../../GLNodes/Selection"
-import { useMoveSelectionGesture } from "./gestures/useMoveSelectionGesture"
+import { Selection } from "../../../../components/GLNodes/Selection"
+import { Rect } from "../../../../entities/geometry/Rect"
+import { getClientPos } from "../../../../helpers/mouseEvent"
+import { useTickScroll } from "../../../../hooks/useTickScroll"
+import { useArrangeTransform } from "../../hooks/useArrangeTransform"
+import { useArrangeView } from "../../hooks/useArrangeView"
+import { useMoveSelectionGesture } from "../../hooks/useMoveSelectionGesture"
 
 export const ArrangeViewSelection = ({ zIndex }: { zIndex: number }) => {
   const { selection } = useArrangeView()

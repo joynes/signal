@@ -3,19 +3,22 @@ import { atom, useAtomValue, useSetAtom, useStore } from "jotai"
 import { Store } from "jotai/vanilla/store"
 import { cloneDeep } from "lodash"
 import { createContext, useContext, useMemo } from "react"
-import { BeatsProvider, createBeatsScope } from "./useBeats"
-import { createQuantizerScope, QuantizerProvider } from "./useQuantizer"
-import { useSong } from "./useSong"
+import { BeatsProvider, createBeatsScope } from "../../../hooks/useBeats"
+import {
+  createQuantizerScope,
+  QuantizerProvider,
+} from "../../../hooks/useQuantizer"
+import { useSong } from "../../../hooks/useSong"
 import {
   createTickScrollScope,
   TickScrollProvider,
   useTickScroll,
-} from "./useTickScroll"
+} from "../../../hooks/useTickScroll"
 import {
   createTrackScrollScope,
   TrackScrollProvider,
   useTrackScroll,
-} from "./useTrackScroll"
+} from "../../../hooks/useTrackScroll"
 
 export type { ArrangeSelection } from "@signal-app/core"
 

@@ -1,7 +1,7 @@
 import { useCallback } from "react"
-import { useArrangeTransposeSelection } from "../../actions"
-import { useArrangeView } from "../../hooks/useArrangeView"
-import { TransposeDialog } from "./TransposeDialog"
+import { TransposeDialog } from "../../../components/TransposeDialog/TransposeDialog"
+import { useArrangeTransposeSelection } from "../hooks/arrangeView"
+import { useArrangeView } from "../hooks/useArrangeView"
 
 export const ArrangeTransposeDialog = () => {
   const { openTransposeDialog, setOpenTransposeDialog } = useArrangeView()

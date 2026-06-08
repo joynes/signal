@@ -3,10 +3,10 @@ import { Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { range } from "lodash"
 import { FC, useCallback, useMemo } from "react"
-import { Rect } from "../../../entities/geometry/Rect"
-import { colorToVec4 } from "../../../gl/color"
-import { useArrangeTransform } from "../../../hooks/useArrangeTransform"
-import { useSong } from "../../../hooks/useSong"
+import { Rect } from "../../../../entities/geometry/Rect"
+import { colorToVec4 } from "../../../../gl/color"
+import { useSong } from "../../../../hooks/useSong"
+import { useArrangeTransform } from "../../hooks/useArrangeTransform"
 
 export const Lines: FC<{ width: number; zIndex: number }> = ({
   width,

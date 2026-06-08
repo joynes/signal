@@ -1,12 +1,9 @@
 import { useCallback } from "react"
-import { Point } from "../../../../entities/geometry/Point"
-import {
-  MouseDownHandler,
-  MouseGesture,
-} from "../../../../gesture/MouseGesture"
-import { observeDrag } from "../../../../helpers/observeDrag"
-import { useTickScroll } from "../../../../hooks/useTickScroll"
-import { useTrackScroll } from "../../../../hooks/useTrackScroll"
+import { Point } from "../../../entities/geometry/Point"
+import { MouseDownHandler } from "../../../gesture/MouseGesture"
+import { observeDrag } from "../../../helpers/observeDrag"
+import { useTickScroll } from "../../../hooks/useTickScroll"
+import { useTrackScroll } from "../../../hooks/useTrackScroll"
 
 export const useDragScrollGesture = (): MouseDownHandler<
   [],

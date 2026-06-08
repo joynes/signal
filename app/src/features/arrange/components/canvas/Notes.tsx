@@ -2,8 +2,8 @@ import { useTheme } from "@emotion/react"
 import { Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { FC } from "react"
-import { colorToVec4 } from "../../../gl/color"
-import { useArrangeNotes } from "../../../hooks/useArrangeNotes"
+import { colorToVec4 } from "../../../../gl/color"
+import { useArrangeNotes } from "../../hooks/useArrangeNotes"
 
 export const Notes: FC<{ zIndex: number }> = ({ zIndex }) => {
   const notes = useArrangeNotes()

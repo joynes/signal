@@ -1,7 +1,7 @@
 import { useMemo } from "react"
-import { MaxNoteNumber } from "../Constants"
-import { KeyTransform } from "../entities/transform/KeyTransform"
-import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
+import { MaxNoteNumber } from "../../../Constants"
+import { KeyTransform } from "../../../entities/transform/KeyTransform"
+import { NoteCoordTransform } from "../../../entities/transform/NoteCoordTransform"
 import { useArrangeTickScroll, useArrangeTrackScroll } from "./useArrangeView"
 
 export function useArrangeNoteTransform() {

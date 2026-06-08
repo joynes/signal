@@ -1,9 +1,9 @@
 import { MouseEvent, useCallback } from "react"
-import { Point } from "../../../../entities/geometry/Point"
-import { MouseDownHandler } from "../../../../gesture/MouseGesture"
-import { getClientPos } from "../../../../helpers/mouseEvent"
-import { useTickScroll } from "../../../../hooks/useTickScroll"
-import { useTrackScroll } from "../../../../hooks/useTrackScroll"
+import { Point } from "../../../entities/geometry/Point"
+import { MouseDownHandler } from "../../../gesture/MouseGesture"
+import { getClientPos } from "../../../helpers/mouseEvent"
+import { useTickScroll } from "../../../hooks/useTickScroll"
+import { useTrackScroll } from "../../../hooks/useTrackScroll"
 import { useCreateSelectionGesture } from "./useCreateSelectionGesture"
 
 export const useSelectionGesture = (): MouseDownHandler<[], MouseEvent> => {

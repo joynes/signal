@@ -1,4 +1,3 @@
-export * from "./arrangeView"
 export * from "./player"
 export * from "./recording"
 export * from "./selection"

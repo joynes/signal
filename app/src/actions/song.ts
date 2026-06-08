@@ -6,7 +6,7 @@ import {
   UNASSIGNED_TRACK_ID,
 } from "@signal-app/core"
 import { useCallback } from "react"
-import { useArrangeView } from "../hooks/useArrangeView"
+import { useArrangeView } from "../features/arrange/hooks/useArrangeView"
 import { useAutoSave } from "../hooks/useAutoSave"
 import { useCommands } from "../hooks/useCommands"
 import { useHistory } from "../hooks/useHistory"

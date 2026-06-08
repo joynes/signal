@@ -1,11 +1,11 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
-import { ArrangeViewScope } from "../../hooks/useArrangeView"
-import { useArrangeViewKeyboardShortcut } from "../../hooks/useArrangeViewKeyboardShortcut"
-import { useAutoFocus } from "../../hooks/useAutoFocus"
-import { ArrangeToolbar } from "../ArrangeToolbar/ArrangeToolbar"
-import { ArrangeTransposeDialog } from "../TransposeDialog/ArrangeTransposeDialog"
-import { ArrangeVelocityDialog } from "../VelocityDialog/ArrangeVelocityDialog"
+import { useAutoFocus } from "../../../hooks/useAutoFocus"
+import { ArrangeViewScope } from "../hooks/useArrangeView"
+import { useArrangeViewKeyboardShortcut } from "../hooks/useArrangeViewKeyboardShortcut"
+import { ArrangeToolbar } from "./ArrangeToolbar"
+import { ArrangeTransposeDialog } from "./ArrangeTransposeDialog"
+import { ArrangeVelocityDialog } from "./ArrangeVelocityDialog"
 import { ArrangeView } from "./ArrangeView"
 
 const Container = styled.div`

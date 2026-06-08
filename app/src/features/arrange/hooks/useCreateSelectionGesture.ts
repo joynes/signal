@@ -1,14 +1,14 @@
 import { ArrangePoint, ArrangeSelection } from "@signal-app/core"
 import { MouseEvent, useCallback } from "react"
-import { Point } from "../../../../entities/geometry/Point"
-import { MouseDownHandler } from "../../../../gesture/MouseGesture"
-import { getClientPos } from "../../../../helpers/mouseEvent"
-import { observeDrag } from "../../../../helpers/observeDrag"
-import { useArrangeTransform } from "../../../../hooks/useArrangeTransform"
-import { useArrangeView } from "../../../../hooks/useArrangeView"
-import { usePlayer } from "../../../../hooks/usePlayer"
-import { useQuantizer } from "../../../../hooks/useQuantizer"
-import { useSong } from "../../../../hooks/useSong"
+import { Point } from "../../../entities/geometry/Point"
+import { useArrangeTransform } from "../../../features/arrange/hooks/useArrangeTransform"
+import { useArrangeView } from "../../../features/arrange/hooks/useArrangeView"
+import { MouseDownHandler } from "../../../gesture/MouseGesture"
+import { getClientPos } from "../../../helpers/mouseEvent"
+import { observeDrag } from "../../../helpers/observeDrag"
+import { usePlayer } from "../../../hooks/usePlayer"
+import { useQuantizer } from "../../../hooks/useQuantizer"
+import { useSong } from "../../../hooks/useSong"
 
 export const useCreateSelectionGesture = (): MouseDownHandler<
   [Point, Point],

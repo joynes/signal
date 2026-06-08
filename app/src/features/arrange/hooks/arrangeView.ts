@@ -3,15 +3,15 @@ import {
   BatchUpdateOperation,
 } from "@signal-app/core"
 import { useCallback } from "react"
-import { useArrangeView } from "../hooks/useArrangeView"
-import { useCommands } from "../hooks/useCommands"
-import { useHistory } from "../hooks/useHistory"
-import { usePlayer } from "../hooks/usePlayer"
+import { useCommands } from "../../../hooks/useCommands"
+import { useHistory } from "../../../hooks/useHistory"
+import { usePlayer } from "../../../hooks/usePlayer"
 import {
   readClipboardData,
   readJSONFromClipboard,
   writeClipboardData,
-} from "../services/Clipboard"
+} from "../../../services/Clipboard"
+import { useArrangeView } from "./useArrangeView"
 
 export const useArrangeCopySelection = () => {
   const { selection } = useArrangeView()

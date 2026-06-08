@@ -1,14 +1,14 @@
 import { useMemo } from "react"
+import { useKeyboardShortcut } from "../../../hooks/useKeyboardShortcut"
 import {
   useArrangeCopySelection,
   useArrangeCutSelection,
   useArrangeDeleteSelection,
   useArrangeDuplicateSelection,
   useArrangePasteSelection,
-} from "../actions"
+} from "./arrangeView"
 import { useArrangeTransform } from "./useArrangeTransform"
 import { useArrangeView } from "./useArrangeView"
-import { useKeyboardShortcut } from "./useKeyboardShortcut"
 
 const SCROLL_DELTA = 24
 

@@ -2,21 +2,21 @@ import {
   ControlEventsClipboardDataSchema,
   PianoNotesClipboardDataSchema,
 } from "@signal-app/core"
-import { useCopySelection, useDeleteSelection, usePasteSelection } from "."
 import {
   useCopyControlSelection,
   useDeleteControlSelection,
   usePasteControlSelection,
 } from "../actions/control"
-import { useControlPane } from "../hooks/useControlPane"
-import { usePianoRoll } from "../hooks/usePianoRoll"
-import { useRouter } from "../hooks/useRouter"
-import { readClipboardData } from "../services/Clipboard"
 import {
   useArrangeCopySelection,
   useArrangeDeleteSelection,
   useArrangePasteSelection,
-} from "./arrangeView"
+} from "../features/arrange/hooks/arrangeView"
+import { useControlPane } from "../hooks/useControlPane"
+import { usePianoRoll } from "../hooks/usePianoRoll"
+import { useRouter } from "../hooks/useRouter"
+import { readClipboardData } from "../services/Clipboard"
+import { useCopySelection, useDeleteSelection, usePasteSelection } from "."
 import {
   useCopyTempoSelection,
   useDeleteTempoSelection,
