@@ -1,6 +1,6 @@
 import { FC } from "react"
+import { ToolSelector } from "../../../../components/Toolbar/ToolSelector"
 import { useTempoEditor } from "../../hooks/useTempoEditor"
-import { ToolSelector } from "../Toolbar/ToolSelector"
 
 export const TempoGraphToolSelector: FC = () => {
   const { mouseMode, setMouseMode } = useTempoEditor()

@@ -5,8 +5,8 @@ import {
   useDeleteTempoSelection,
   useDuplicateTempoSelection,
   usePasteTempoSelection,
-} from "../actions/tempo"
-import { useKeyboardShortcut } from "./useKeyboardShortcut"
+} from "../../../actions/tempo"
+import { useKeyboardShortcut } from "../../../hooks/useKeyboardShortcut"
 import { useTempoEditor } from "./useTempoEditor"
 
 export const useTempoEditorKeyboardShortcut = () => {

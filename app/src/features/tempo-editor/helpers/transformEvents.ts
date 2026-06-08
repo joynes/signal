@@ -1,7 +1,7 @@
 import { TrackEventOf } from "@signal-app/core"
 import { SetTempoEvent } from "midifile-ts"
-import { TempoCoordTransform } from "../../entities/transform/TempoCoordTransform"
-import { TempoGraphItem } from "./TempoGraphItem"
+import { TempoGraphItem } from "../components/TempoGraphItem"
+import { TempoCoordTransform } from "../entities/TempoCoordTransform"
 
 export const transformEvents = (
   events: TrackEventOf<SetTempoEvent>[],

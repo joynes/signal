@@ -1,13 +1,16 @@
 import styled from "@emotion/styled"
 import useComponentSize from "@rehooks/component-size"
 import { FC, useCallback, useEffect, useRef } from "react"
-import { Layout } from "../../Constants"
-import { useTempoTransform } from "../../hooks/useTempoTransform"
-import { useTickScroll } from "../../hooks/useTickScroll"
-import { BAR_WIDTH, HorizontalScrollBar } from "../inputs/ScrollBar"
-import CanvasPianoRuler from "../PianoRoll/CanvasPianoRuler"
+import { Layout } from "../../../Constants"
+import {
+  BAR_WIDTH,
+  HorizontalScrollBar,
+} from "../../../components/inputs/ScrollBar"
+import CanvasPianoRuler from "../../../components/PianoRoll/CanvasPianoRuler"
+import { useTickScroll } from "../../../hooks/useTickScroll"
+import { useTempoTransform } from "../hooks/useTempoTransform"
+import { TempoGraphCanvas } from "./canvas/TempoGraphCanvas"
 import { TempoGraphAxis } from "./TempoGraphAxis"
-import { TempoGraphCanvas } from "./TempoGraphCanvas/TempoGraphCanvas"
 
 const Wrapper = styled.div`
   position: relative;

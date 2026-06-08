@@ -1,10 +1,10 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
-import { useAutoFocus } from "../../hooks/useAutoFocus"
-import { TempoEditorScope } from "../../hooks/useTempoEditor"
-import { useTempoEditorKeyboardShortcut } from "../../hooks/useTempoEditorKeyboardShortcut"
-import { TempoGraphToolbar } from "../TempoGraphToolbar/TempoGraphToolbar"
+import { useAutoFocus } from "../../../hooks/useAutoFocus"
+import { TempoEditorScope } from "../hooks/useTempoEditor"
+import { useTempoEditorKeyboardShortcut } from "../hooks/useTempoEditorKeyboardShortcut"
 import { TempoGraph } from "./TempoGraph"
+import { TempoGraphToolbar } from "./toolbar/TempoGraphToolbar"
 
 const Container = styled.div`
   display: flex;

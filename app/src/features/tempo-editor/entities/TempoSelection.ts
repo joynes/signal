@@ -1,5 +1,5 @@
-import { Rect } from "../geometry/Rect"
-import { TempoCoordTransform } from "../transform/TempoCoordTransform"
+import { Rect } from "../../../entities/geometry/Rect"
+import { TempoCoordTransform } from "./TempoCoordTransform"
 
 export interface TempoSelection {
   readonly fromTick: number

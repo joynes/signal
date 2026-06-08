@@ -1,9 +1,9 @@
 import { isSetTempoEvent } from "@signal-app/core"
 import { useCallback, useMemo, useSyncExternalStore } from "react"
-import { transformEvents } from "../components/TempoGraph/transformEvents"
-import { useSong } from "./useSong"
+import { useSong } from "../../../hooks/useSong"
+import { useTickScroll } from "../../../hooks/useTickScroll"
+import { transformEvents } from "../helpers/transformEvents"
 import { useTempoTransform } from "./useTempoTransform"
-import { useTickScroll } from "./useTickScroll"
 
 const noop = () => () => {}
 

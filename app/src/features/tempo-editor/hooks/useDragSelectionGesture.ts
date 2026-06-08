@@ -10,8 +10,8 @@ import { useCommands } from "../../../hooks/useCommands"
 import { useConductorTrack } from "../../../hooks/useConductorTrack"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
-import { useTempoEditor } from "../../../hooks/useTempoEditor"
-import { useTempoTransform } from "../../../hooks/useTempoTransform"
+import { useTempoEditor } from "./useTempoEditor"
+import { useTempoTransform } from "./useTempoTransform"
 
 export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
   const { getEventById } = useConductorTrack()

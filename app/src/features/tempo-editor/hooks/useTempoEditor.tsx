@@ -1,14 +1,17 @@
 import { atom, useAtomValue, useSetAtom, useStore } from "jotai"
 import { Store } from "jotai/vanilla/store"
 import { createContext, useContext, useMemo } from "react"
-import { TempoSelection } from "../entities/selection/TempoSelection"
-import { BeatsProvider, createBeatsScope } from "./useBeats"
-import { createQuantizerScope, QuantizerProvider } from "./useQuantizer"
+import { BeatsProvider, createBeatsScope } from "../../../hooks/useBeats"
+import {
+  createQuantizerScope,
+  QuantizerProvider,
+} from "../../../hooks/useQuantizer"
 import {
   createTickScrollScope,
   TickScrollProvider,
   useTickScroll,
-} from "./useTickScroll"
+} from "../../../hooks/useTickScroll"
+import { TempoSelection } from "../entities/TempoSelection"
 
 type TempoEditorStore = {
   quantizerScope: Store

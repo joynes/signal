@@ -7,12 +7,7 @@ import {
   TrackEventOf,
   TrackId,
 } from "@signal-app/core"
-import type {
-  AnyChannelEvent,
-  AnyEvent,
-  ProgramChangeEvent,
-  SetTempoEvent,
-} from "midifile-ts"
+import type { AnyChannelEvent, AnyEvent, ProgramChangeEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { ValueEventType } from "../entities/event/ValueEventType"
 import { addedSet, deletedSet } from "../helpers/set"
@@ -25,20 +20,6 @@ import { useQuantizer } from "../hooks/useQuantizer"
 import { useSong } from "../hooks/useSong"
 import { useTrack } from "../hooks/useTrack"
 import { useStopNote } from "./player"
-
-export const useChangeTempo = () => {
-  const { updateEvent } = useConductorTrack()
-  const { pushHistory } = useHistory()
-  return useCallback(
-    (id: number, microsecondsPerBeat: number) => {
-      pushHistory()
-      updateEvent<TrackEventOf<SetTempoEvent>>(id, {
-        microsecondsPerBeat: microsecondsPerBeat,
-      })
-    },
-    [updateEvent, pushHistory],
-  )
-}
 
 /* events */
 

@@ -6,13 +6,13 @@ import {
 import { useCallback } from "react"
 import { useUpdateEventsInRange } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
-import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import { useConductorTrack } from "../../../hooks/useConductorTrack"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
+import { TempoCoordTransform } from "../entities/TempoCoordTransform"
 
 export const usePencilGesture = (): MouseDownHandler<
   [Point, TempoCoordTransform]

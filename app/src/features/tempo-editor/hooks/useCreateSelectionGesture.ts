@@ -1,12 +1,12 @@
 import { isEventInRange, isSetTempoEvent, Range } from "@signal-app/core"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
-import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import { useConductorTrack } from "../../../hooks/useConductorTrack"
-import { useTempoEditor } from "../../../hooks/useTempoEditor"
+import { TempoCoordTransform } from "../entities/TempoCoordTransform"
+import { useTempoEditor } from "./useTempoEditor"
 
 export const useCreateSelectionGesture = (): MouseDownHandler<
   [Point, TempoCoordTransform]

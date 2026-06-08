@@ -1,4 +1,4 @@
-import { Rect } from "../../entities/geometry/Rect"
+import { Rect } from "../../../entities/geometry/Rect"
 
 export interface TempoGraphItem {
   id: number

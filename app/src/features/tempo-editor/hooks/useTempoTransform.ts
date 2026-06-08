@@ -1,7 +1,7 @@
 import { atom, useAtomValue, useSetAtom } from "jotai"
 import { useCallback, useMemo } from "react"
-import { Point } from "../entities/geometry/Point"
-import { TempoCoordTransform } from "../entities/transform/TempoCoordTransform"
+import { Point } from "../../../entities/geometry/Point"
+import { TempoCoordTransform } from "../entities/TempoCoordTransform"
 import { useTempoTickScroll } from "./useTempoEditor"
 
 export function useTempoTransform() {

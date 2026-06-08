@@ -3,9 +3,9 @@ import { Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { range } from "lodash"
 import { FC } from "react"
-import { Rect } from "../../../entities/geometry/Rect"
-import { colorToVec4 } from "../../../gl/color"
-import { useTempoTransform } from "../../../hooks/useTempoTransform"
+import { Rect } from "../../../../entities/geometry/Rect"
+import { colorToVec4 } from "../../../../gl/color"
+import { useTempoTransform } from "../../hooks/useTempoTransform"
 
 export const Lines: FC<{ width: number; zIndex: number }> = ({
   width,
