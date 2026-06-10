@@ -6,8 +6,8 @@ import {
   DialogTitle,
 } from "@signal-app/ui"
 import { useCallback } from "react"
-import { useRootView } from "../../hooks/useRootView"
-import { Localized } from "../../localize/useLocalization"
+import { useRootView } from "../../../hooks/useRootView"
+import { Localized } from "../../../localize/useLocalization"
 import { CloudFileList } from "./CloudFileList"
 
 export const CloudFileDialog = () => {

@@ -5,8 +5,8 @@ import { IconButton, Menu, MenuItem } from "@signal-app/ui"
 import { useToast } from "dialog-hooks"
 import DotsHorizontalIcon from "mdi-react/DotsHorizontalIcon"
 import { FC } from "react"
-import { useCloudFile } from "../../hooks/useCloudFile"
-import { Localized, useLocalization } from "../../localize/useLocalization"
+import { Localized, useLocalization } from "../../../localize/useLocalization"
+import { useCloudFile } from "../hooks/useCloudFile"
 
 const Container = styled.div`
   display: flex;

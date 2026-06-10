@@ -4,18 +4,18 @@ import { useDialog, useProgress, usePrompt, useToast } from "dialog-hooks"
 import { atom, useAtomValue, useSetAtom } from "jotai"
 import { orderBy } from "lodash"
 import { ChangeEvent } from "react"
-import { useOpenSong, useSaveSong, useSetSong } from "../actions"
-import { useCreateSong, useUpdateSong } from "../actions/cloudSong"
-import { hasFSAccess, saveFileAs, useOpenFile } from "../actions/file"
-import { useLocalization } from "../localize/useLocalization"
+import { useOpenSong, useSaveSong, useSetSong } from "../../../actions"
+import { hasFSAccess, saveFileAs, useOpenFile } from "../../../actions/file"
+import { useAutoSave } from "../../../hooks/useAutoSave"
+import { useRootView } from "../../../hooks/useRootView"
+import { useSong } from "../../../hooks/useSong"
+import { useStores } from "../../../hooks/useStores"
+import { useLocalization } from "../../../localize/useLocalization"
 import {
   cloudSongDataRepository,
   cloudSongRepository,
-} from "../services/repositories"
-import { useAutoSave } from "./useAutoSave"
-import { useRootView } from "./useRootView"
-import { useSong } from "./useSong"
-import { useStores } from "./useStores"
+} from "../../../services/repositories"
+import { useCreateSong, useUpdateSong } from "./cloudSong"
 
 export const useCloudFile = () => {
   const { setOpenCloudFileDialog, setOpenPublishDialog } = useRootView()
