@@ -11,8 +11,8 @@ import {
 import BluetoothIcon from "mdi-react/BluetoothIcon"
 import { FC, useCallback, useMemo } from "react"
 import { useBLEMIDIDevice } from "../../../hooks/useBLEMIDIDevice"
-import { Device, useMIDIDevice } from "../../../hooks/useMIDIDevice"
 import { Localized } from "../../../localize/useLocalization"
+import { Device, useMIDIDevice } from "../hooks/useMIDIDevice"
 
 interface ListItem {
   device: Device

@@ -1,8 +1,8 @@
 import { useAtomValue, useSetAtom } from "jotai"
-import { focusAtom } from "jotai-optics"
 import { atomWithStorage } from "jotai/utils"
-import { Language } from "../localize/useLocalization"
-import { ThemeType } from "../theme/Theme"
+import { focusAtom } from "jotai-optics"
+import { Language } from "../../../localize/useLocalization"
+import { ThemeType } from "../../../theme/Theme"
 
 export function useSettings() {
   return {

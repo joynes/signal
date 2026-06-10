@@ -1,9 +1,9 @@
 import { atom, useAtomValue } from "jotai"
 import { useAtomCallback } from "jotai/utils"
 import { useCallback, useEffect, useSyncExternalStore } from "react"
-import MIDIOutput from "../services/MIDIOutput"
-import { usePlayer } from "./usePlayer"
-import { useStores } from "./useStores"
+import { usePlayer } from "../../../hooks/usePlayer"
+import { useStores } from "../../../hooks/useStores"
+import MIDIOutput from "../../../services/MIDIOutput"
 
 export interface Device {
   id: string

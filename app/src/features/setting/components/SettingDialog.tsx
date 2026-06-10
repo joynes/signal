@@ -7,11 +7,11 @@ import {
   DialogTitle,
 } from "@signal-app/ui"
 import { FC, useCallback, useState } from "react"
-import { SoundFontSettingsView } from "../../features/soundfont/components/SoundFontSettingView"
-import { useRootView } from "../../hooks/useRootView"
-import { Localized } from "../../localize/useLocalization"
+import { useRootView } from "../../../hooks/useRootView"
+import { Localized } from "../../../localize/useLocalization"
+import { MIDIDeviceView } from "../../midi-device/components/MIDIDeviceView"
+import { SoundFontSettingsView } from "../../soundfont/components/SoundFontSettingView"
 import { GeneralSettingsView } from "./GeneralSettingsView"
-import { MIDIDeviceView } from "./MIDIDeviceView/MIDIDeviceView"
 import { SettingNavigation, SettingRoute } from "./SettingNavigation"
 
 const RouteContent: FC<{ route: SettingRoute }> = ({ route }) => {

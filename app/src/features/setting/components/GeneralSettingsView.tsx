@@ -7,14 +7,14 @@ import {
   Select,
 } from "@signal-app/ui"
 import { FC, useCallback } from "react"
-import { useSettings } from "../../hooks/useSettings"
 import {
   Language,
   Localized,
   useCurrentLanguage,
-} from "../../localize/useLocalization"
-import { ThemeType, themes } from "../../theme/Theme"
-import { ThemeName } from "../../theme/ThemeName"
+} from "../../../localize/useLocalization"
+import { ThemeType, themes } from "../../../theme/Theme"
+import { ThemeName } from "../../../theme/ThemeName"
+import { useSettings } from "../hooks/useSettings"
 
 interface LanguageItem {
   label: string
