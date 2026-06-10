@@ -1,15 +1,15 @@
 import { TempoEventsClipboardDataSchema } from "@signal-app/core"
 import { useCallback } from "react"
-import { useTempoEditor } from "../features/tempo-editor/hooks/useTempoEditor"
-import { useCommands } from "../hooks/useCommands"
-import { useConductorTrack } from "../hooks/useConductorTrack"
-import { useHistory } from "../hooks/useHistory"
-import { usePlayer } from "../hooks/usePlayer"
+import { useCommands } from "../../../hooks/useCommands"
+import { useConductorTrack } from "../../../hooks/useConductorTrack"
+import { useHistory } from "../../../hooks/useHistory"
+import { usePlayer } from "../../../hooks/usePlayer"
 import {
   readClipboardData,
   readJSONFromClipboard,
   writeClipboardData,
-} from "../services/Clipboard"
+} from "../../../services/Clipboard"
+import { useTempoEditor } from "./useTempoEditor"
 
 export const useDeleteTempoSelection = () => {
   const { removeEvents } = useConductorTrack()

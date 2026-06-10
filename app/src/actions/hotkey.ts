@@ -19,13 +19,13 @@ import {
   usePasteSelection,
 } from "../features/piano-roll/hooks/selection"
 import { usePianoRoll } from "../features/piano-roll/hooks/usePianoRoll"
-import { useRouter } from "../hooks/useRouter"
-import { readClipboardData } from "../services/Clipboard"
 import {
   useCopyTempoSelection,
   useDeleteTempoSelection,
   usePasteTempoSelection,
-} from "./tempo"
+} from "../features/tempo-editor/hooks/tempo"
+import { useRouter } from "../hooks/useRouter"
+import { readClipboardData } from "../services/Clipboard"
 
 export const useCopySelectionGlobal = () => {
   const { selectedNoteIds } = usePianoRoll()
