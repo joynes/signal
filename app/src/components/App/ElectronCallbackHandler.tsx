@@ -15,6 +15,7 @@ import {
   useCutSelectionGlobal,
   usePasteSelectionGlobal,
 } from "../../actions/hotkey"
+import { useExport } from "../../features/export/hooks/useExport"
 import {
   useDeleteSelection,
   useDuplicateSelection,
@@ -28,7 +29,6 @@ import { usePianoRoll } from "../../features/piano-roll/hooks/usePianoRoll"
 import { auth } from "../.././firebase/firebase"
 import { useAuth } from "../../hooks/useAuth"
 import { useCloudFile } from "../../hooks/useCloudFile"
-import { useExport } from "../../hooks/useExport"
 import { useHistory } from "../../hooks/useHistory"
 import { useRootView } from "../../hooks/useRootView"
 import { useSong } from "../../hooks/useSong"

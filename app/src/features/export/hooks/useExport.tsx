@@ -2,11 +2,11 @@ import { Song } from "@signal-app/core"
 import { renderAudio } from "@signal-app/player"
 import { useDialog } from "dialog-hooks"
 import { atom, useAtomValue, useSetAtom, useStore } from "jotai"
-import { downloadBlob } from "../helpers/Downloader"
-import { encodeMp3, encodeWAV } from "../helpers/encodeAudio"
-import { useLocalization } from "../localize/useLocalization"
-import { useSong } from "./useSong"
-import { useStores } from "./useStores"
+import { downloadBlob } from "../../../helpers/Downloader"
+import { useSong } from "../../../hooks/useSong"
+import { useStores } from "../../../hooks/useStores"
+import { useLocalization } from "../../../localize/useLocalization"
+import { encodeMp3, encodeWAV } from "../lib/encodeAudio"
 
 export function useExport() {
   return {

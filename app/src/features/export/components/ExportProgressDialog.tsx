@@ -7,8 +7,8 @@ import {
   LinearProgress,
 } from "@signal-app/ui"
 import { FC, useCallback } from "react"
-import { useExport } from "../../hooks/useExport"
-import { Localized } from "../../localize/useLocalization"
+import { Localized } from "../../../localize/useLocalization"
+import { useExport } from "../hooks/useExport"
 
 export const ExportProgressDialog: FC = () => {
   const {
