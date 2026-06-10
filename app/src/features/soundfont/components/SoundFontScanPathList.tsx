@@ -2,8 +2,8 @@ import styled from "@emotion/styled"
 import { Button } from "@signal-app/ui"
 import RemoveIcon from "mdi-react/RemoveIcon"
 import { FC } from "react"
-import { useSoundFont } from "../../hooks/useSoundFont"
-import { Localized } from "../../localize/useLocalization"
+import { Localized } from "../../../localize/useLocalization"
+import { useSoundFont } from "../hooks/useSoundFont"
 
 const Actions = styled.div`
   display: flex;

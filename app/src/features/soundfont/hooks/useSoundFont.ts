@@ -9,10 +9,10 @@ import { atom, useAtomValue } from "jotai"
 import { atomWithStorage, useAtomCallback } from "jotai/utils"
 import { focusAtom } from "jotai-optics"
 import { useCallback } from "react"
-import { basename } from "../helpers/path"
-import { isRunningInElectron } from "../helpers/platform"
-import { soundFontRepository } from "../services/repositories"
-import { useStores } from "./useStores"
+import { basename } from "../../../helpers/path"
+import { isRunningInElectron } from "../../../helpers/platform"
+import { useStores } from "../../../hooks/useStores"
+import { soundFontRepository } from "../../../services/repositories"
 
 export function useSoundFont() {
   const { synth } = useStores()

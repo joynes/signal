@@ -7,12 +7,12 @@ import {
   DialogTitle,
 } from "@signal-app/ui"
 import { FC, useCallback, useState } from "react"
+import { SoundFontSettingsView } from "../../features/soundfont/components/SoundFontSettingView"
 import { useRootView } from "../../hooks/useRootView"
 import { Localized } from "../../localize/useLocalization"
 import { GeneralSettingsView } from "./GeneralSettingsView"
 import { MIDIDeviceView } from "./MIDIDeviceView/MIDIDeviceView"
 import { SettingNavigation, SettingRoute } from "./SettingNavigation"
-import { SoundFontSettingsView } from "./SoundFontSettingView"
 
 const RouteContent: FC<{ route: SettingRoute }> = ({ route }) => {
   switch (route) {

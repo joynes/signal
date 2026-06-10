@@ -5,7 +5,7 @@ import Color from "color"
 import { useToast } from "dialog-hooks"
 import RemoveIcon from "mdi-react/RemoveIcon"
 import { FC, useState } from "react"
-import { useSoundFont } from "../../hooks/useSoundFont"
+import { useSoundFont } from "../hooks/useSoundFont"
 
 const List = styled.div`
   display: flex;
