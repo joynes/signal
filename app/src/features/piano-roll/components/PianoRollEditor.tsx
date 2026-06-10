@@ -7,6 +7,7 @@ import { useEventList } from "../../event-list/hooks/useEventList"
 import { TrackList } from "../../track-list/components/TrackList"
 import { useTrackList } from "../../track-list/hooks/useTrackList"
 import { PianoRollScope } from "../hooks/usePianoRoll"
+import { usePianoRollGlobalKeyboardShortcuts } from "../hooks/usePianoRollGlobalKeyboardShortcuts"
 import { usePianoRollKeyboardShortcut } from "../hooks/usePianoRollKeyboardShortcut"
 import { PianoRollTransposeDialog } from "./dialogs/PianoRollTransposeDialog"
 import { PianoRollVelocityDialog } from "./dialogs/PianoRollVelocityDialog"
@@ -70,6 +71,8 @@ const PianoRollPanes: FC = () => {
 export const PianoRollEditor: FC = () => {
   const keyboardShortcutProps = usePianoRollKeyboardShortcut()
   const ref = useAutoFocus<HTMLDivElement>()
+
+  usePianoRollGlobalKeyboardShortcuts()
 
   return (
     <PianoRollScope>
