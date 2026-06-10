@@ -10,8 +10,8 @@ import {
 } from "@signal-app/ui"
 import BluetoothIcon from "mdi-react/BluetoothIcon"
 import { FC, useCallback, useMemo } from "react"
-import { useBLEMIDIDevice } from "../../../hooks/useBLEMIDIDevice"
 import { Localized } from "../../../localize/useLocalization"
+import { useBLEMIDIDevice } from "../hooks/useBLEMIDIDevice"
 import { Device, useMIDIDevice } from "../hooks/useMIDIDevice"
 
 interface ListItem {

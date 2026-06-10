@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { useGlobalKeyboardShortcuts } from "../../../hooks/useGlobalKeyboardShortcuts"
+import { useGlobalClipboardEvents } from "../../../hooks/useGlobalClipboardEvents"
 import { useRouter } from "../../../hooks/useRouter"
 import {
   useCopyControlSelection,
@@ -46,7 +46,7 @@ export function useControlPaneGlobalKeyboardShortcut() {
     pasteControlSelection()
   }, [path, pasteControlSelection])
 
-  useGlobalKeyboardShortcuts({
+  useGlobalClipboardEvents({
     onCopy,
     onCut,
     onPaste,

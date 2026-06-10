@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { useAllNotesEventView } from "../../../hooks/useAllNotesEventView"
+import { useAllNotesEventView } from "./useAllNotesEventView"
 import { useArrangeNoteTransform } from "./useArrangeNoteTransform"
 import { useArrangeTransform } from "./useArrangeTransform"
 

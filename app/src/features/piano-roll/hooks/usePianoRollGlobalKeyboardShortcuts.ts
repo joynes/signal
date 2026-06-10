@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react"
 import { isRunningInElectron } from "../../../helpers/platform"
-import { useGlobalKeyboardShortcuts } from "../../../hooks/useGlobalKeyboardShortcuts"
+import { useGlobalClipboardEvents } from "../../../hooks/useGlobalClipboardEvents"
 import { useRouter } from "../../../hooks/useRouter"
 import {
   useCopySelection,
@@ -48,7 +48,7 @@ export function usePianoRollGlobalKeyboardShortcuts() {
     pasteSelection()
   }, [path, pasteSelection])
 
-  useGlobalKeyboardShortcuts({
+  useGlobalClipboardEvents({
     onCut,
     onCopy,
     onPaste,

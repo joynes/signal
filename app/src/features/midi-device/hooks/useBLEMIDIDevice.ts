@@ -2,8 +2,8 @@ import { atom, useAtomValue } from "jotai"
 import { useAtomCallback } from "jotai/utils"
 import { useCallback, useSyncExternalStore } from "react"
 import { BLEMIDI } from "web-ble-midi"
-import { Device } from "../features/midi-device/hooks/useMIDIDevice"
-import { useStores } from "./useStores"
+import { useStores } from "../../../hooks/useStores"
+import { Device } from "./useMIDIDevice"
 
 export function useBLEMIDIDevice() {
   const { bluetoothMIDIDeviceStore } = useStores()

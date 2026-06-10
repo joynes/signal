@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { isRunningInElectron } from "../helpers/platform"
 
-export function useGlobalKeyboardShortcuts({
+export function useGlobalClipboardEvents({
   onCopy,
   onCut,
   onPaste,

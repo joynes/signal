@@ -1,12 +1,12 @@
 import { isNoteEvent } from "@signal-app/core"
 import { useCallback, useEffect, useSyncExternalStore } from "react"
-import { EventView } from "../observer/EventView"
-import { Unsubscribe } from "../types"
-import { useDisposable } from "./useDisposable"
-import { useSyncEventViewWithScroll } from "./useEventView"
-import { useStores } from "./useStores"
+import { useDisposable } from "../../../hooks/useDisposable"
+import { useSyncEventViewWithScroll } from "../../../hooks/useEventView"
+import { useStores } from "../../../hooks/useStores"
+import { EventView } from "../../../observer/EventView"
+import { Unsubscribe } from "../../../types"
 
-export function useEventViewForAllTracks() {
+function useEventViewForAllTracks() {
   const { songStore } = useStores()
   const createEventView = useCallback(
     () =>

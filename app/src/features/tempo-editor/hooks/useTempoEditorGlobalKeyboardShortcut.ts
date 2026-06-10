@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { useGlobalKeyboardShortcuts } from "../../../hooks/useGlobalKeyboardShortcuts"
+import { useGlobalClipboardEvents } from "../../../hooks/useGlobalClipboardEvents"
 import { useRouter } from "../../../hooks/useRouter"
 import {
   useCopyTempoSelection,
@@ -35,7 +35,7 @@ export function useTempoEditorGlobalKeyboardShortcut() {
     pasteTempoSelection()
   }, [path, pasteTempoSelection])
 
-  useGlobalKeyboardShortcuts({
+  useGlobalClipboardEvents({
     onCut,
     onCopy,
     onPaste,

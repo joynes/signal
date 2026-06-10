@@ -1,9 +1,9 @@
 import { getVolume, volumeMidiEvent } from "@signal-app/core"
 import { useCallback, useState, useSyncExternalStore } from "react"
-import { usePianoRoll } from "../features/piano-roll/hooks/usePianoRoll"
-import { useHistory } from "./useHistory"
-import { usePlayer } from "./usePlayer"
-import { useTrack } from "./useTrack"
+import { useHistory } from "../../../hooks/useHistory"
+import { usePlayer } from "../../../hooks/usePlayer"
+import { useTrack } from "../../../hooks/useTrack"
+import { usePianoRoll } from "../hooks/usePianoRoll"
 
 const DEFAULT_VOLUME = 100
 const noop = () => () => {}
