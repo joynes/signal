@@ -11,6 +11,7 @@ import { usePianoRollGlobalKeyboardShortcuts } from "../hooks/usePianoRollGlobal
 import { usePianoRollKeyboardShortcut } from "../hooks/usePianoRollKeyboardShortcut"
 import { PianoRollTransposeDialog } from "./dialogs/PianoRollTransposeDialog"
 import { PianoRollVelocityDialog } from "./dialogs/PianoRollVelocityDialog"
+import { PianoRollEditMenu } from "./menus/PianoRollEditMenu"
 import PianoRoll from "./PianoRoll"
 import { StyledSplitPane } from "./StyledSplitPane"
 import { PianoRollToolbar } from "./toolbar/PianoRollToolbar"
@@ -76,6 +77,7 @@ export const PianoRollEditor: FC = () => {
 
   return (
     <PianoRollScope>
+      <PianoRollEditMenu />
       <ColumnContainer {...keyboardShortcutProps} tabIndex={0} ref={ref}>
         <PianoRollToolbar />
         <PianoRollPanes />
