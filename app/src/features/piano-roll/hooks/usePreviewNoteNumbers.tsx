@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useStores } from "./useStores"
+import { useStores } from "../../../hooks/useStores"
 
 export function useMidiInputNoteNumbers() {
   const [noteNumbers, setNoteNumbers] = useState<Set<number>>(new Set())

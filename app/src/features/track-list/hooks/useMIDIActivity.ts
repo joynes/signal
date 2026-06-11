@@ -1,9 +1,9 @@
 import { MIDIInputEvent, TrackId } from "@signal-app/core"
 import { useEffect } from "react"
-import { useMIDIDevice } from "../features/midi-device/hooks/useMIDIDevice"
-import { usePianoRoll } from "../features/piano-roll/hooks/usePianoRoll"
-import { useStores } from "./useStores"
-import { useTrack } from "./useTrack"
+import { useStores } from "../../../hooks/useStores"
+import { useTrack } from "../../../hooks/useTrack"
+import { useMIDIDevice } from "../../midi-device/hooks/useMIDIDevice"
+import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
 
 export const useMIDIActivity = (trackId: TrackId, onActivity: () => void) => {
   const { midiInput } = useStores()
