@@ -9,10 +9,10 @@ import {
   Select,
 } from "@signal-app/ui"
 import React, { FC } from "react"
-import { Scale } from "../../entities/scale/Scale"
-import { usePianoRoll } from "../../features/piano-roll/hooks/usePianoRoll"
-import { Localized } from "../../localize/useLocalization"
-import { ScaleName } from "./ScaleName"
+import { ScaleName } from "../../../../components/KeySignatureDialog/ScaleName"
+import { Scale } from "../../../../entities/scale/Scale"
+import { Localized } from "../../../../localize/useLocalization"
+import { usePianoRoll } from "../../hooks/usePianoRoll"
 
 export interface KeySignatureDialogProps {
   open: boolean
