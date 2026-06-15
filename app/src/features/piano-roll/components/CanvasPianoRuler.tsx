@@ -177,7 +177,7 @@ const PianoRuler: FC<PianoRulerProps> = ({
 
   const onClickTimeSignature = useCallback(
     (timeSignature: TrackEventOf<TimeSignatureEvent>, e: React.MouseEvent) => {
-      if (e.detail == 2) {
+      if (e.detail === 2) {
         setTimeSignatureDialogState(timeSignature)
       } else {
         selectTimeSignature(timeSignature.id)
@@ -187,12 +187,7 @@ const PianoRuler: FC<PianoRulerProps> = ({
         }
       }
     },
-    [
-      selectTimeSignature,
-      setTimeSignatureDialogState,
-      getQuantizedTick,
-      onContextMenu,
-    ],
+    [selectTimeSignature, getQuantizedTick, onContextMenu],
   )
 
   const onClickRuler: React.MouseEventHandler<HTMLCanvasElement> = useCallback(
@@ -217,7 +212,7 @@ const PianoRuler: FC<PianoRulerProps> = ({
         onClickTimeSignature(timeSignature.event, e)
         onClickRuler(e)
       } else {
-        if (e.button == 2) {
+        if (e.button === 2) {
           setRightClickTick(getQuantizedTick(e.nativeEvent.offsetX))
           onContextMenu(e)
         } else {
@@ -234,7 +229,6 @@ const PianoRuler: FC<PianoRulerProps> = ({
       clearSelectedTimeSignature,
       onClickTimeSignature,
       onClickRuler,
-      setRightClickTick,
       onContextMenu,
       _onMouseDown,
     ],
@@ -252,16 +246,7 @@ const PianoRuler: FC<PianoRulerProps> = ({
       drawTimeSignatures(ctx, height, timeSignatures, theme)
       ctx.restore()
     },
-    [
-      width,
-      height,
-      transform,
-      scrollLeft,
-      rulerBeats,
-      timeSignatures,
-      loop,
-      theme,
-    ],
+    [width, transform, scrollLeft, rulerBeats, timeSignatures, loop, theme],
   )
 
   const closeOpenTimeSignatureDialog = useCallback(() => {
