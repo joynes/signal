@@ -1,8 +1,5 @@
 import { isEventInRange, Range } from "@signal-app/core"
-import { atom, useAtomValue, useSetAtom } from "jotai"
-import { useAtomCallback } from "jotai/utils"
-import { useCallback, useMemo } from "react"
-import { useUpdateTimeSignature } from "../actions"
+import { useCallback, useMemo, useState } from "react"
 import { useBeats } from "./useBeats"
 import { useSong } from "./useSong"
 import { useTickScroll } from "./useTickScroll"
@@ -22,13 +19,19 @@ export interface RulerTimeSignature {
 }
 
 export function useRuler() {
-  const updateTimeSignature = useUpdateTimeSignature()
   const { transform, canvasWidth, scrollLeft } = useTickScroll()
   const { timeSignatures } = useSong()
   const beats = useBeats()
-  const selectedTimeSignatureEventIds = useAtomValue(
-    selectedTimeSignatureEventIdsAtom,
-  )
+  const [selectedTimeSignatureEventIds, setSelectedTimeSignatureEventIds] =
+    useState<Set<number>>(new Set())
+
+  const selectTimeSignature = useCallback((id: number) => {
+    setSelectedTimeSignatureEventIds(new Set([id]))
+  }, [])
+
+  const clearSelectedTimeSignature = useCallback(() => {
+    setSelectedTimeSignatureEventIds(new Set())
+  }, [])
 
   const rulerBeats = useMemo(() => {
     const result: RulerBeat[] = []
@@ -85,31 +88,8 @@ export function useRuler() {
   return {
     rulerBeats,
     timeSignatures: rulerTimeSignatures,
-    get selectedTimeSignatureEventIds() {
-      return useAtomValue(selectedTimeSignatureEventIdsAtom)
-    },
-    selectTimeSignature: useSetAtom(selectTimeSignatureAtom),
-    clearSelectedTimeSignature: useSetAtom(clearSelectedTimeSignatureAtom),
-    updateTimeSignature: useAtomCallback(
-      useCallback(
-        (get, _set, numerator: number, denominator: number) => {
-          get(selectedTimeSignatureEventIdsAtom).forEach((id) => {
-            updateTimeSignature(id, numerator, denominator)
-          })
-        },
-        [updateTimeSignature],
-      ),
-    ),
+    selectedTimeSignatureEventIds,
+    selectTimeSignature,
+    clearSelectedTimeSignature,
   }
 }
-
-// atoms
-const selectedTimeSignatureEventIdsAtom = atom(new Set<number>())
-
-// actions
-const selectTimeSignatureAtom = atom(null, (_get, set, id: number) => {
-  set(selectedTimeSignatureEventIdsAtom, new Set([id]))
-})
-const clearSelectedTimeSignatureAtom = atom(null, (_get, set) => {
-  set(selectedTimeSignatureEventIdsAtom, new Set())
-})

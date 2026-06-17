@@ -1,4 +1,5 @@
 import React, { FC, useCallback, useState } from "react"
+import { useUpdateTimeSignature } from "../../../actions"
 import { useContextMenu } from "../../../hooks/useContextMenu"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { RulerTimeSignature, useRuler } from "../../../hooks/useRuler"
@@ -24,13 +25,14 @@ const PianoRuler: FC<PianoRulerProps> = ({ onMouseDown, style, className }) => {
     useState<TimeSignatureDialogState | null>(null)
   const [rightClickTick, setRightClickTick] = useState(0)
   const { loop, setLoopBegin, setLoopEnd, setPosition } = usePlayer()
+  const updateTimeSignature = useUpdateTimeSignature()
 
   const {
     rulerBeats,
     timeSignatures,
+    selectedTimeSignatureEventIds,
     selectTimeSignature,
     clearSelectedTimeSignature,
-    updateTimeSignature,
   } = useRuler()
 
   const onClickTimeSignature = useCallback(
@@ -39,13 +41,14 @@ const PianoRuler: FC<PianoRulerProps> = ({ onMouseDown, style, className }) => {
         setTimeSignatureDialogState(timeSignature)
       } else {
         selectTimeSignature(timeSignature.id)
+        setPosition(tick)
         if (e.button === 2) {
           setRightClickTick(tick)
           onContextMenu(e)
         }
       }
     },
-    [selectTimeSignature, onContextMenu],
+    [selectTimeSignature, onContextMenu, setPosition],
   )
 
   const onClickRuler = useCallback(
@@ -75,9 +78,12 @@ const PianoRuler: FC<PianoRulerProps> = ({ onMouseDown, style, className }) => {
   }, [])
 
   const okTimeSignatureDialog = useCallback(
-    ({ numerator, denominator }: TimeSignatureDialogState) =>
-      updateTimeSignature(numerator, denominator),
-    [updateTimeSignature],
+    ({ numerator, denominator }: TimeSignatureDialogState) => {
+      selectedTimeSignatureEventIds.forEach((id) => {
+        updateTimeSignature(id, numerator, denominator)
+      })
+    },
+    [updateTimeSignature, selectedTimeSignatureEventIds],
   )
 
   return (
@@ -93,7 +99,11 @@ const PianoRuler: FC<PianoRulerProps> = ({ onMouseDown, style, className }) => {
         style={style}
         className={className}
       />
-      <RulerContextMenu {...menuProps} tick={rightClickTick} />
+      <RulerContextMenu
+        {...menuProps}
+        tick={rightClickTick}
+        selectedTimeSignatureEventIds={selectedTimeSignatureEventIds}
+      />
       <TimeSignatureDialog
         open={timeSignatureDialogState != null}
         initialNumerator={timeSignatureDialogState?.numerator}

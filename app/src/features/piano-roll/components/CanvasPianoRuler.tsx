@@ -192,7 +192,6 @@ export const CanvasPianoRuler: FC<PianoRulerProps> = ({
 
       if (timeSignature !== undefined) {
         onClickTimeSignature(e, timeSignature, tick)
-        onClickRuler(e, tick)
       } else {
         if (e.button === 2) {
           onRightClick(e, tick)
