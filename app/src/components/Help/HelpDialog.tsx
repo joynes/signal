@@ -44,12 +44,12 @@ const HotKey: FC<HotKeyProps> = ({ hotKeys, text }) => {
   return (
     <HotKeyContainer>
       {hotKeys
-        .map((c, i1) =>
+        .map((c) =>
           c
-            .map<ReactNode>((k, i2) => <Key key={i1 * 10000 + i2}>{k}</Key>)
-            .reduce((a, b) => [a, <span key={"plus"}>+</span>, b]),
+            .map<ReactNode>((k) => <Key key={k}>{k}</Key>)
+            .reduce((a, b, i) => [a, <span key={`plus-${i}`}>+</span>, b]),
         )
-        .reduce((a, b) => [a, <span key={"slash"}>/</span>, b])}
+        .reduce((a, b, i) => [a, <span key={`slash-${i}`}>/</span>, b])}
       <HotKeyText>{text}</HotKeyText>
     </HotKeyContainer>
   )
