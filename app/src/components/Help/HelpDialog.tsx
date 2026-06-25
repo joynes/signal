@@ -47,8 +47,10 @@ const HotKey: FC<HotKeyProps> = ({ hotKeys, text }) => {
         .map((c) =>
           c
             .map<ReactNode>((k) => <Key key={k}>{k}</Key>)
+            // biome-ignore lint/suspicious/noArrayIndexKey: ignore
             .reduce((a, b, i) => [a, <span key={`plus-${i}`}>+</span>, b]),
         )
+        // biome-ignore lint/suspicious/noArrayIndexKey: ignore
         .reduce((a, b, i) => [a, <span key={`slash-${i}`}>/</span>, b])}
       <HotKeyText>{text}</HotKeyText>
     </HotKeyContainer>
