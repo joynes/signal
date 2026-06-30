@@ -1,5 +1,6 @@
 import { action, makeObservable, observable } from "mobx"
 import { createModelSchema, list, mapAsArray, primitive } from "serializr"
+import { Emitter } from "../../helpers/emitter"
 import { pojo } from "../pojo"
 
 /**
@@ -10,6 +11,9 @@ export class OrderedArray<
   K extends number | string = number,
 > {
   private readonly lookupMap: Map<number, T>
+  readonly onChange = new Emitter<
+    { removed: T[] } | { added: T[] } | { removed: T[]; added: T[] }
+  >()
 
   constructor(
     readonly array: T[],
@@ -88,6 +92,7 @@ export class OrderedArray<
     const insertionIndex = this.findInsertionIndex(element)
     this.array.splice(insertionIndex, 0, element)
     this.lookupMap.set(element.id, element)
+    this.onChange.emit({ added: [element] })
     return this.array
   }
 
@@ -106,6 +111,7 @@ export class OrderedArray<
     if (index !== undefined) {
       this.array.splice(index, 1)
       this.lookupMap.delete(id)
+      this.onChange.emit({ removed: [obj] })
     }
     return this.array
   }
@@ -125,6 +131,7 @@ export class OrderedArray<
       const newIndex = this.findInsertionIndex(updatedItem)
       this.array.splice(newIndex, 0, updatedItem)
       this.lookupMap.set(updatedItem.id, updatedItem)
+      this.onChange.emit({ removed: [originalElement], added: [updatedItem] })
     }
     return this.array
   }

@@ -15,7 +15,7 @@ import { Emitter } from "../../helpers/emitter"
 import { getChangedItems } from "../../helpers/getChangedItems"
 import { mobxToObservable } from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
-import { Branded } from "../../types"
+import { Branded, Unsubscribe } from "../../types"
 import { isNoteEvent, isProgramChangeEvent, isSetTempoEvent } from "./identify"
 import {
   getPan,
@@ -53,7 +53,7 @@ export class Track {
   private readonly _onProgramChangeEventsChanged = new Emitter()
   private readonly _onSetTempoEventsChanged = new Emitter()
 
-  private unsubscribeReactions: (() => void)[] = []
+  private unsubscribeReaction: Unsubscribe | null = null
 
   constructor() {
     makeObservable(this, {
@@ -84,30 +84,26 @@ export class Track {
   }
 
   private setupReactions() {
-    this.unsubscribeReactions.forEach((unsubscribe) => unsubscribe())
-    this.unsubscribeReactions = [
-      reaction(
-        () => toJS(this._events.getArray()),
-        (events) => {
-          this._eventsSnapshot = [...events]
-        },
-      ),
-      observe(this.events as IObservableArray<TrackEvent>, (change) => {
-        const changedEvents = getChangedItems(change)
-        if (
-          this._onProgramChangeEventsChanged.listenerCount > 0 &&
-          changedEvents.some(isProgramChangeEvent)
-        ) {
-          this._onProgramChangeEventsChanged.emit()
-        }
-        if (
-          this._onSetTempoEventsChanged.listenerCount > 0 &&
-          changedEvents.some(isSetTempoEvent)
-        ) {
-          this._onSetTempoEventsChanged.emit()
-        }
-      }),
-    ]
+    this.unsubscribeReaction?.()
+    this.unsubscribeReaction = this._events.onChange.subscribe((change) => {
+      this._eventsSnapshot = [...this._events.getArray()]
+
+      const changedEvents = ("added" in change ? change.added : []).concat(
+        "removed" in change ? change.removed : [],
+      )
+      if (
+        this._onProgramChangeEventsChanged.listenerCount > 0 &&
+        changedEvents.some(isProgramChangeEvent)
+      ) {
+        this._onProgramChangeEventsChanged.emit()
+      }
+      if (
+        this._onSetTempoEventsChanged.listenerCount > 0 &&
+        changedEvents.some(isSetTempoEvent)
+      ) {
+        this._onSetTempoEventsChanged.emit()
+      }
+    })
   }
 
   afterDeserialize() {

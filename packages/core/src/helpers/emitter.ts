@@ -1,15 +1,15 @@
 import { Observable } from "./observable"
 
-export class Emitter implements Observable {
-  private listeners = new Set<() => void>()
+export class Emitter<T = void> implements Observable<T> {
+  private listeners = new Set<(value: T) => void>()
 
-  subscribe = (listener: () => void) => {
+  subscribe = (listener: (value: T) => void) => {
     this.listeners.add(listener)
     return () => this.listeners.delete(listener)
   }
 
-  emit = () => {
-    this.listeners.forEach((listener) => listener())
+  emit = (value: T) => {
+    this.listeners.forEach((listener) => listener(value))
   }
 
   get listenerCount() {
