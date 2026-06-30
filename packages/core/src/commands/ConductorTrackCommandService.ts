@@ -1,6 +1,5 @@
 import { clamp, min } from "lodash"
 import { SetTempoEvent } from "midifile-ts"
-import { transaction } from "mobx"
 import {
   isSetTempoEvent,
   Measure,
@@ -84,7 +83,7 @@ const pasteTempoEventsAt =
       ...e,
       tick: e.tick + tick,
     }))
-    transaction(() => {
+    conductorTrack.transaction(() => {
       events.forEach((e) => conductorTrack.createOrUpdate(e))
     })
   }

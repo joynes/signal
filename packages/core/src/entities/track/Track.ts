@@ -1,18 +1,7 @@
-import {
-  action,
-  computed,
-  IObservableArray,
-  makeObservable,
-  observable,
-  observe,
-  reaction,
-  toJS,
-  transaction,
-} from "mobx"
+import { action, computed, makeObservable, observable, transaction } from "mobx"
 import { createModelSchema, object, primitive } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
 import { Emitter } from "../../helpers/emitter"
-import { getChangedItems } from "../../helpers/getChangedItems"
 import { mobxToObservable } from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
 import { Branded, Unsubscribe } from "../../types"
@@ -135,7 +124,7 @@ export class Track {
   }
 
   updateEvents<T extends TrackEvent>(events: Partial<T>[]) {
-    transaction(() => {
+    this.transaction(() => {
       events.forEach((event) => {
         if (event.id === undefined) {
           return
@@ -162,7 +151,7 @@ export class Track {
   }
 
   addEvents<T extends TrackEvent>(events: Omit<T, "id">[]): T[] {
-    const result = transaction(() => {
+    const result = this.transaction(() => {
       const dontMoveChannelEvent = this.isConductorTrack
 
       return events
@@ -173,7 +162,7 @@ export class Track {
   }
 
   transaction<T>(func: (track: Track) => T) {
-    return transaction(() => func(this))
+    return transaction(() => this._events.transaction(() => func(this)))
   }
 
   /* helper */
