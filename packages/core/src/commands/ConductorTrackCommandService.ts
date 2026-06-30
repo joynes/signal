@@ -93,9 +93,9 @@ const getMeasureStartTick = (song: Song) => (tick: number) => {
   return Measure.getMeasureStart(measures, tick, timebase).tick
 }
 
-const hasTimeSignatureAt = (song: Song) => (tick: number) => {
-  const { timeSignatures } = song
-  return timeSignatures.some((e) => e.tick === tick)
+const hasTimeSignatureAt = (conductorTrack: Track) => (tick: number) => {
+  const { timeSignatureEvents } = conductorTrack
+  return timeSignatureEvents.some((e) => e.tick === tick)
 }
 
 const addTimeSignature =
@@ -151,7 +151,7 @@ export const createConductorTrackCommandService = (songStore: ISongStore) => {
     pasteTempoEventsAt: bindConductorTrack(pasteTempoEventsAt),
     moveTempoEvents: bindConductorTrack(moveTempoEvents),
     getMeasureStartTick: bindSong(getMeasureStartTick, 0),
-    hasTimeSignatureAt: bindSong(hasTimeSignatureAt, false),
+    hasTimeSignatureAt: bindConductorTrack(hasTimeSignatureAt, false),
     addTimeSignature: bindConductorTrack(addTimeSignature, null),
   }
 }

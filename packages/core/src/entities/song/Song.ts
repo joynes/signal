@@ -43,7 +43,6 @@ export class Song {
   readonly onFilepathChanged: Observable
   readonly onIsSavedChanged: Observable
   readonly onMeasuresChanged: Observable
-  readonly onTimeSignaturesChanged: Observable
   readonly onCloudSongIdChanged: Observable
   readonly onEndOfSongChanged: Observable
 
@@ -73,7 +72,6 @@ export class Song {
     this.onFilepathChanged = mobxToObservable(this, "filepath")
     this.onIsSavedChanged = mobxToObservable(this, "isSaved")
     this.onMeasuresChanged = mobxToObservable(this, "measures")
-    this.onTimeSignaturesChanged = mobxToObservable(this, "timeSignatures")
     this.onCloudSongIdChanged = mobxToObservable(this, "cloudSongId")
     this.onEndOfSongChanged = mobxToObservable(this, "endOfSong")
     this.setupReactions()

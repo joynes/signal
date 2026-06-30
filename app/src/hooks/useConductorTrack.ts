@@ -18,6 +18,15 @@ export function useConductorTrack() {
         ),
       )
     },
+    get timeSignatures() {
+      return useSyncExternalStore(
+        conductorTrack?.onTimeSignatureEventsChanged.subscribe ?? noop,
+        useCallback(
+          () => conductorTrack?.timeSignatureEvents ?? [],
+          [conductorTrack],
+        ),
+      )
+    },
     getEvents: useCallback(
       () => conductorTrack?.events ?? [],
       [conductorTrack],

@@ -1,3 +1,4 @@
+import { TimeSignatureEvent } from "midifile-ts"
 import { action, computed, makeObservable, observable, transaction } from "mobx"
 import { createModelSchema, object, primitive } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
@@ -9,12 +10,13 @@ import {
   isNoteEvent,
   isProgramChangeEvent,
   isSetTempoEvent,
+  isTimeSignatureEvent,
   isTrackNameEvent,
 } from "./identify"
 import { getTrackNameEvent } from "./selector"
 import { isSignalTrackColorEvent, SignalTrackColorEvent } from "./signalEvents"
 import { TrackColor } from "./TrackColor"
-import { TrackEvent } from "./TrackEvent"
+import { TrackEvent, TrackEventOf } from "./TrackEvent"
 import { TrackEvents } from "./TrackEvents"
 
 export type TrackId = Branded<number, "TrackId">
@@ -26,6 +28,7 @@ export class Track {
   private _eventsSnapshot: TrackEvent[] = []
   private _name: string | undefined = undefined
   private _color: SignalTrackColorEvent | undefined = undefined
+  private _timeSignatureEvents: TrackEventOf<TimeSignatureEvent>[] = []
   endOfTrack: number = 0
   channel: number | undefined = undefined
 
@@ -35,15 +38,13 @@ export class Track {
   readonly onIsRhythmTrackChanged: Observable
   readonly onIsConductorTrackChanged: Observable
   readonly onChannelChanged: Observable
-  readonly onNameChanged: Observable
-  readonly onEventsChanged: Observable
-  readonly onColorChanged: Observable
 
   private readonly _onNameChanged = new Emitter()
   private readonly _onColorChanged = new Emitter()
   private readonly _onEventsChanged = new Emitter()
   private readonly _onProgramChangeEventsChanged = new Emitter()
   private readonly _onSetTempoEventsChanged = new Emitter()
+  private readonly _onTimeSignatureEventsChanged = new Emitter()
 
   private unsubscribeReaction: Unsubscribe | null = null
 
@@ -66,9 +67,6 @@ export class Track {
     this.onIsRhythmTrackChanged = mobxToObservable(this, "isRhythmTrack")
     this.onIsConductorTrackChanged = mobxToObservable(this, "isConductorTrack")
     this.onChannelChanged = mobxToObservable(this, "channel")
-    this.onNameChanged = this._onNameChanged
-    this.onEventsChanged = this._onEventsChanged
-    this.onColorChanged = this._onColorChanged
 
     this.setupReactions()
   }
@@ -114,6 +112,13 @@ export class Track {
         this._onColorChanged.emit()
       }
     }
+    if (
+      this._onTimeSignatureEventsChanged.listenerCount > 0 &&
+      changedEvents.some(isTimeSignatureEvent)
+    ) {
+      this._timeSignatureEvents = this.events.filter(isTimeSignatureEvent)
+      this._onTimeSignatureEventsChanged.emit()
+    }
   }
 
   afterDeserialize() {
@@ -125,8 +130,29 @@ export class Track {
   get onProgramChangeEventsChanged() {
     return this._onProgramChangeEventsChanged
   }
+
   get onSetTempoEventsChanged() {
     return this._onSetTempoEventsChanged
+  }
+
+  get onTimeSignatureEventsChanged() {
+    return this._onTimeSignatureEventsChanged
+  }
+
+  get onNameChanged() {
+    return this._onNameChanged
+  }
+
+  get onColorChanged() {
+    return this._onColorChanged
+  }
+
+  get onEventsChanged() {
+    return this._onEventsChanged
+  }
+
+  get timeSignatureEvents() {
+    return this._timeSignatureEvents
   }
 
   get events(): readonly TrackEvent[] {
