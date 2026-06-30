@@ -5,7 +5,12 @@ import { Emitter } from "../../helpers/emitter"
 import { mobxToObservable } from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
 import { Branded, Unsubscribe } from "../../types"
-import { isNoteEvent, isProgramChangeEvent, isSetTempoEvent } from "./identify"
+import {
+  isNoteEvent,
+  isProgramChangeEvent,
+  isSetTempoEvent,
+  isTrackNameEvent,
+} from "./identify"
 import {
   getPan,
   getProgramNumberEvent,
@@ -14,7 +19,7 @@ import {
   getTrackNameEvent,
   getVolume,
 } from "./selector"
-import { SignalTrackColorEvent } from "./signalEvents"
+import { isSignalTrackColorEvent, SignalTrackColorEvent } from "./signalEvents"
 import { TrackColor } from "./TrackColor"
 import { TrackEvent } from "./TrackEvent"
 import { TrackEvents } from "./TrackEvents"
@@ -26,6 +31,8 @@ export class Track {
   id: TrackId = UNASSIGNED_TRACK_ID
   private readonly _events = new TickOrderedArray<TrackEvent>()
   private _eventsSnapshot: TrackEvent[] = []
+  private _name: string | undefined = undefined
+  private _color: SignalTrackColorEvent | undefined = undefined
   endOfTrack: number = 0
   channel: number | undefined = undefined
 
@@ -39,6 +46,9 @@ export class Track {
   readonly onEventsChanged: Observable
   readonly onColorChanged: Observable
 
+  private readonly _onNameChanged = new Emitter()
+  private readonly _onColorChanged = new Emitter()
+  private readonly _onEventsChanged = new Emitter()
   private readonly _onProgramChangeEventsChanged = new Emitter()
   private readonly _onSetTempoEventsChanged = new Emitter()
 
@@ -52,10 +62,8 @@ export class Track {
       removeEvents: action,
       addEvent: action,
       addEvents: action,
-      name: computed,
       isConductorTrack: computed,
       isRhythmTrack: computed,
-      color: computed,
       events: computed,
       id: observable,
       channel: observable,
@@ -65,9 +73,9 @@ export class Track {
     this.onIsRhythmTrackChanged = mobxToObservable(this, "isRhythmTrack")
     this.onIsConductorTrackChanged = mobxToObservable(this, "isConductorTrack")
     this.onChannelChanged = mobxToObservable(this, "channel")
-    this.onNameChanged = mobxToObservable(this, "name")
-    this.onEventsChanged = mobxToObservable(this, "events")
-    this.onColorChanged = mobxToObservable(this, "color")
+    this.onNameChanged = this._onNameChanged
+    this.onEventsChanged = this._onEventsChanged
+    this.onColorChanged = this._onColorChanged
 
     this.setupReactions()
   }
@@ -75,28 +83,49 @@ export class Track {
   private setupReactions() {
     this.unsubscribeReaction?.()
     this.unsubscribeReaction = this._events.onChange.subscribe((change) => {
+      console.log("Track events changed", change)
       this._eventsSnapshot = [...this._events.getArray()]
 
       const changedEvents = ("added" in change ? change.added : []).concat(
         "removed" in change ? change.removed : [],
       )
-      if (
-        this._onProgramChangeEventsChanged.listenerCount > 0 &&
-        changedEvents.some(isProgramChangeEvent)
-      ) {
-        this._onProgramChangeEventsChanged.emit()
-      }
-      if (
-        this._onSetTempoEventsChanged.listenerCount > 0 &&
-        changedEvents.some(isSetTempoEvent)
-      ) {
-        this._onSetTempoEventsChanged.emit()
-      }
+      this._onEventsChanged.emit()
+      this.didEventsChanged(changedEvents)
     })
+  }
+
+  private didEventsChanged = (changedEvents: readonly TrackEvent[]) => {
+    if (
+      this._onProgramChangeEventsChanged.listenerCount > 0 &&
+      changedEvents.some(isProgramChangeEvent)
+    ) {
+      this._onProgramChangeEventsChanged.emit()
+    }
+    if (
+      this._onSetTempoEventsChanged.listenerCount > 0 &&
+      changedEvents.some(isSetTempoEvent)
+    ) {
+      this._onSetTempoEventsChanged.emit()
+    }
+    if (changedEvents.some(isTrackNameEvent)) {
+      const nextName = getTrackNameEvent(this.events)?.text
+      if (this._name !== nextName) {
+        this._name = nextName
+        this._onNameChanged.emit()
+      }
+    }
+    if (changedEvents.some(isSignalTrackColorEvent)) {
+      const nextColor = TrackEvents.getColorEvent(this.events)
+      if (this._color !== nextColor) {
+        this._color = nextColor
+        this._onColorChanged.emit()
+      }
+    }
   }
 
   afterDeserialize() {
     this._eventsSnapshot = [...this.events]
+    this.didEventsChanged(this.events)
     this.setupReactions()
   }
 
@@ -187,11 +216,11 @@ export class Track {
   }
 
   get name() {
-    return getTrackNameEvent(this.events)?.text
+    return this._name
   }
 
   get color(): SignalTrackColorEvent | undefined {
-    return TrackEvents.getColorEvent(this.events)
+    return this._color
   }
 
   setColor(color: TrackColor | null) {
