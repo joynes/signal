@@ -4,6 +4,12 @@ import * as path from "path"
 import { deserialize, serialize } from "serializr"
 import { describe, expect, it } from "vitest"
 import { songFromMidi } from "../../midi"
+import {
+  getPan,
+  getProgramNumberEvent,
+  getTempo,
+  getVolume,
+} from "../track/selector"
 import { Song } from "./Song"
 import { emptySong } from "./SongFactory"
 
@@ -27,10 +33,10 @@ describe("Song", () => {
     expect(tracks[3].channel).toBe(1)
     expect(tracks[17].channel).toBe(15)
 
-    expect(tracks[0].getTempo(240)).toBe(128)
-    expect(tracks[2].getVolume(193)).toBe(100)
-    expect(tracks[2].getPan(192)).toBe(1)
-    expect(tracks[2].getProgramNumber(189)).toBe(29)
+    expect(getTempo(tracks[0].events, 240)).toBe(128)
+    expect(getVolume(tracks[2].events, 193)).toBe(100)
+    expect(getPan(tracks[2].events, 192)).toBe(1)
+    expect(getProgramNumberEvent(tracks[2].events, 189)?.value).toBe(29)
   })
 
   it("should be serializable", () => {

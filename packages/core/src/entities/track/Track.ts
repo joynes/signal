@@ -11,14 +11,7 @@ import {
   isSetTempoEvent,
   isTrackNameEvent,
 } from "./identify"
-import {
-  getPan,
-  getProgramNumberEvent,
-  getTempo,
-  getTimeSignatureEvent,
-  getTrackNameEvent,
-  getVolume,
-} from "./selector"
+import { getTrackNameEvent } from "./selector"
 import { isSignalTrackColorEvent, SignalTrackColorEvent } from "./signalEvents"
 import { TrackColor } from "./TrackColor"
 import { TrackEvent } from "./TrackEvent"
@@ -226,14 +219,6 @@ export class Track {
   setColor(color: TrackColor | null) {
     TrackEvents.setColor(color)(this._events)
   }
-
-  getProgramNumber = (tick: number) =>
-    getProgramNumberEvent(this.events, tick)?.value
-  getPan = (tick: number) => getPan(this.events, tick)
-  getVolume = (tick: number) => getVolume(this.events, tick)
-  getTempo = (tick: number) => getTempo(this.events, tick)
-  getTimeSignatureEvent = (tick: number) =>
-    getTimeSignatureEvent(this.events, tick)
 
   setVolume(value: number, tick: number) {
     TrackEvents.setVolume(value, tick)(this._events)
