@@ -11,6 +11,9 @@ export class OrderedArray<
   K extends number | string = number,
 > {
   private readonly lookupMap: Map<number, T>
+  private transactionDepth = 0
+  private pendingRemoved: T[] = []
+  private pendingAdded: T[] = []
   readonly onChange = new Emitter<
     { removed: T[] } | { added: T[] } | { removed: T[]; added: T[] }
   >()
@@ -34,6 +37,18 @@ export class OrderedArray<
 
   getArray(): readonly T[] {
     return this.array
+  }
+
+  transaction<R>(callback: () => R): R {
+    this.transactionDepth += 1
+    try {
+      return callback()
+    } finally {
+      this.transactionDepth -= 1
+      if (this.transactionDepth === 0) {
+        this.flushPendingChanges()
+      }
+    }
   }
 
   /**
@@ -92,7 +107,7 @@ export class OrderedArray<
     const insertionIndex = this.findInsertionIndex(element)
     this.array.splice(insertionIndex, 0, element)
     this.lookupMap.set(element.id, element)
-    this.onChange.emit({ added: [element] })
+    this.emitChange({ added: [element] })
     return this.array
   }
 
@@ -111,7 +126,7 @@ export class OrderedArray<
     if (index !== undefined) {
       this.array.splice(index, 1)
       this.lookupMap.delete(id)
-      this.onChange.emit({ removed: [obj] })
+      this.emitChange({ removed: [obj] })
     }
     return this.array
   }
@@ -131,9 +146,38 @@ export class OrderedArray<
       const newIndex = this.findInsertionIndex(updatedItem)
       this.array.splice(newIndex, 0, updatedItem)
       this.lookupMap.set(updatedItem.id, updatedItem)
-      this.onChange.emit({ removed: [originalElement], added: [updatedItem] })
+      this.emitChange({ removed: [originalElement], added: [updatedItem] })
     }
     return this.array
+  }
+
+  private emitChange(
+    change: { removed: T[] } | { added: T[] } | { removed: T[]; added: T[] },
+  ): void {
+    if (this.transactionDepth > 0) {
+      if ("removed" in change) {
+        this.pendingRemoved.push(...change.removed)
+      }
+      if ("added" in change) {
+        this.pendingAdded.push(...change.added)
+      }
+      return
+    }
+
+    this.onChange.emit(change)
+  }
+
+  private flushPendingChanges(): void {
+    if (this.pendingRemoved.length === 0 && this.pendingAdded.length === 0) {
+      return
+    }
+
+    this.onChange.emit({
+      removed: this.pendingRemoved,
+      added: this.pendingAdded,
+    })
+    this.pendingRemoved = []
+    this.pendingAdded = []
   }
 
   private sort(): void {
