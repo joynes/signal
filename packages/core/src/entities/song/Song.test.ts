@@ -1,6 +1,6 @@
 import * as fs from "fs"
 import * as path from "path"
-import { deserialize, serialize } from "serializr"
+import { serialize } from "serializr"
 import { describe, expect, it, vi } from "vitest"
 import { songFromMidi, songToMidi, timeSignatureMidiEvent } from "../../midi"
 import { toTrackEvents } from "../../midi/toTrackEvents"
@@ -44,9 +44,19 @@ describe("Song", () => {
     const song = emptySong()
     song.filepath = "abc"
     const x = song.serialize()
-    const s = deserialize(Song, x)
+    const s = Song.deserialize(x)
     expect(s.filepath).toBe("abc")
     expect(s.tracks.length).toBe(song.tracks.length)
+  })
+
+  it("should deserialize from its own serialized POJO", () => {
+    const song = emptySong()
+    song.filepath = "abc"
+    song.name = "test"
+
+    const restored = Song.deserialize(song.serialize())
+
+    expect(restored.serialize()).toStrictEqual(song.serialize())
   })
 
   it("should serialize to the same POJO as serializr", () => {

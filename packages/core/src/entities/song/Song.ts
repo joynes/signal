@@ -7,7 +7,7 @@ import {
 } from "@signal-app/observable"
 import {
   createModelSchema,
-  deserialize,
+  deserialize as deserializeModel,
   list,
   object,
   primitive,
@@ -274,7 +274,15 @@ export class Song {
 
   // biome-ignore lint/suspicious/noExplicitAny: We need to accept any JSON object here
   static deserialize(json: any): Song {
-    const song = deserialize(Song, json)
+    const song = new Song()
+    song.tracks = (json.tracks ?? []).map((track: unknown) =>
+      deserializeModel(Track, track),
+    )
+    song.name = json.name ?? ""
+    song.filepath = json.filepath ?? ""
+    song.timebase = json.timebase ?? DEFAULT_TIME_BASE
+    song.lastTrackId = json.lastTrackId ?? 0
+    song.isSaved = json.isSaved ?? true
     song.afterDeserialize()
     song.tracks.forEach((t) => t.afterDeserialize())
     return song
