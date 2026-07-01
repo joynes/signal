@@ -1,5 +1,5 @@
 import { TimeSignatureEvent } from "midifile-ts"
-import { action, computed, makeObservable, observable, transaction } from "mobx"
+import { action, makeObservable, observable, transaction } from "mobx"
 import { createModelSchema, object, primitive } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
 import { Emitter } from "../../helpers/emitter"
@@ -54,9 +54,6 @@ export class Track {
       removeEvents: action,
       addEvent: action,
       addEvents: action,
-      isConductorTrack: computed,
-      isRhythmTrack: computed,
-      events: computed,
       endOfTrack: observable,
     })
 

@@ -1,12 +1,4 @@
 import {
-  action,
-  computed,
-  makeObservable,
-  observable,
-  reaction,
-  toJS,
-} from "mobx"
-import {
   createModelSchema,
   deserialize,
   list,
@@ -14,7 +6,7 @@ import {
   primitive,
   serialize,
 } from "serializr"
-import { mobxToObservable } from "../../helpers/mobxToObservable"
+import { Emitter } from "../../helpers/emitter"
 import { ObservableValue } from "../../helpers/ObservableValue"
 import { Observable } from "../../helpers/observable"
 import { Measure } from "../measure/Measure"
@@ -25,84 +17,66 @@ const END_MARGIN = 480 * 30
 const DEFAULT_TIME_BASE = 480
 
 export class Song {
-  tracks: readonly Track[] = []
+  private readonly _tracks = new ObservableValue<readonly Track[]>([])
   private _tracksSnapshot: Track[] = []
-  filepath: string = ""
-  timebase: number = DEFAULT_TIME_BASE
-  name: string = ""
+  private readonly _filepath = new ObservableValue<string>("")
+  private readonly _timebase = new ObservableValue<number>(DEFAULT_TIME_BASE)
+  private readonly _name = new ObservableValue<string>("")
   fileHandle: FileSystemFileHandle | null = null
-  cloudSongId: string | null = null
+  private readonly _cloudSongId = new ObservableValue<string | null>(null)
   cloudSongDataId: string | null = null
-  isSaved = true
+  private readonly _isSaved = new ObservableValue<boolean>(true)
 
   private lastTrackId = 0
   private readonly _measures = new ObservableValue<Measure[]>([])
-  private _unsubscribeConductorTrack: (() => void) | null = null
+  private unsubscribeConductorTrack: (() => void) | null = null
+  private currentConductorTrack: Track | undefined = undefined
+  private unsubscribeTrackChanges: (() => void)[] = []
+  private readonly _onConductorTrackChanged = new Emitter()
+  private readonly _onEndOfSongChanged = new Emitter()
 
-  readonly onTracksChanged: Observable
-  readonly onConductorTrackChanged: Observable
-  readonly onNameChanged: Observable
-  readonly onTimebaseChanged: Observable
-  readonly onFilepathChanged: Observable
-  readonly onIsSavedChanged: Observable
-  readonly onCloudSongIdChanged: Observable
-  readonly onEndOfSongChanged: Observable
-
-  private unsubscribeReactions: (() => void)[] = []
+  private unsubscribeSubscriptions: (() => void)[] = []
 
   constructor() {
-    makeObservable(this, {
-      addTrack: action,
-      removeTrack: action,
-      insertTrack: action,
-      conductorTrack: computed,
-      endOfSong: computed,
-      allEvents: computed({ keepAlive: true }),
-      tracks: observable.ref,
-      filepath: observable,
-      timebase: observable,
-      name: observable,
-      isSaved: observable,
-    })
-
-    this.onTracksChanged = mobxToObservable(this, "tracks")
-    this.onConductorTrackChanged = mobxToObservable(this, "conductorTrack")
-    this.onNameChanged = mobxToObservable(this, "name")
-    this.onTimebaseChanged = mobxToObservable(this, "timebase")
-    this.onFilepathChanged = mobxToObservable(this, "filepath")
-    this.onIsSavedChanged = mobxToObservable(this, "isSaved")
-    this.onCloudSongIdChanged = mobxToObservable(this, "cloudSongId")
-    this.onEndOfSongChanged = mobxToObservable(this, "endOfSong")
-    this.setupReactions()
+    this.setupSubscriptions()
   }
 
-  private setupReactions() {
-    this.unsubscribeReactions.forEach((unsubscribe) => unsubscribe())
-    this.unsubscribeReactions = [
-      reaction(
-        () => {
-          return [
-            this.tracks.map((t) => ({
-              channel: t.channel,
-              events: toJS(t.events),
-            })),
-            this.name,
-          ]
-        },
-        () => (this.isSaved = false),
-      ),
-      reaction(
-        () => toJS(this.tracks),
-        (tracks) => {
-          this._tracksSnapshot = [...tracks]
-        },
-      ),
-      this.onConductorTrackChanged.subscribe(() =>
-        this.subscribeToConductorTrack(),
-      ),
-      this.onTimebaseChanged.subscribe(() => this.updateMeasures()),
+  private setupSubscriptions() {
+    this.unsubscribeSubscriptions.forEach((unsubscribe) => unsubscribe())
+    this.unsubscribeTrackChanges.forEach((unsubscribe) => unsubscribe())
+    this.unsubscribeTrackChanges = []
+    this.unsubscribeSubscriptions = [
+      this.onNameChanged.subscribe(() => {
+        this.isSaved = false
+      }),
+      this.onTracksChanged.subscribe(() => {
+        this._tracksSnapshot = [...this.tracks]
+        this.subscribeToTrackChanges()
+        this.refreshConductorTrackSubscription()
+        this._onEndOfSongChanged.emit()
+        this.isSaved = false
+      }),
+      this.onTimebaseChanged.subscribe(() => {
+        this.updateMeasures()
+      }),
     ]
-    this.subscribeToConductorTrack()
+    this._tracksSnapshot = [...this.tracks]
+    this.subscribeToTrackChanges()
+    this.refreshConductorTrackSubscription()
+  }
+
+  private subscribeToTrackChanges() {
+    this.unsubscribeTrackChanges.forEach((unsubscribe) => unsubscribe())
+    this.unsubscribeTrackChanges = this.tracks.flatMap((track) => [
+      track.onEventsChanged.subscribe(() => {
+        this.isSaved = false
+        this._onEndOfSongChanged.emit()
+      }),
+      track.onChannelChanged.subscribe(() => {
+        this.isSaved = false
+        this.refreshConductorTrackSubscription()
+      }),
+    ])
   }
 
   private updateMeasures() {
@@ -112,23 +86,32 @@ export class Song {
     )
   }
 
-  private subscribeToConductorTrack() {
-    const { conductorTrack } = this
-    this._unsubscribeConductorTrack?.()
-    this._unsubscribeConductorTrack = null
-    if (conductorTrack !== undefined) {
-      this._unsubscribeConductorTrack =
-        conductorTrack.onTimeSignatureEventsChanged.subscribe(() => {
+  private refreshConductorTrackSubscription() {
+    const nextConductorTrack = this.conductorTrack
+    const conductorTrackChanged =
+      this.currentConductorTrack !== nextConductorTrack
+
+    if (!conductorTrackChanged) {
+      return
+    }
+
+    this.currentConductorTrack = nextConductorTrack
+    this.unsubscribeConductorTrack?.()
+    this.unsubscribeConductorTrack = null
+    if (nextConductorTrack !== undefined) {
+      this.unsubscribeConductorTrack =
+        nextConductorTrack.onTimeSignatureEventsChanged.subscribe(() => {
           this.updateMeasures()
         })
     }
+    this._onConductorTrackChanged.emit()
     this.updateMeasures()
   }
 
   private afterDeserialize() {
     this._tracksSnapshot = [...this.tracks]
     this.updateMeasures()
-    this.setupReactions()
+    this.setupSubscriptions()
   }
 
   private generateTrackId(): TrackId {
@@ -161,8 +144,84 @@ export class Song {
     this.tracks = tracks
   }
 
+  get tracks(): readonly Track[] {
+    return this._tracks.value
+  }
+
+  private set tracks(value: readonly Track[]) {
+    this._tracks.set(value)
+  }
+
+  get onTracksChanged(): Observable {
+    return this._tracks.onChanged
+  }
+
   get conductorTrack(): Track | undefined {
     return this.tracks.find((t) => t.isConductorTrack)
+  }
+
+  get onConductorTrackChanged(): Observable {
+    return this._onConductorTrackChanged
+  }
+
+  get name(): string {
+    return this._name.value
+  }
+
+  set name(value: string) {
+    this._name.set(value)
+  }
+
+  get onNameChanged(): Observable {
+    return this._name.onChanged
+  }
+
+  get timebase(): number {
+    return this._timebase.value
+  }
+
+  set timebase(value: number) {
+    this._timebase.set(value)
+  }
+
+  get onTimebaseChanged(): Observable {
+    return this._timebase.onChanged
+  }
+
+  get filepath(): string {
+    return this._filepath.value
+  }
+
+  set filepath(value: string) {
+    this._filepath.set(value)
+  }
+
+  get onFilepathChanged(): Observable {
+    return this._filepath.onChanged
+  }
+
+  get isSaved(): boolean {
+    return this._isSaved.value
+  }
+
+  set isSaved(value: boolean) {
+    this._isSaved.set(value)
+  }
+
+  get onIsSavedChanged(): Observable {
+    return this._isSaved.onChanged
+  }
+
+  get cloudSongId(): string | null {
+    return this._cloudSongId.value
+  }
+
+  set cloudSongId(value: string | null) {
+    this._cloudSongId.set(value)
+  }
+
+  get onCloudSongIdChanged(): Observable {
+    return this._cloudSongId.onChanged
   }
 
   get onMeasuresChanged(): Observable {
@@ -184,6 +243,10 @@ export class Song {
   get endOfSong(): number {
     const eos = Math.max(...this.tracks.map((t) => t.endOfTrack))
     return (eos ?? 0) + END_MARGIN
+  }
+
+  get onEndOfSongChanged(): Observable {
+    return this._onEndOfSongChanged
   }
 
   updateEndOfSong() {
