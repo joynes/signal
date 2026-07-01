@@ -14,7 +14,7 @@ import {
   primitive,
   serialize,
 } from "serializr"
-import { Emitter } from "../../helpers/emitter"
+import { DerivedValue } from "../../helpers/DerivedValue"
 import { mobxToObservable } from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
 import { Measure } from "../measure/Measure"
@@ -36,9 +36,8 @@ export class Song {
   isSaved = true
 
   private lastTrackId = 0
-  private _measures: Measure[] = []
+  private readonly _measures = new DerivedValue<Measure[]>([])
   private _unsubscribeConductorTrack: (() => void) | null = null
-  private readonly _onMeasuresChanged = new Emitter()
 
   readonly onTracksChanged: Observable
   readonly onConductorTrackChanged: Observable
@@ -108,8 +107,9 @@ export class Song {
 
   private updateMeasures() {
     const timeSignatures = this.conductorTrack?.timeSignatureEvents ?? []
-    this._measures = Measure.fromTimeSignatures(timeSignatures, this.timebase)
-    this._onMeasuresChanged.emit()
+    this._measures.set(
+      Measure.fromTimeSignatures(timeSignatures, this.timebase),
+    )
   }
 
   private subscribeToConductorTrack() {
@@ -166,7 +166,7 @@ export class Song {
   }
 
   get onMeasuresChanged(): Observable {
-    return this._onMeasuresChanged
+    return this._measures.onChanged
   }
 
   getTrack(id: TrackId): Track | undefined {
@@ -178,7 +178,7 @@ export class Song {
   }
 
   get measures(): Measure[] {
-    return this._measures
+    return this._measures.value
   }
 
   get endOfSong(): number {

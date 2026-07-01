@@ -2,6 +2,7 @@ import { TimeSignatureEvent } from "midifile-ts"
 import { action, computed, makeObservable, observable, transaction } from "mobx"
 import { createModelSchema, object, primitive } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
+import { DerivedValue } from "../../helpers/DerivedValue"
 import { Emitter } from "../../helpers/emitter"
 import { mobxToObservable } from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
@@ -28,7 +29,9 @@ export class Track {
   private _eventsSnapshot: TrackEvent[] = []
   private _name: string | undefined = undefined
   private _color: SignalTrackColorEvent | undefined = undefined
-  private _timeSignatureEvents: TrackEventOf<TimeSignatureEvent>[] = []
+  private readonly _timeSignatureEvents = new DerivedValue<
+    TrackEventOf<TimeSignatureEvent>[]
+  >([])
   endOfTrack: number = 0
   channel: number | undefined = undefined
 
@@ -44,7 +47,6 @@ export class Track {
   private readonly _onEventsChanged = new Emitter()
   private readonly _onProgramChangeEventsChanged = new Emitter()
   private readonly _onSetTempoEventsChanged = new Emitter()
-  private readonly _onTimeSignatureEventsChanged = new Emitter()
 
   private unsubscribeReaction: Unsubscribe | null = null
 
@@ -113,8 +115,7 @@ export class Track {
       }
     }
     if (changedEvents.some(isTimeSignatureEvent)) {
-      this._timeSignatureEvents = this.events.filter(isTimeSignatureEvent)
-      this._onTimeSignatureEventsChanged.emit()
+      this._timeSignatureEvents.set(this.events.filter(isTimeSignatureEvent))
     }
   }
 
@@ -133,7 +134,7 @@ export class Track {
   }
 
   get onTimeSignatureEventsChanged() {
-    return this._onTimeSignatureEventsChanged
+    return this._timeSignatureEvents.onChanged
   }
 
   get onNameChanged() {
@@ -149,7 +150,7 @@ export class Track {
   }
 
   get timeSignatureEvents() {
-    return this._timeSignatureEvents
+    return this._timeSignatureEvents.value
   }
 
   get events(): readonly TrackEvent[] {
