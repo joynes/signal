@@ -24,6 +24,21 @@ describe("Track", () => {
     expect(t.events.length).toBe(1)
     expect(t.events[0].tick).toBe(123)
   })
+
+  it("should serialize to the same POJO as serializr", () => {
+    const track = new Track()
+    track.channel = 5
+    track.addEvent<NoteEvent>({
+      type: "channel",
+      subtype: "note",
+      duration: 120,
+      tick: 123,
+      velocity: 100,
+      noteNumber: 100,
+    })
+
+    expect(track.serialize()).toStrictEqual(serialize(track))
+  })
   it("should manipulate events correctly", () => {
     const track = emptyTrack(1)
     const { id } = track.addEvent<NoteEvent>({

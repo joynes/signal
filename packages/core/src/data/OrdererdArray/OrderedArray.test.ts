@@ -1,5 +1,7 @@
+import { serialize } from "serializr"
 import { beforeEach, describe, expect, test } from "vitest"
 import { OrderedArray } from "./OrderedArray"
+import { TickOrderedArray } from "./TickOrderedArray"
 
 describe("OrderedArray", () => {
   interface TestItem {
@@ -371,5 +373,19 @@ describe("OrderedArray", () => {
         added: [{ id: 4, rowIndex: 15, name: "Dave" }],
       },
     ])
+  })
+
+  test("should serialize to the same POJO as serializr", () => {
+    expect(orderedArray.serialize()).toStrictEqual(serialize(orderedArray))
+  })
+
+  test("TickOrderedArray should serialize to the same POJO as serializr", () => {
+    const tickArray = new TickOrderedArray<TestItem & { tick: number }>([
+      { id: 3, rowIndex: 30, name: "Charlie", tick: 30 },
+      { id: 1, rowIndex: 10, name: "Alice", tick: 10 },
+      { id: 2, rowIndex: 20, name: "Bob", tick: 20 },
+    ])
+
+    expect(tickArray.serialize()).toStrictEqual(serialize(tickArray))
   })
 })

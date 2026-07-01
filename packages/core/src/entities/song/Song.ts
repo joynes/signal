@@ -11,7 +11,6 @@ import {
   list,
   object,
   primitive,
-  serialize,
 } from "serializr"
 import { Measure } from "../measure/Measure"
 import { Track, TrackId } from "../track"
@@ -263,7 +262,14 @@ export class Song {
   }
 
   serialize() {
-    return serialize(this)
+    return {
+      tracks: this.tracks.map((track) => track.serialize()),
+      name: this.name,
+      filepath: this.filepath,
+      timebase: this.timebase,
+      lastTrackId: this.lastTrackId,
+      isSaved: this.isSaved,
+    }
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: We need to accept any JSON object here

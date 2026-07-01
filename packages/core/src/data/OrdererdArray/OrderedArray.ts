@@ -189,6 +189,14 @@ export class OrderedArray<
       return this.descending ? -comparison : comparison
     })
   }
+
+  serialize() {
+    return {
+      array: this.array,
+      descending: this.descending,
+      lookupMap: Array.from(this.lookupMap.values()),
+    }
+  }
 }
 
 createModelSchema(OrderedArray, {

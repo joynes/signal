@@ -6,7 +6,7 @@ import {
   Unsubscribe,
 } from "@signal-app/observable"
 import { TimeSignatureEvent } from "midifile-ts"
-import { createModelSchema, object, primitive } from "serializr"
+import { createModelSchema, object, primitive, serialize } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
 import { Branded } from "../../types"
 import {
@@ -310,6 +310,15 @@ export class Track {
     track.channel = this.channel
     track.addEvents(this.events.map((e) => ({ ...e })))
     return track
+  }
+
+  serialize() {
+    return {
+      id: this.id,
+      _events: serialize(this._events),
+      channel: this.channel,
+      endOfTrack: this.endOfTrack,
+    }
   }
 }
 

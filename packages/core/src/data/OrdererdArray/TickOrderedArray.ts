@@ -14,6 +14,13 @@ export class TickOrderedArray<
       () => this.lastEventId++,
     )
   }
+
+  override serialize() {
+    return {
+      ...super.serialize(),
+      lastEventId: this.lastEventId,
+    }
+  }
 }
 
 createModelSchema(TickOrderedArray, {
