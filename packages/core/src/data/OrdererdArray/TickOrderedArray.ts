@@ -1,4 +1,3 @@
-import { createModelSchema, primitive } from "serializr"
 import {
   type DeserializedOrderedItem,
   OrderedArray,
@@ -52,7 +51,3 @@ export function deserializeTickOrderedArray(
   array.restoreLastEventId(serialized.lastEventId ?? 0)
   return array
 }
-
-createModelSchema(TickOrderedArray, {
-  lastEventId: primitive(),
-})

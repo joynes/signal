@@ -5,13 +5,21 @@ import {
   ObservableValue,
   switchSubscription,
 } from "@signal-app/observable"
-import { createModelSchema, list, object, primitive } from "serializr"
 import { Measure } from "../measure/Measure"
 import { Track, TrackId } from "../track"
 import { collectAllEvents } from "./collectAllEvents"
 
 const END_MARGIN = 480 * 30
 const DEFAULT_TIME_BASE = 480
+
+type SerializedSong = {
+  tracks?: unknown[]
+  name?: string
+  filepath?: string
+  timebase?: number
+  lastTrackId?: number
+  isSaved?: boolean
+}
 
 export class Song {
   private readonly _tracks = new ObservableValue<readonly Track[]>([])
@@ -266,27 +274,18 @@ export class Song {
     }
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: We need to accept any JSON object here
-  static deserialize(json: any): Song {
+  static deserialize(json: unknown): Song {
+    const serialized = (json ?? {}) as SerializedSong
     const song = new Song()
-    song.tracks = (json.tracks ?? []).map((track: unknown) =>
+    song.tracks = (serialized.tracks ?? []).map((track) =>
       Track.deserialize(track),
     )
-    song.name = json.name ?? ""
-    song.filepath = json.filepath ?? ""
-    song.timebase = json.timebase ?? DEFAULT_TIME_BASE
-    song.lastTrackId = json.lastTrackId ?? 0
-    song.isSaved = json.isSaved ?? true
+    song.name = serialized.name ?? ""
+    song.filepath = serialized.filepath ?? ""
+    song.timebase = serialized.timebase ?? DEFAULT_TIME_BASE
+    song.lastTrackId = serialized.lastTrackId ?? 0
+    song.isSaved = serialized.isSaved ?? true
     song.afterDeserialize()
     return song
   }
 }
-
-createModelSchema(Song, {
-  tracks: list(object(Track)),
-  name: primitive(),
-  filepath: primitive(),
-  timebase: primitive(),
-  lastTrackId: primitive(),
-  isSaved: primitive(),
-})

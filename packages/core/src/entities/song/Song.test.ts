@@ -1,6 +1,5 @@
 import * as fs from "fs"
 import * as path from "path"
-import { serialize } from "serializr"
 import { describe, expect, it, vi } from "vitest"
 import { songFromMidi, songToMidi, timeSignatureMidiEvent } from "../../midi"
 import { toTrackEvents } from "../../midi/toTrackEvents"
@@ -59,12 +58,21 @@ describe("Song", () => {
     expect(restored.serialize()).toStrictEqual(song.serialize())
   })
 
-  it("should serialize to the same POJO as serializr", () => {
+  it("should serialize to a POJO", () => {
     const song = emptySong()
     song.filepath = "abc"
     song.name = "test"
 
-    expect(song.serialize()).toStrictEqual(serialize(song))
+    const serialized = song.serialize()
+
+    expect(serialized).toMatchObject({
+      tracks: song.tracks.map((track) => track.serialize()),
+      name: "test",
+      filepath: "abc",
+      timebase: song.timebase,
+      isSaved: song.isSaved,
+    })
+    expect(serialized.lastTrackId).toBeGreaterThanOrEqual(song.tracks.length)
   })
 
   it("should use Track.serialize when serializing song", () => {

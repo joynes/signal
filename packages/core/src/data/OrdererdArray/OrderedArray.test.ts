@@ -1,4 +1,3 @@
-import { serialize } from "serializr"
 import { beforeEach, describe, expect, test } from "vitest"
 import { deserializeOrderedArray, OrderedArray } from "./OrderedArray"
 import {
@@ -378,8 +377,15 @@ describe("OrderedArray", () => {
     ])
   })
 
-  test("should serialize to the same POJO as serializr", () => {
-    expect(orderedArray.serialize()).toStrictEqual(serialize(orderedArray))
+  test("should serialize to a POJO", () => {
+    const serialized = orderedArray.serialize()
+
+    expect(serialized.array).toStrictEqual(orderedArray.getArray())
+    expect(serialized.descending).toBe(false)
+    expect(serialized.lookupMap).toHaveLength(orderedArray.getArray().length)
+    expect(serialized.lookupMap).toEqual(
+      expect.arrayContaining(orderedArray.getArray()),
+    )
   })
 
   test("should deserialize from its own serialized POJO", () => {
@@ -388,14 +394,22 @@ describe("OrderedArray", () => {
     expect(restored.serialize()).toStrictEqual(orderedArray.serialize())
   })
 
-  test("TickOrderedArray should serialize to the same POJO as serializr", () => {
+  test("TickOrderedArray should serialize to a POJO", () => {
     const tickArray = new TickOrderedArray<TestItem & { tick: number }>([
       { id: 3, rowIndex: 30, name: "Charlie", tick: 30 },
       { id: 1, rowIndex: 10, name: "Alice", tick: 10 },
       { id: 2, rowIndex: 20, name: "Bob", tick: 20 },
     ])
 
-    expect(tickArray.serialize()).toStrictEqual(serialize(tickArray))
+    const serialized = tickArray.serialize()
+
+    expect(serialized.array).toStrictEqual(tickArray.getArray())
+    expect(serialized.descending).toBe(false)
+    expect(serialized.lookupMap).toHaveLength(tickArray.getArray().length)
+    expect(serialized.lookupMap).toEqual(
+      expect.arrayContaining(tickArray.getArray()),
+    )
+    expect(serialized.lastEventId).toBe(0)
   })
 
   test("TickOrderedArray should deserialize from its own serialized POJO", () => {

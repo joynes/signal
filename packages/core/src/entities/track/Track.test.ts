@@ -1,4 +1,3 @@
-import { serialize } from "serializr"
 import { describe, expect, it } from "vitest"
 import { getPan, getVolume } from "./selector"
 import { Track } from "./Track"
@@ -17,7 +16,7 @@ describe("Track", () => {
       velocity: 100,
       noteNumber: 100,
     })
-    const s = serialize(track)
+    const s = track.serialize()
     const t = Track.deserialize(s)
     expect(t.channel).toBe(5)
     expect(t.endOfTrack).toBe(track.endOfTrack)
@@ -25,7 +24,7 @@ describe("Track", () => {
     expect(t.events[0].tick).toBe(123)
   })
 
-  it("should serialize to the same POJO as serializr", () => {
+  it("should serialize to a POJO", () => {
     const track = new Track()
     track.channel = 5
     track.addEvent<NoteEvent>({
@@ -37,7 +36,17 @@ describe("Track", () => {
       noteNumber: 100,
     })
 
-    expect(track.serialize()).toStrictEqual(serialize(track))
+    expect(track.serialize()).toStrictEqual({
+      id: track.id,
+      _events: {
+        array: track.events,
+        descending: false,
+        lookupMap: track.events,
+        lastEventId: 1,
+      },
+      channel: 5,
+      endOfTrack: track.endOfTrack,
+    })
   })
 
   it("should deserialize from its own serialized POJO", () => {

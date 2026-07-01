@@ -1,6 +1,4 @@
 import { Emitter } from "@signal-app/observable"
-import { createModelSchema, list, mapAsArray, primitive } from "serializr"
-import { pojo } from "../pojo"
 
 export type DeserializedOrderedItem = {
   id: number
@@ -222,9 +220,3 @@ export function deserializeOrderedArray(
     serialized.descending ?? false,
   )
 }
-
-createModelSchema(OrderedArray, {
-  array: list(pojo),
-  descending: primitive(),
-  lookupMap: mapAsArray(pojo, "id"),
-})

@@ -7,13 +7,9 @@ import {
 } from "@signal-app/observable"
 import { TimeSignatureEvent } from "midifile-ts"
 import {
-  createModelSchema,
-  deserialize as deserializeModel,
-  object,
-  primitive,
-  serialize,
-} from "serializr"
-import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
+  deserializeTickOrderedArray,
+  TickOrderedArray,
+} from "../../data/OrdererdArray/TickOrderedArray"
 import { Branded } from "../../types"
 import {
   isNoteEvent,
@@ -30,6 +26,13 @@ import { TrackEvents } from "./TrackEvents"
 
 export type TrackId = Branded<number, "TrackId">
 export const UNASSIGNED_TRACK_ID = -1 as TrackId
+
+type SerializedTrack = {
+  id?: TrackId
+  _events?: unknown
+  channel?: number
+  endOfTrack?: number
+}
 
 export class Track {
   private readonly _id = new ObservableValue<TrackId>(UNASSIGNED_TRACK_ID)
@@ -321,30 +324,22 @@ export class Track {
   serialize() {
     return {
       id: this.id,
-      _events: serialize(this._events),
+      _events: this._events.serialize(),
       channel: this.channel,
       endOfTrack: this.endOfTrack,
     }
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: We need to accept any JSON object here
-  static deserialize(json: any): Track {
+  static deserialize(json: unknown): Track {
+    const serialized = (json ?? {}) as SerializedTrack
     const track = new Track()
-    track._events = deserializeModel(
-      TickOrderedArray,
-      json._events ?? {},
-    ) as unknown as TickOrderedArray<TrackEvent>
-    track.id = json.id ?? UNASSIGNED_TRACK_ID
-    track.channel = json.channel
-    track.endOfTrack = json.endOfTrack ?? 0
+    track._events =
+      deserializeTickOrderedArray(serialized._events ?? {}) as unknown as
+        TickOrderedArray<TrackEvent>
+    track.id = serialized.id ?? UNASSIGNED_TRACK_ID
+    track.channel = serialized.channel
+    track.endOfTrack = serialized.endOfTrack ?? 0
     track.afterDeserialize()
     return track
   }
 }
-
-createModelSchema(Track, {
-  id: primitive(),
-  _events: object(TickOrderedArray),
-  channel: primitive(),
-  endOfTrack: primitive(),
-})

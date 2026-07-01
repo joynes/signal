@@ -25,7 +25,7 @@ This allows the app layer to remain Jotai-based without coupling to core interna
 
 ## Representative Classes and APIs
 
-- `Song`: aggregate root exposing observable state (`tracks`, `name`, `timebase`, `measures`, `endOfSong`) and serialization via `serializr`.
+- `Song`: aggregate root exposing observable state (`tracks`, `name`, `timebase`, `measures`, `endOfSong`) and POJO serialization/deserialization.
 - `SongStore`: current-song holder with `onSongChanged` observable.
 - `ObservableValue` / `Emitter`: minimal observable primitives used by entities and stores.
 - `IndexedDBStorage<Data, Metadata>`: generic persisted storage with catalog tracking.
@@ -39,7 +39,7 @@ This allows the app layer to remain Jotai-based without coupling to core interna
 
 ## Libraries and External Factors
 
-- Internal deps: `lodash`, `serializr`.
+- Internal deps: `lodash`.
 - Peer deps: `midifile-ts`, `zod`.
 - Browser APIs: IndexedDB, Web MIDI types, File System Access handles.
 - Electron/web platform behavior differs in some repositories (notably soundfont defaults).
