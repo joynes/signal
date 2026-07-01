@@ -2,9 +2,8 @@ import { TimeSignatureEvent } from "midifile-ts"
 import { action, computed, makeObservable, observable, transaction } from "mobx"
 import { createModelSchema, object, primitive } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
-import { DerivedValue } from "../../helpers/DerivedValue"
 import { Emitter } from "../../helpers/emitter"
-import { mobxToObservable } from "../../helpers/mobxToObservable"
+import { ObservableValue } from "../../helpers/ObservableValue"
 import { Observable } from "../../helpers/observable"
 import { Branded, Unsubscribe } from "../../types"
 import {
@@ -24,29 +23,26 @@ export type TrackId = Branded<number, "TrackId">
 export const UNASSIGNED_TRACK_ID = -1 as TrackId
 
 export class Track {
-  id: TrackId = UNASSIGNED_TRACK_ID
+  private readonly _id = new ObservableValue<TrackId>(UNASSIGNED_TRACK_ID)
   private readonly _events = new TickOrderedArray<TrackEvent>()
   private _eventsSnapshot: TrackEvent[] = []
-  private readonly _name = new DerivedValue<string | undefined>(undefined)
-  private readonly _color = new DerivedValue<SignalTrackColorEvent | undefined>(
-    undefined,
-  )
-  private readonly _timeSignatureEvents = new DerivedValue<
+  private readonly _name = new ObservableValue<string | undefined>(undefined)
+  private readonly _color = new ObservableValue<
+    SignalTrackColorEvent | undefined
+  >(undefined)
+  private readonly _timeSignatureEvents = new ObservableValue<
     TrackEventOf<TimeSignatureEvent>[]
   >([])
   endOfTrack: number = 0
-  channel: number | undefined = undefined
+  private readonly _channel = new ObservableValue<number | undefined>(undefined)
 
   getEventById = (id: number): TrackEvent | undefined => this._events.get(id)
-
-  readonly onIdChanged: Observable
-  readonly onIsRhythmTrackChanged: Observable
-  readonly onIsConductorTrackChanged: Observable
-  readonly onChannelChanged: Observable
 
   private readonly _onEventsChanged = new Emitter()
   private readonly _onProgramChangeEventsChanged = new Emitter()
   private readonly _onSetTempoEventsChanged = new Emitter()
+  private readonly _onIsRhythmTrackChanged = new Emitter()
+  private readonly _onIsConductorTrackChanged = new Emitter()
 
   private unsubscribeReaction: Unsubscribe | null = null
 
@@ -61,14 +57,8 @@ export class Track {
       isConductorTrack: computed,
       isRhythmTrack: computed,
       events: computed,
-      id: observable,
-      channel: observable,
       endOfTrack: observable,
     })
-    this.onIdChanged = mobxToObservable(this, "id")
-    this.onIsRhythmTrackChanged = mobxToObservable(this, "isRhythmTrack")
-    this.onIsConductorTrackChanged = mobxToObservable(this, "isConductorTrack")
-    this.onChannelChanged = mobxToObservable(this, "channel")
 
     this.setupReactions()
   }
@@ -76,7 +66,6 @@ export class Track {
   private setupReactions() {
     this.unsubscribeReaction?.()
     this.unsubscribeReaction = this._events.onChange.subscribe((change) => {
-      console.log("Track events changed", change)
       this._eventsSnapshot = [...this._events.getArray()]
 
       const changedEvents = ("added" in change ? change.added : []).concat(
@@ -102,15 +91,11 @@ export class Track {
     }
     if (changedEvents.some(isTrackNameEvent)) {
       const nextName = getTrackNameEvent(this.events)?.text
-      if (this._name.value !== nextName) {
-        this._name.set(nextName)
-      }
+      this._name.set(nextName)
     }
     if (changedEvents.some(isSignalTrackColorEvent)) {
       const nextColor = TrackEvents.getColorEvent(this.events)
-      if (this._color.value !== nextColor) {
-        this._color.set(nextColor)
-      }
+      this._color.set(nextColor)
     }
     if (changedEvents.some(isTimeSignatureEvent)) {
       this._timeSignatureEvents.set(this.events.filter(isTimeSignatureEvent))
@@ -125,6 +110,22 @@ export class Track {
 
   get onProgramChangeEventsChanged() {
     return this._onProgramChangeEventsChanged
+  }
+
+  get onIdChanged(): Observable {
+    return this._id.onChanged
+  }
+
+  get onIsRhythmTrackChanged(): Observable {
+    return this._onIsRhythmTrackChanged
+  }
+
+  get onIsConductorTrackChanged(): Observable {
+    return this._onIsConductorTrackChanged
+  }
+
+  get onChannelChanged(): Observable {
+    return this._channel.onChanged
   }
 
   get onSetTempoEventsChanged() {
@@ -153,6 +154,33 @@ export class Track {
 
   get events(): readonly TrackEvent[] {
     return this._events.getArray()
+  }
+
+  get id(): TrackId {
+    return this._id.value
+  }
+
+  set id(value: TrackId) {
+    this._id.set(value)
+  }
+
+  get channel(): number | undefined {
+    return this._channel.value
+  }
+
+  set channel(value: number | undefined) {
+    if (this._channel.value === value) {
+      return
+    }
+    const wasRhythmTrack = this.isRhythmTrack
+    const wasConductorTrack = this.isConductorTrack
+    this._channel.set(value)
+    if (wasRhythmTrack !== this.isRhythmTrack) {
+      this._onIsRhythmTrackChanged.emit()
+    }
+    if (wasConductorTrack !== this.isConductorTrack) {
+      this._onIsConductorTrackChanged.emit()
+    }
   }
 
   getEventsSnapshot = (): readonly TrackEvent[] => {

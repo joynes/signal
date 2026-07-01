@@ -147,4 +147,24 @@ describe("Track", () => {
       alpha: 1,
     })
   })
+
+  it("should notify channel and track type changes", () => {
+    const track = new Track()
+    let channelChanges = 0
+    let conductorChanges = 0
+    let rhythmChanges = 0
+
+    track.onChannelChanged.subscribe(() => channelChanges++)
+    track.onIsConductorTrackChanged.subscribe(() => conductorChanges++)
+    track.onIsRhythmTrackChanged.subscribe(() => rhythmChanges++)
+
+    track.channel = 1
+    track.channel = 9
+    track.channel = 9
+    track.channel = undefined
+
+    expect(channelChanges).toBe(3)
+    expect(conductorChanges).toBe(2)
+    expect(rhythmChanges).toBe(2)
+  })
 })

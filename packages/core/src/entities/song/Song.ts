@@ -14,8 +14,8 @@ import {
   primitive,
   serialize,
 } from "serializr"
-import { DerivedValue } from "../../helpers/DerivedValue"
 import { mobxToObservable } from "../../helpers/mobxToObservable"
+import { ObservableValue } from "../../helpers/ObservableValue"
 import { Observable } from "../../helpers/observable"
 import { Measure } from "../measure/Measure"
 import { Track, TrackId } from "../track"
@@ -36,7 +36,7 @@ export class Song {
   isSaved = true
 
   private lastTrackId = 0
-  private readonly _measures = new DerivedValue<Measure[]>([])
+  private readonly _measures = new ObservableValue<Measure[]>([])
   private _unsubscribeConductorTrack: (() => void) | null = null
 
   readonly onTracksChanged: Observable

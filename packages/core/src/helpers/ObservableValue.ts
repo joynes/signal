@@ -1,7 +1,7 @@
 import { Emitter } from "./emitter"
 import { Observable } from "./observable"
 
-export class DerivedValue<T> {
+export class ObservableValue<T> {
   private readonly emitter = new Emitter()
 
   constructor(private currentValue: T) {}
@@ -15,6 +15,9 @@ export class DerivedValue<T> {
   }
 
   set(value: T) {
+    if (this.currentValue === value) {
+      return
+    }
     this.currentValue = value
     this.emitter.emit()
   }
