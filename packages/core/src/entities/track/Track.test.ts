@@ -167,4 +167,24 @@ describe("Track", () => {
     expect(conductorChanges).toBe(2)
     expect(rhythmChanges).toBe(2)
   })
+
+  it("should notify onChanged for non-derived state changes", () => {
+    const track = new Track()
+    let changes = 0
+
+    track.onChanged.subscribe(() => changes++)
+
+    track.id = 1 as Track["id"]
+    track.channel = 1
+    track.addEvent<NoteEvent>({
+      type: "channel",
+      subtype: "note",
+      duration: 120,
+      tick: 123,
+      velocity: 100,
+      noteNumber: 100,
+    })
+
+    expect(changes).toBe(3)
+  })
 })

@@ -1,4 +1,10 @@
-import { Emitter, Observable, ObservableValue } from "@signal-app/observable"
+import {
+  combineSubscription,
+  Emitter,
+  Observable,
+  ObservableValue,
+  switchSubscription,
+} from "@signal-app/observable"
 import {
   createModelSchema,
   deserialize,
@@ -16,6 +22,9 @@ const DEFAULT_TIME_BASE = 480
 
 export class Song {
   private readonly _tracks = new ObservableValue<readonly Track[]>([])
+  private readonly _conductorTrack = new ObservableValue<Track | undefined>(
+    undefined,
+  )
   private _tracksSnapshot: Track[] = []
   private readonly _filepath = new ObservableValue<string>("")
   private readonly _timebase = new ObservableValue<number>(DEFAULT_TIME_BASE)
@@ -27,57 +36,71 @@ export class Song {
 
   private lastTrackId = 0
   private readonly _measures = new ObservableValue<Measure[]>([])
-  private unsubscribeConductorTrack: (() => void) | null = null
-  private currentConductorTrack: Track | undefined = undefined
-  private unsubscribeTrackChanges: (() => void)[] = []
-  private readonly _onConductorTrackChanged = new Emitter()
   private readonly _onEndOfSongChanged = new Emitter()
 
-  private unsubscribeSubscriptions: (() => void)[] = []
+  private unsubscribeSubscriptions: (() => void) | null = null
 
   constructor() {
     this.setupSubscriptions()
   }
 
   private setupSubscriptions() {
-    this.unsubscribeSubscriptions.forEach((unsubscribe) => unsubscribe())
-    this.unsubscribeTrackChanges.forEach((unsubscribe) => unsubscribe())
-    this.unsubscribeTrackChanges = []
-    this.unsubscribeSubscriptions = [
-      this.onNameChanged.subscribe(() => {
-        this.isSaved = false
+    this.unsubscribeSubscriptions?.()
+
+    const subscriptions = [
+      // when name, tracks, or timebase changes, mark the song as unsaved
+      combineSubscription([
+        this.onNameChanged.subscribe,
+        this.onTracksChanged.subscribe,
+        this.onTimebaseChanged.subscribe,
+        switchSubscription(this.onTracksChanged.subscribe, () =>
+          combineSubscription(
+            this.tracks.map((track) => track.onChanged.subscribe),
+          ),
+        ),
+      ])(() => {
+        this._isSaved.set(false)
       }),
+      // when tracks change, update the snapshot
       this.onTracksChanged.subscribe(() => {
         this._tracksSnapshot = [...this.tracks]
-        this.subscribeToTrackChanges()
-        this.refreshConductorTrackSubscription()
-        this._onEndOfSongChanged.emit()
-        this.isSaved = false
+        this.refreshConductorTrack()
       }),
-      this.onTimebaseChanged.subscribe(() => {
+      // when timebase or conductor track changes, update measures
+      combineSubscription([
+        this.onTimebaseChanged.subscribe,
+        this.onConductorTrackChanged.subscribe,
+        switchSubscription(
+          this.onConductorTrackChanged.subscribe,
+          () => this.conductorTrack?.onTimeSignatureEventsChanged.subscribe,
+        ),
+      ])(() => {
         this.updateMeasures()
       }),
+      // when each track's endOfTrack changes, update endOfSong
+      switchSubscription(this.onTracksChanged.subscribe, () =>
+        combineSubscription(
+          this.tracks.map((track) => track.onEndOfTrackChanged.subscribe),
+        ),
+      )(() => {
+        this._onEndOfSongChanged.emit()
+      }),
+      // when each track's isConductorTrack changes, refresh conductor track
+      switchSubscription(this.onTracksChanged.subscribe, () =>
+        combineSubscription(
+          this.tracks.map((track) => track.onIsConductorTrackChanged.subscribe),
+        ),
+      )(() => {
+        this.refreshConductorTrack()
+      }),
     ]
-    this._tracksSnapshot = [...this.tracks]
-    this.subscribeToTrackChanges()
-    this.refreshConductorTrackSubscription()
-  }
 
-  private subscribeToTrackChanges() {
-    this.unsubscribeTrackChanges.forEach((unsubscribe) => unsubscribe())
-    this.unsubscribeTrackChanges = this.tracks.flatMap((track) => [
-      track.onEventsChanged.subscribe(() => {
-        this.isSaved = false
-        this._onEndOfSongChanged.emit()
-      }),
-      track.onEndOfTrackChanged.subscribe(() => {
-        this._onEndOfSongChanged.emit()
-      }),
-      track.onChannelChanged.subscribe(() => {
-        this.isSaved = false
-        this.refreshConductorTrackSubscription()
-      }),
-    ])
+    this.unsubscribeSubscriptions = () => {
+      subscriptions.forEach((unsubscribe) => unsubscribe())
+    }
+
+    this._tracksSnapshot = [...this.tracks]
+    this.refreshConductorTrack()
   }
 
   private updateMeasures() {
@@ -87,31 +110,12 @@ export class Song {
     )
   }
 
-  private refreshConductorTrackSubscription() {
-    const nextConductorTrack = this.conductorTrack
-    const conductorTrackChanged =
-      this.currentConductorTrack !== nextConductorTrack
-
-    if (!conductorTrackChanged) {
-      return
-    }
-
-    this.currentConductorTrack = nextConductorTrack
-    this.unsubscribeConductorTrack?.()
-    this.unsubscribeConductorTrack = null
-    if (nextConductorTrack !== undefined) {
-      this.unsubscribeConductorTrack =
-        nextConductorTrack.onTimeSignatureEventsChanged.subscribe(() => {
-          this.updateMeasures()
-        })
-    }
-    this._onConductorTrackChanged.emit()
-    this.updateMeasures()
+  private refreshConductorTrack() {
+    this._conductorTrack.set(this.tracks.find((t) => t.isConductorTrack))
   }
 
   private afterDeserialize() {
     this._tracksSnapshot = [...this.tracks]
-    this.updateMeasures()
     this.setupSubscriptions()
   }
 
@@ -158,11 +162,11 @@ export class Song {
   }
 
   get conductorTrack(): Track | undefined {
-    return this.tracks.find((t) => t.isConductorTrack)
+    return this._conductorTrack.value
   }
 
   get onConductorTrackChanged(): Observable {
-    return this._onConductorTrackChanged
+    return this._conductorTrack.onChanged
   }
 
   get name(): string {

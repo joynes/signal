@@ -4,6 +4,7 @@ import { useSong } from "./useSong"
 import { useTrackEvents } from "./useTrack"
 
 const noop = () => () => {}
+const emptyArray: readonly never[] = []
 
 export function useConductorTrack() {
   const { conductorTrack } = useSong()
@@ -22,13 +23,13 @@ export function useConductorTrack() {
       return useSyncExternalStore(
         conductorTrack?.onTimeSignatureEventsChanged.subscribe ?? noop,
         useCallback(
-          () => conductorTrack?.timeSignatureEvents ?? [],
+          () => conductorTrack?.timeSignatureEvents ?? emptyArray,
           [conductorTrack],
         ),
       )
     },
     getEvents: useCallback(
-      () => conductorTrack?.events ?? [],
+      () => conductorTrack?.events ?? emptyArray,
       [conductorTrack],
     ),
     ...useTrackEvents(conductorTrack),

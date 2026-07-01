@@ -1,4 +1,5 @@
 import {
+  combineSubscription,
   Emitter,
   Observable,
   ObservableValue,
@@ -45,10 +46,18 @@ export class Track {
   private readonly _onSetTempoEventsChanged = new Emitter()
   private readonly _onIsRhythmTrackChanged = new Emitter()
   private readonly _onIsConductorTrackChanged = new Emitter()
+  private readonly _onChanged: Observable
 
   private unsubscribeReaction: Unsubscribe | null = null
 
   constructor() {
+    this._onChanged = {
+      subscribe: combineSubscription([
+        this._id.onChanged.subscribe,
+        this._channel.onChanged.subscribe,
+        this._onEventsChanged.subscribe,
+      ]),
+    }
     this.setupReactions()
   }
 
@@ -99,6 +108,10 @@ export class Track {
 
   get onProgramChangeEventsChanged() {
     return this._onProgramChangeEventsChanged
+  }
+
+  get onChanged(): Observable {
+    return this._onChanged
   }
 
   get onIdChanged(): Observable {

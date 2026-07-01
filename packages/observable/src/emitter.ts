@@ -9,7 +9,9 @@ export class Emitter<T = void> implements Observable<T> {
   }
 
   emit = (value: T) => {
-    this.listeners.forEach((listener) => listener(value))
+    for (const listener of [...this.listeners]) {
+      listener(value)
+    }
   }
 
   get listenerCount() {
