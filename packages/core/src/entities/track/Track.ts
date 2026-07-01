@@ -1,5 +1,4 @@
 import { TimeSignatureEvent } from "midifile-ts"
-import { action, makeObservable, observable, transaction } from "mobx"
 import { createModelSchema, object, primitive } from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
 import { Emitter } from "../../helpers/emitter"
@@ -33,7 +32,7 @@ export class Track {
   private readonly _timeSignatureEvents = new ObservableValue<
     TrackEventOf<TimeSignatureEvent>[]
   >([])
-  endOfTrack: number = 0
+  private readonly _endOfTrack = new ObservableValue<number>(0)
   private readonly _channel = new ObservableValue<number | undefined>(undefined)
 
   getEventById = (id: number): TrackEvent | undefined => this._events.get(id)
@@ -47,16 +46,6 @@ export class Track {
   private unsubscribeReaction: Unsubscribe | null = null
 
   constructor() {
-    makeObservable(this, {
-      updateEvent: action,
-      updateEvents: action,
-      removeEvent: action,
-      removeEvents: action,
-      addEvent: action,
-      addEvents: action,
-      endOfTrack: observable,
-    })
-
     this.setupReactions()
   }
 
@@ -125,6 +114,10 @@ export class Track {
     return this._channel.onChanged
   }
 
+  get onEndOfTrackChanged(): Observable {
+    return this._endOfTrack.onChanged
+  }
+
   get onSetTempoEventsChanged() {
     return this._onSetTempoEventsChanged
   }
@@ -151,6 +144,14 @@ export class Track {
 
   get events(): readonly TrackEvent[] {
     return this._events.getArray()
+  }
+
+  get endOfTrack(): number {
+    return this._endOfTrack.value
+  }
+
+  private set endOfTrack(value: number) {
+    this._endOfTrack.set(value)
   }
 
   get id(): TrackId {
@@ -231,7 +232,7 @@ export class Track {
   }
 
   transaction<T>(func: (track: Track) => T) {
-    return transaction(() => this._events.transaction(() => func(this)))
+    return this._events.transaction(() => func(this))
   }
 
   /* helper */

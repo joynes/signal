@@ -1,4 +1,3 @@
-import { action, makeObservable, observable } from "mobx"
 import { createModelSchema, list, mapAsArray, primitive } from "serializr"
 import { Emitter } from "../../helpers/emitter"
 import { pojo } from "../pojo"
@@ -26,13 +25,6 @@ export class OrderedArray<
   ) {
     this.lookupMap = new Map(array.map((item) => [item.id, item]))
     this.sort()
-
-    makeObservable(this, {
-      array: observable.shallow,
-      add: action,
-      remove: action,
-      update: action,
-    })
   }
 
   getArray(): readonly T[] {

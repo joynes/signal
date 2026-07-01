@@ -72,6 +72,9 @@ export class Song {
         this.isSaved = false
         this._onEndOfSongChanged.emit()
       }),
+      track.onEndOfTrackChanged.subscribe(() => {
+        this._onEndOfSongChanged.emit()
+      }),
       track.onChannelChanged.subscribe(() => {
         this.isSaved = false
         this.refreshConductorTrackSubscription()

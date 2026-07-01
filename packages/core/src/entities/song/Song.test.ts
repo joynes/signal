@@ -86,4 +86,36 @@ describe("Song", () => {
       },
     ])
   })
+
+  it("should notify endOfSong changes when track endOfTrack changes", () => {
+    const song = emptySong()
+    const notifications: number[] = []
+
+    song.onEndOfSongChanged.subscribe(() => {
+      notifications.push(song.endOfSong)
+    })
+
+    song.tracks[1].addEvents(
+      toTrackEvents([
+        {
+          type: "channel",
+          subtype: "noteOn",
+          channel: 0,
+          noteNumber: 60,
+          velocity: 100,
+          deltaTime: 0,
+        },
+        {
+          type: "channel",
+          subtype: "noteOff",
+          channel: 0,
+          noteNumber: 60,
+          velocity: 0,
+          deltaTime: 960,
+        },
+      ]),
+    )
+
+    expect(notifications.length).toBeGreaterThan(0)
+  })
 })
