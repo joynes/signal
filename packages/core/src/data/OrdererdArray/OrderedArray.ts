@@ -213,7 +213,7 @@ export function deserializeOrderedArray(
   json: unknown,
 ): OrderedArray<DeserializedOrderedItem, number> {
   const serialized = json as SerializedOrderedArray<DeserializedOrderedItem>
-  const source = serialized.lookupMap ?? serialized.array ?? []
+  const source = [...(serialized.lookupMap ?? serialized.array ?? [])]
   return new OrderedArray<DeserializedOrderedItem, number>(
     source,
     (item) => item.rowIndex as number,

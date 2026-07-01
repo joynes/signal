@@ -384,7 +384,7 @@ describe("OrderedArray", () => {
     expect(serialized.descending).toBe(false)
     expect(serialized.lookupMap).toHaveLength(orderedArray.getArray().length)
     expect(serialized.lookupMap).toEqual(
-      expect.arrayContaining(orderedArray.getArray()),
+      expect.arrayContaining([...orderedArray.getArray()]),
     )
   })
 
@@ -392,6 +392,14 @@ describe("OrderedArray", () => {
     const restored = deserializeOrderedArray(orderedArray.serialize())
 
     expect(restored.serialize()).toStrictEqual(orderedArray.serialize())
+  })
+
+  test("should not share array instance with serialized source", () => {
+    const serialized = orderedArray.serialize()
+    const restored = deserializeOrderedArray(serialized)
+
+    expect(restored.getArray()).not.toBe(serialized.lookupMap)
+    expect(restored.getArray()).not.toBe(serialized.array)
   })
 
   test("TickOrderedArray should serialize to a POJO", () => {
@@ -407,7 +415,7 @@ describe("OrderedArray", () => {
     expect(serialized.descending).toBe(false)
     expect(serialized.lookupMap).toHaveLength(tickArray.getArray().length)
     expect(serialized.lookupMap).toEqual(
-      expect.arrayContaining(tickArray.getArray()),
+      expect.arrayContaining([...tickArray.getArray()]),
     )
     expect(serialized.lastEventId).toBe(0)
   })
@@ -422,5 +430,18 @@ describe("OrderedArray", () => {
     const restored = deserializeTickOrderedArray(tickArray.serialize())
 
     expect(restored.serialize()).toStrictEqual(tickArray.serialize())
+  })
+
+  test("TickOrderedArray should not share array instance with serialized source", () => {
+    const tickArray = new TickOrderedArray<TestItem & { tick: number }>([
+      { id: 3, rowIndex: 30, name: "Charlie", tick: 30 },
+      { id: 1, rowIndex: 10, name: "Alice", tick: 10 },
+      { id: 2, rowIndex: 20, name: "Bob", tick: 20 },
+    ])
+    const serialized = tickArray.serialize()
+    const restored = deserializeTickOrderedArray(serialized)
+
+    expect(restored.getArray()).not.toBe(serialized.lookupMap)
+    expect(restored.getArray()).not.toBe(serialized.array)
   })
 })

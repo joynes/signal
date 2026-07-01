@@ -43,7 +43,7 @@ export function deserializeTickOrderedArray(
 ): TickOrderedArray<DeserializedTickOrderedItem> {
   const serialized =
     json as SerializedTickOrderedArray<DeserializedTickOrderedItem>
-  const source = serialized.lookupMap ?? serialized.array ?? []
+  const source = [...(serialized.lookupMap ?? serialized.array ?? [])]
   const array = new TickOrderedArray<DeserializedTickOrderedItem>(
     source,
     serialized.descending ?? false,

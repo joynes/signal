@@ -333,9 +333,9 @@ export class Track {
   static deserialize(json: unknown): Track {
     const serialized = (json ?? {}) as SerializedTrack
     const track = new Track()
-    track._events =
-      deserializeTickOrderedArray(serialized._events ?? {}) as unknown as
-        TickOrderedArray<TrackEvent>
+    track._events = deserializeTickOrderedArray(
+      serialized._events ?? {},
+    ) as unknown as TickOrderedArray<TrackEvent>
     track.id = serialized.id ?? UNASSIGNED_TRACK_ID
     track.channel = serialized.channel
     track.endOfTrack = serialized.endOfTrack ?? 0
