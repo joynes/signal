@@ -112,10 +112,7 @@ export class Track {
         this._onColorChanged.emit()
       }
     }
-    if (
-      this._onTimeSignatureEventsChanged.listenerCount > 0 &&
-      changedEvents.some(isTimeSignatureEvent)
-    ) {
+    if (changedEvents.some(isTimeSignatureEvent)) {
       this._timeSignatureEvents = this.events.filter(isTimeSignatureEvent)
       this._onTimeSignatureEventsChanged.emit()
     }

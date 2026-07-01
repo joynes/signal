@@ -1,9 +1,10 @@
-import { emptyTrack } from "@signal-app/core"
 import * as fs from "fs"
 import * as path from "path"
 import { deserialize, serialize } from "serializr"
 import { describe, expect, it } from "vitest"
-import { songFromMidi } from "../../midi"
+import { songFromMidi, songToMidi, timeSignatureMidiEvent } from "../../midi"
+import { toTrackEvents } from "../../midi/toTrackEvents"
+import { emptyTrack } from "../track"
 import {
   getPan,
   getProgramNumberEvent,
@@ -59,5 +60,30 @@ describe("Song", () => {
     song.removeTrack(song.tracks[1].id)
     song.addTrack(emptyTrack(8))
     expect(song.tracks[2].id).toBe(3)
+  })
+
+  it("should restore measures when opening midi", () => {
+    const song = emptySong()
+    song.timebase = 960
+    song.conductorTrack?.addEvents(
+      toTrackEvents([timeSignatureMidiEvent(3840, 3, 4)]),
+    )
+
+    const reopenedSong = songFromMidi(songToMidi(song))
+
+    expect(reopenedSong.measures).toStrictEqual([
+      {
+        tick: 0,
+        measure: 0,
+        numerator: 4,
+        denominator: 4,
+      },
+      {
+        tick: 3840,
+        measure: 1,
+        numerator: 3,
+        denominator: 4,
+      },
+    ])
   })
 })

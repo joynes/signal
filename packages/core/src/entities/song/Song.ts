@@ -14,10 +14,11 @@ import {
   primitive,
   serialize,
 } from "serializr"
+import { Emitter } from "../../helpers/emitter"
 import { mobxToObservable } from "../../helpers/mobxToObservable"
 import { Observable } from "../../helpers/observable"
 import { Measure } from "../measure/Measure"
-import { isTimeSignatureEvent, Track, TrackId } from "../track"
+import { Track, TrackId } from "../track"
 import { collectAllEvents } from "./collectAllEvents"
 
 const END_MARGIN = 480 * 30
@@ -35,6 +36,9 @@ export class Song {
   isSaved = true
 
   private lastTrackId = 0
+  private _measures: Measure[] = []
+  private _unsubscribeConductorTrack: (() => void) | null = null
+  private readonly _onMeasuresChanged = new Emitter()
 
   readonly onTracksChanged: Observable
   readonly onConductorTrackChanged: Observable
@@ -42,7 +46,6 @@ export class Song {
   readonly onTimebaseChanged: Observable
   readonly onFilepathChanged: Observable
   readonly onIsSavedChanged: Observable
-  readonly onMeasuresChanged: Observable
   readonly onCloudSongIdChanged: Observable
   readonly onEndOfSongChanged: Observable
 
@@ -54,8 +57,6 @@ export class Song {
       removeTrack: action,
       insertTrack: action,
       conductorTrack: computed,
-      measures: computed,
-      timeSignatures: computed,
       endOfSong: computed,
       allEvents: computed({ keepAlive: true }),
       tracks: observable.ref,
@@ -71,7 +72,6 @@ export class Song {
     this.onTimebaseChanged = mobxToObservable(this, "timebase")
     this.onFilepathChanged = mobxToObservable(this, "filepath")
     this.onIsSavedChanged = mobxToObservable(this, "isSaved")
-    this.onMeasuresChanged = mobxToObservable(this, "measures")
     this.onCloudSongIdChanged = mobxToObservable(this, "cloudSongId")
     this.onEndOfSongChanged = mobxToObservable(this, "endOfSong")
     this.setupReactions()
@@ -98,11 +98,36 @@ export class Song {
           this._tracksSnapshot = [...tracks]
         },
       ),
+      this.onConductorTrackChanged.subscribe(() =>
+        this.subscribeToConductorTrack(),
+      ),
+      this.onTimebaseChanged.subscribe(() => this.updateMeasures()),
     ]
+    this.subscribeToConductorTrack()
+  }
+
+  private updateMeasures() {
+    const timeSignatures = this.conductorTrack?.timeSignatureEvents ?? []
+    this._measures = Measure.fromTimeSignatures(timeSignatures, this.timebase)
+    this._onMeasuresChanged.emit()
+  }
+
+  private subscribeToConductorTrack() {
+    this._unsubscribeConductorTrack?.()
+    this._unsubscribeConductorTrack = null
+    const { conductorTrack } = this
+    if (conductorTrack !== undefined) {
+      this._unsubscribeConductorTrack =
+        conductorTrack.onTimeSignatureEventsChanged.subscribe(() => {
+          this.updateMeasures()
+        })
+    }
+    this.updateMeasures()
   }
 
   private afterDeserialize() {
     this._tracksSnapshot = [...this.tracks]
+    this.updateMeasures()
     this.setupReactions()
   }
 
@@ -140,6 +165,10 @@ export class Song {
     return this.tracks.find((t) => t.isConductorTrack)
   }
 
+  get onMeasuresChanged(): Observable {
+    return this._onMeasuresChanged
+  }
+
   getTrack(id: TrackId): Track | undefined {
     return this.tracks.find((t) => t.id === id)
   }
@@ -149,19 +178,7 @@ export class Song {
   }
 
   get measures(): Measure[] {
-    const { timeSignatures, timebase } = this
-    return Measure.fromTimeSignatures(timeSignatures, timebase)
-  }
-
-  get timeSignatures() {
-    const { conductorTrack } = this
-    if (conductorTrack === undefined) {
-      return []
-    }
-    return conductorTrack.events
-      .filter(isTimeSignatureEvent)
-      .slice()
-      .sort((a, b) => a.tick - b.tick)
+    return this._measures
   }
 
   get endOfSong(): number {
