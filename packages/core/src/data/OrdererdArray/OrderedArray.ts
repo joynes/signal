@@ -1,5 +1,5 @@
+import { Emitter } from "@signal-app/observable"
 import { createModelSchema, list, mapAsArray, primitive } from "serializr"
-import { Emitter } from "../../helpers/emitter"
 import { pojo } from "../pojo"
 
 /**

@@ -1,6 +1,6 @@
 import { isNoteEvent, NoteEvent, TrackId } from "@signal-app/core"
+import { combineSubscription } from "@signal-app/observable"
 import { useCallback, useMemo } from "react"
-import { combineSubscription } from "../../../helpers/subscribe"
 import { useDerivedValue } from "../../../hooks/useDerivedValue"
 import { useSong } from "../../../hooks/useSong"
 import { useArrangeNoteTransform } from "./useArrangeNoteTransform"

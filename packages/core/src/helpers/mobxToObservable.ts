@@ -1,5 +1,5 @@
+import { Observable } from "@signal-app/observable"
 import { autorun } from "mobx"
-import { Observable } from "./observable"
 
 export function mobxToObservable<Key extends string>(
   mobxObject: { [K in Key]: unknown },

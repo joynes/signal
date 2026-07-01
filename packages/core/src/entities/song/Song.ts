@@ -1,3 +1,4 @@
+import { Emitter, Observable, ObservableValue } from "@signal-app/observable"
 import {
   createModelSchema,
   deserialize,
@@ -6,9 +7,6 @@ import {
   primitive,
   serialize,
 } from "serializr"
-import { Emitter } from "../../helpers/emitter"
-import { ObservableValue } from "../../helpers/ObservableValue"
-import { Observable } from "../../helpers/observable"
 import { Measure } from "../measure/Measure"
 import { Track, TrackId } from "../track"
 import { collectAllEvents } from "./collectAllEvents"

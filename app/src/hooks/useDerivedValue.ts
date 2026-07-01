@@ -1,7 +1,5 @@
-import { Emitter } from "@signal-app/core"
+import { Emitter, Unsubscribe } from "@signal-app/observable"
 import { useMemo, useSyncExternalStore } from "react"
-
-type Unsubscribe = () => void
 
 interface DerivedValueOptions<T> {
   subscribeSource: (onSourceChange: () => void) => Unsubscribe

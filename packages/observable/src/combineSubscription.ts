@@ -1,4 +1,5 @@
-type Unsubscribe = () => void
+import { Unsubscribe } from "./types"
+
 type Subscribe = (listener: () => void) => Unsubscribe
 
 export const combineSubscription =

@@ -1,7 +1,7 @@
+import { Observable } from "@signal-app/observable"
 import { action, makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
 import { mobxToObservable } from "../helpers/mobxToObservable"
-import { Observable } from "../helpers/observable"
 
 export class MIDIDeviceStore {
   enabledOutputs: { [deviceId: string]: boolean } = {}
