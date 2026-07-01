@@ -5,13 +5,7 @@ import {
   ObservableValue,
   switchSubscription,
 } from "@signal-app/observable"
-import {
-  createModelSchema,
-  deserialize as deserializeModel,
-  list,
-  object,
-  primitive,
-} from "serializr"
+import { createModelSchema, list, object, primitive } from "serializr"
 import { Measure } from "../measure/Measure"
 import { Track, TrackId } from "../track"
 import { collectAllEvents } from "./collectAllEvents"
@@ -276,7 +270,7 @@ export class Song {
   static deserialize(json: any): Song {
     const song = new Song()
     song.tracks = (json.tracks ?? []).map((track: unknown) =>
-      deserializeModel(Track, track),
+      Track.deserialize(track),
     )
     song.name = json.name ?? ""
     song.filepath = json.filepath ?? ""
@@ -284,7 +278,6 @@ export class Song {
     song.lastTrackId = json.lastTrackId ?? 0
     song.isSaved = json.isSaved ?? true
     song.afterDeserialize()
-    song.tracks.forEach((t) => t.afterDeserialize())
     return song
   }
 }

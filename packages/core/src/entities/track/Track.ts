@@ -6,7 +6,13 @@ import {
   Unsubscribe,
 } from "@signal-app/observable"
 import { TimeSignatureEvent } from "midifile-ts"
-import { createModelSchema, object, primitive, serialize } from "serializr"
+import {
+  createModelSchema,
+  deserialize as deserializeModel,
+  object,
+  primitive,
+  serialize,
+} from "serializr"
 import { TickOrderedArray } from "../../data/OrdererdArray/TickOrderedArray"
 import { Branded } from "../../types"
 import {
@@ -27,7 +33,7 @@ export const UNASSIGNED_TRACK_ID = -1 as TrackId
 
 export class Track {
   private readonly _id = new ObservableValue<TrackId>(UNASSIGNED_TRACK_ID)
-  private readonly _events = new TickOrderedArray<TrackEvent>()
+  private _events = new TickOrderedArray<TrackEvent>()
   private _eventsSnapshot: TrackEvent[] = []
   private readonly _name = new ObservableValue<string | undefined>(undefined)
   private readonly _color = new ObservableValue<
@@ -319,6 +325,20 @@ export class Track {
       channel: this.channel,
       endOfTrack: this.endOfTrack,
     }
+  }
+
+  // biome-ignore lint/suspicious/noExplicitAny: We need to accept any JSON object here
+  static deserialize(json: any): Track {
+    const track = new Track()
+    track._events = deserializeModel(
+      TickOrderedArray,
+      json._events ?? {},
+    ) as unknown as TickOrderedArray<TrackEvent>
+    track.id = json.id ?? UNASSIGNED_TRACK_ID
+    track.channel = json.channel
+    track.endOfTrack = json.endOfTrack ?? 0
+    track.afterDeserialize()
+    return track
   }
 }
 
