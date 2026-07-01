@@ -9,10 +9,7 @@ export const isEventOverlapRange =
   <T extends { tick: number; duration?: number }>(range: Range) =>
   (e: T): boolean => {
     if ("duration" in e && typeof e.duration === "number") {
-      return Range.intersects(
-        range,
-        Range.fromLength(e.tick, e.tick + e.duration),
-      )
+      return Range.intersects(range, Range.fromLength(e.tick, e.duration))
     }
     return Range.contains(range, e.tick)
   }

@@ -8,14 +8,14 @@ import RootStore from "../../../stores/RootStore"
 import { usePanSlider } from "./usePanSlider"
 
 // Mock dependencies that don't need real implementation
-vi.mock("./useHistory", () => ({
+vi.mock("../../../hooks/useHistory", () => ({
   useHistory: () => ({
     pushHistory: vi.fn(),
   }),
 }))
 
 const sendEventMock = vi.fn()
-vi.mock("./usePlayer", () => ({
+vi.mock("../../../hooks/usePlayer", () => ({
   usePlayer: () => ({
     position: 0,
     sendEvent: sendEventMock,

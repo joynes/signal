@@ -8,14 +8,14 @@ import RootStore from "../../../stores/RootStore"
 import { useVolumeSlider } from "./useVolumeSlider"
 
 // Mock dependencies that don't need real implementation
-vi.mock("./useHistory", () => ({
+vi.mock("../../../hooks/useHistory", () => ({
   useHistory: () => ({
     pushHistory: vi.fn(),
   }),
 }))
 
 const sendEventMock = vi.fn()
-vi.mock("./usePlayer", () => ({
+vi.mock("../../../hooks/usePlayer", () => ({
   usePlayer: () => ({
     position: 0,
     sendEvent: sendEventMock,
@@ -38,7 +38,7 @@ const createMockRootStore = () => {
 let mockStore: ReturnType<typeof createMockRootStore> | null = null
 
 // Mock usePianoRoll to return the track from the shared mock store
-vi.mock("./usePianoRoll", () => ({
+vi.mock("../hooks/usePianoRoll", () => ({
   usePianoRoll: () => ({
     get selectedTrack() {
       return mockStore?.songStore?.song?.tracks?.find(
