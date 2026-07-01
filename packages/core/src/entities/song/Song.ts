@@ -113,9 +113,9 @@ export class Song {
   }
 
   private subscribeToConductorTrack() {
+    const { conductorTrack } = this
     this._unsubscribeConductorTrack?.()
     this._unsubscribeConductorTrack = null
-    const { conductorTrack } = this
     if (conductorTrack !== undefined) {
       this._unsubscribeConductorTrack =
         conductorTrack.onTimeSignatureEventsChanged.subscribe(() => {

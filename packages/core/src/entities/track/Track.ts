@@ -27,8 +27,10 @@ export class Track {
   id: TrackId = UNASSIGNED_TRACK_ID
   private readonly _events = new TickOrderedArray<TrackEvent>()
   private _eventsSnapshot: TrackEvent[] = []
-  private _name: string | undefined = undefined
-  private _color: SignalTrackColorEvent | undefined = undefined
+  private readonly _name = new DerivedValue<string | undefined>(undefined)
+  private readonly _color = new DerivedValue<SignalTrackColorEvent | undefined>(
+    undefined,
+  )
   private readonly _timeSignatureEvents = new DerivedValue<
     TrackEventOf<TimeSignatureEvent>[]
   >([])
@@ -42,8 +44,6 @@ export class Track {
   readonly onIsConductorTrackChanged: Observable
   readonly onChannelChanged: Observable
 
-  private readonly _onNameChanged = new Emitter()
-  private readonly _onColorChanged = new Emitter()
   private readonly _onEventsChanged = new Emitter()
   private readonly _onProgramChangeEventsChanged = new Emitter()
   private readonly _onSetTempoEventsChanged = new Emitter()
@@ -102,16 +102,14 @@ export class Track {
     }
     if (changedEvents.some(isTrackNameEvent)) {
       const nextName = getTrackNameEvent(this.events)?.text
-      if (this._name !== nextName) {
-        this._name = nextName
-        this._onNameChanged.emit()
+      if (this._name.value !== nextName) {
+        this._name.set(nextName)
       }
     }
     if (changedEvents.some(isSignalTrackColorEvent)) {
       const nextColor = TrackEvents.getColorEvent(this.events)
-      if (this._color !== nextColor) {
-        this._color = nextColor
-        this._onColorChanged.emit()
+      if (this._color.value !== nextColor) {
+        this._color.set(nextColor)
       }
     }
     if (changedEvents.some(isTimeSignatureEvent)) {
@@ -138,11 +136,11 @@ export class Track {
   }
 
   get onNameChanged() {
-    return this._onNameChanged
+    return this._name.onChanged
   }
 
   get onColorChanged() {
-    return this._onColorChanged
+    return this._color.onChanged
   }
 
   get onEventsChanged() {
@@ -233,11 +231,11 @@ export class Track {
   }
 
   get name() {
-    return this._name
+    return this._name.value
   }
 
   get color(): SignalTrackColorEvent | undefined {
-    return this._color
+    return this._color.value
   }
 
   setColor(color: TrackColor | null) {
