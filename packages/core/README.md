@@ -6,15 +6,15 @@ Contains the central sequencer domain model, command services, MIDI conversion, 
 
 ## State Management Boundary
 
-Core uses MobX internally, but MobX must remain an internal implementation detail.
+Core uses explicit observable primitives internally via `@signal-app/observable`.
 
 Policy:
 
-- Do not expose MobX observables, reactions, or decorators as public app APIs.
+- Do not expose implementation-specific state containers as public app APIs.
 - Expose stable subscription/snapshot interfaces for app integration.
 - Synchronize to React via `useSyncExternalStore` bridges.
 
-This allows the app layer to remain Jotai-based without coupling to MobX internals.
+This allows the app layer to remain Jotai-based without coupling to core internals.
 
 ## Responsibilities
 
@@ -25,9 +25,9 @@ This allows the app layer to remain Jotai-based without coupling to MobX interna
 
 ## Representative Classes and APIs
 
-- `Song`: MobX-backed aggregate root with computed properties (`measures`, `timeSignatures`, `endOfSong`) and serialization via `serializr`.
+- `Song`: aggregate root exposing observable state (`tracks`, `name`, `timebase`, `measures`, `endOfSong`) and serialization via `serializr`.
 - `SongStore`: current-song holder with `onSongChanged` observable.
-- `mobxToObservable`: adapter converting internal MobX fields to subscribe-style observables for external synchronization.
+- `ObservableValue` / `Emitter`: minimal observable primitives used by entities and stores.
 - `IndexedDBStorage<Data, Metadata>`: generic persisted storage with catalog tracking.
 - `SoundFontRepository`: default + user soundfont management, including Electron vs web default source switching.
 
@@ -35,11 +35,11 @@ This allows the app layer to remain Jotai-based without coupling to MobX interna
 
 - Layered exports from `index.ts`: `commands`, `entities`, `helpers`, `midi`, `repositories`, `services`, `stores`.
 - Command-service pattern keeps mutation logic grouped by editing concern.
-- Domain model uses immutable-like replacement patterns in places (`tracks` ref updates) while preserving MobX reactivity.
+- Domain model uses immutable-like replacement patterns in places (`tracks` ref updates) while preserving stable observable notifications.
 
 ## Libraries and External Factors
 
 - Internal deps: `lodash`, `serializr`.
-- Peer deps: `mobx`, `mobx-persist-store`, `midifile-ts`, `zod`.
+- Peer deps: `midifile-ts`, `zod`.
 - Browser APIs: IndexedDB, Web MIDI types, File System Access handles.
 - Electron/web platform behavior differs in some repositories (notably soundfont defaults).
