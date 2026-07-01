@@ -1,7 +1,10 @@
 import { serialize } from "serializr"
 import { beforeEach, describe, expect, test } from "vitest"
-import { OrderedArray } from "./OrderedArray"
-import { TickOrderedArray } from "./TickOrderedArray"
+import { deserializeOrderedArray, OrderedArray } from "./OrderedArray"
+import {
+  deserializeTickOrderedArray,
+  TickOrderedArray,
+} from "./TickOrderedArray"
 
 describe("OrderedArray", () => {
   interface TestItem {
@@ -379,6 +382,12 @@ describe("OrderedArray", () => {
     expect(orderedArray.serialize()).toStrictEqual(serialize(orderedArray))
   })
 
+  test("should deserialize from its own serialized POJO", () => {
+    const restored = deserializeOrderedArray(orderedArray.serialize())
+
+    expect(restored.serialize()).toStrictEqual(orderedArray.serialize())
+  })
+
   test("TickOrderedArray should serialize to the same POJO as serializr", () => {
     const tickArray = new TickOrderedArray<TestItem & { tick: number }>([
       { id: 3, rowIndex: 30, name: "Charlie", tick: 30 },
@@ -387,5 +396,17 @@ describe("OrderedArray", () => {
     ])
 
     expect(tickArray.serialize()).toStrictEqual(serialize(tickArray))
+  })
+
+  test("TickOrderedArray should deserialize from its own serialized POJO", () => {
+    const tickArray = new TickOrderedArray<TestItem & { tick: number }>([
+      { id: 3, rowIndex: 30, name: "Charlie", tick: 30 },
+      { id: 1, rowIndex: 10, name: "Alice", tick: 10 },
+      { id: 2, rowIndex: 20, name: "Bob", tick: 20 },
+    ])
+
+    const restored = deserializeTickOrderedArray(tickArray.serialize())
+
+    expect(restored.serialize()).toStrictEqual(tickArray.serialize())
   })
 })
