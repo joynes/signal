@@ -11,7 +11,7 @@ export class BluetoothMIDIDeviceStore {
   >({})
 
   constructor(private readonly midiInput: MIDIInput) {
-    this._enabledInputs.set(this.loadEnabledInputs())
+    this._enabledInputs.set(loadEnabledInputs())
     this._enabledInputs.onChanged.subscribe(() => {
       this.persistEnabledInputs()
     })
@@ -41,24 +41,8 @@ export class BluetoothMIDIDeviceStore {
     return this._enabledInputs.onChanged
   }
 
-  private loadEnabledInputs(): Record<string, boolean> {
-    try {
-      const json = window.localStorage.getItem(STORAGE_KEY)
-      if (json === null) {
-        return {}
-      }
-      const value = JSON.parse(json)
-      if (value !== null && typeof value === "object") {
-        return value as Record<string, boolean>
-      }
-    } catch {
-      // Ignore invalid persisted data and fall back to defaults.
-    }
-    return {}
-  }
-
   private persistEnabledInputs() {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.enabledInputs))
+    saveEnabledInputs(this.enabledInputs)
   }
 
   async setInputEnable(deviceId: string, enabled: boolean) {
@@ -126,4 +110,24 @@ export class BluetoothMIDIDeviceStore {
     })
     this.inputs = [...this.inputs, device]
   }
+}
+
+function saveEnabledInputs(enabledInputs: Record<string, boolean>) {
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(enabledInputs))
+}
+
+function loadEnabledInputs(): Record<string, boolean> {
+  try {
+    const json = window.localStorage.getItem(STORAGE_KEY)
+    if (json === null) {
+      return {}
+    }
+    const value = JSON.parse(json)
+    if (value !== null && typeof value === "object") {
+      return value as Record<string, boolean>
+    }
+  } catch {
+    // Ignore invalid persisted data and fall back to defaults.
+  }
+  return {}
 }
