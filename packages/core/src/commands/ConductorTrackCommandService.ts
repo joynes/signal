@@ -11,13 +11,8 @@ import {
 import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../helpers"
 import { isNotUndefined } from "../helpers/array"
 import { timeSignatureMidiEvent } from "../midi"
-import { ISongStore } from "./interfaces"
-import {
-  duplicateEvents,
-  removeRedundantEventsForEventIds,
-} from "./TrackCommandService"
 
-const moveTempoEvents =
+export const moveTempoEvents =
   (conductorTrack: Track) =>
   (
     eventIds: number[],
@@ -51,7 +46,7 @@ const moveTempoEvents =
     )
   }
 
-const copyTempoEvents =
+export const copyTempoEvents =
   (conductorTrack: Track) =>
   (eventIds: number[]): TempoEventsClipboardData | null => {
     // Copy selected events
@@ -77,7 +72,7 @@ const copyTempoEvents =
     }
   }
 
-const pasteTempoEventsAt =
+export const pasteTempoEventsAt =
   (conductorTrack: Track) => (data: TempoEventsClipboardData, tick: number) => {
     const events = data.events.map((e) => ({
       ...e,
@@ -88,17 +83,17 @@ const pasteTempoEventsAt =
     })
   }
 
-const getMeasureStartTick = (song: Song) => (tick: number) => {
+export const getMeasureStartTick = (song: Song) => (tick: number) => {
   const { timebase, measures } = song
   return Measure.getMeasureStart(measures, tick, timebase).tick
 }
 
-const hasTimeSignatureAt = (conductorTrack: Track) => (tick: number) => {
+export const hasTimeSignatureAt = (conductorTrack: Track) => (tick: number) => {
   const { timeSignatureEvents } = conductorTrack
   return timeSignatureEvents.some((e) => e.tick === tick)
 }
 
-const addTimeSignature =
+export const addTimeSignature =
   (conductorTrack: Track) =>
   (tick: number, numerator: number, denominator: number) => {
     return conductorTrack.addEvent({
@@ -106,56 +101,3 @@ const addTimeSignature =
       tick,
     })
   }
-
-export const createConductorTrackCommandService = (songStore: ISongStore) => {
-  function bindConductorTrack<Args extends unknown[], Result>(
-    command: (conductorTrack: Track) => (...args: Args) => Result,
-    // biome-ignore lint/suspicious/noConfusingVoidType: allow void for commands that may not return a value
-  ): (...args: Args) => Result | void
-  function bindConductorTrack<Args extends unknown[], Result>(
-    command: (conductorTrack: Track) => (...args: Args) => Result,
-    orFailure: Result,
-  ): (...args: Args) => Result
-  function bindConductorTrack<Args extends unknown[], Result>(
-    command: (conductorTrack: Track) => (...args: Args) => Result,
-    orFailure?: Result,
-  ) {
-    return (...args: Args) => {
-      const conductorTrack = songStore.song?.conductorTrack
-      if (!conductorTrack) {
-        return orFailure
-      }
-      return command(conductorTrack)(...args)
-    }
-  }
-
-  function bindSong<Args extends unknown[], Result>(
-    command: (song: Song) => (...args: Args) => Result,
-    orFailure: Result,
-  ): (...args: Args) => Result {
-    return (...args: Args) => {
-      const song = songStore.song
-      if (!song) {
-        return orFailure
-      }
-      return command(song)(...args)
-    }
-  }
-
-  return {
-    duplicateEvents: bindConductorTrack(duplicateEvents, []),
-    removeRedundantEventsForEventIds: bindConductorTrack(
-      removeRedundantEventsForEventIds,
-    ),
-    copyTempoEvents: bindConductorTrack(copyTempoEvents, null),
-    pasteTempoEventsAt: bindConductorTrack(pasteTempoEventsAt),
-    moveTempoEvents: bindConductorTrack(moveTempoEvents),
-    getMeasureStartTick: bindSong(getMeasureStartTick, 0),
-    hasTimeSignatureAt: bindConductorTrack(hasTimeSignatureAt, false),
-    addTimeSignature: bindConductorTrack(addTimeSignature, null),
-  }
-}
-
-export type ConductorTrackCommandService = ReturnType<
-  typeof createConductorTrackCommandService
->

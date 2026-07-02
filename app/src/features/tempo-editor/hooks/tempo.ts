@@ -1,6 +1,11 @@
-import { TempoEventsClipboardDataSchema } from "@signal-app/core"
+import {
+  copyTempoEvents as copyTempoEventsCmd,
+  duplicateEvents as duplicateEventsCmd,
+  pasteTempoEventsAt as pasteTempoEventsAtCmd,
+  TempoEventsClipboardDataSchema,
+} from "@signal-app/core"
 import { useCallback } from "react"
-import { useCommands } from "../../../hooks/useCommands"
+import { useConductorTrackCommand } from "../../../hooks/useCommand"
 import { useConductorTrack } from "../../../hooks/useConductorTrack"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
@@ -32,10 +37,10 @@ export const useDeleteTempoSelection = () => {
 
 export const useCopyTempoSelection = () => {
   const { selectedEventIds } = useTempoEditor()
-  const commands = useCommands()
+  const copyTempoEvents = useConductorTrackCommand(copyTempoEventsCmd)
 
   return async () => {
-    const data = commands.conductorTrack.copyTempoEvents(selectedEventIds)
+    const data = copyTempoEvents(selectedEventIds)
     if (!data) {
       return
     }
@@ -45,8 +50,12 @@ export const useCopyTempoSelection = () => {
 
 export const usePasteTempoSelection = () => {
   const { position } = usePlayer()
-  const commands = useCommands()
+  const { id: conductorTrackId } = useConductorTrack()
   const { pushHistory } = useHistory()
+  const pasteTempoEvents = useTrackCommand(
+    conductorTrackId,
+    pasteTempoEventsAtCmd,
+  )
 
   return async (e?: ClipboardEvent) => {
     const obj = e ? readJSONFromClipboard(e) : await readClipboardData()
@@ -57,7 +66,7 @@ export const usePasteTempoSelection = () => {
     }
 
     pushHistory()
-    commands.conductorTrack.pasteTempoEventsAt(data, position)
+    pasteTempoEvents(data, position)
   }
 }
 
@@ -74,7 +83,7 @@ export const useCutTempoSelection = () => {
 export const useDuplicateTempoSelection = () => {
   const { pushHistory } = useHistory()
   const { selectedEventIds, setSelectedEventIds } = useTempoEditor()
-  const commands = useCommands()
+  const duplicateEvents = useConductorTrackCommand(duplicateEventsCmd)
 
   return () => {
     if (selectedEventIds.length === 0) {
@@ -83,8 +92,7 @@ export const useDuplicateTempoSelection = () => {
 
     pushHistory()
 
-    const addedEventIds =
-      commands.conductorTrack.duplicateEvents(selectedEventIds)
+    const addedEventIds = duplicateEvents(selectedEventIds) ?? []
 
     // select the created events
     setSelectedEventIds(addedEventIds)

@@ -2,10 +2,8 @@ import { min } from "lodash"
 import { ControlEventsClipboardData } from "../entities/clipboard/clipboardTypes"
 import { Track } from "../entities/track/Track"
 import { isNotUndefined } from "../helpers"
-import type { ISongStore } from "./interfaces"
-import { createBindTrack } from "./TrackCommandService"
 
-const getClipboardDataForSelection =
+export const getControlClipboardDataForSelection =
   (track: Track) =>
   (eventIds: number[]): ControlEventsClipboardData | null => {
     // Copy selected events
@@ -30,7 +28,7 @@ const getClipboardDataForSelection =
     }
   }
 
-const pasteClipboardDataAtPosition =
+export const pasteClipboardDataAtPosition =
   (track: Track) => (data: ControlEventsClipboardData, position: number) => {
     const events = data.events.map((e) => ({
       ...e,
@@ -38,16 +36,3 @@ const pasteClipboardDataAtPosition =
     }))
     track.transaction(() => events.forEach((e) => track.createOrUpdate(e)))
   }
-
-export function createControlCommandService(songStore: ISongStore) {
-  const bindTrack = createBindTrack(songStore)
-
-  return {
-    getClipboardDataForSelection: bindTrack(getClipboardDataForSelection),
-    pasteClipboardDataAtPosition: bindTrack(pasteClipboardDataAtPosition),
-  }
-}
-
-export type ControlCommandService = ReturnType<
-  typeof createControlCommandService
->

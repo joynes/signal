@@ -1,15 +1,18 @@
 import {
+  duplicateNotes as duplicateNotesCmd,
   isNoteEvent,
   NoteEvent,
   PianoNotesClipboardData,
   PianoNotesClipboardDataSchema,
+  quantizeNotes as quantizeNotesCmd,
   TrackEvent,
+  transposeNotes as transposeNotesCmd,
 } from "@signal-app/core"
 import { min } from "lodash"
 import { useCallback } from "react"
 import { Rect } from "../../../entities/geometry/Rect"
 import { isNotUndefined } from "../../../helpers/array"
-import { useCommands } from "../../../hooks/useCommands"
+import { useTrackCommand } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { usePreviewNote } from "../../../hooks/usePreviewNote"
@@ -47,10 +50,10 @@ export function eventsInSelection(
 }
 
 export const useTransposeSelection = () => {
-  const commands = useCommands()
   const { selectedTrackId, selection, selectedNoteIds, setSelection } =
     usePianoRoll()
   const { pushHistory } = useHistory()
+  const transposeNotes = useTrackCommand(selectedTrackId, transposeNotesCmd)
 
   return useCallback(
     (deltaPitch: number) => {
@@ -61,20 +64,9 @@ export const useTransposeSelection = () => {
         setSelection(s)
       }
 
-      commands.track.transposeNotes(
-        selectedTrackId,
-        selectedNoteIds,
-        deltaPitch,
-      )
+      transposeNotes(selectedNoteIds, deltaPitch)
     },
-    [
-      pushHistory,
-      selection,
-      setSelection,
-      commands,
-      selectedTrackId,
-      selectedNoteIds,
-    ],
+    [pushHistory, selection, setSelection, transposeNotes, selectedNoteIds],
   )
 }
 
@@ -214,7 +206,7 @@ export const useDuplicateSelection = () => {
     setSelectedNoteIds,
   } = usePianoRoll()
   const { pushHistory } = useHistory()
-  const commands = useCommands()
+  const duplicateNotes = useTrackCommand(selectedTrackId, duplicateNotesCmd)
 
   return useCallback(() => {
     if (selection === null && selectedNoteIds.length === 0) {
@@ -225,8 +217,10 @@ export const useDuplicateSelection = () => {
 
     // move to the end of selection
     const deltaTick = selection ? selection.toTick - selection.fromTick : 0
-    const { addedNoteIds, deltaTick: newDeltaTick } =
-      commands.track.duplicateNotes(selectedTrackId, selectedNoteIds, deltaTick)
+    const { addedNoteIds, deltaTick: newDeltaTick } = duplicateNotes(
+      selectedNoteIds,
+      deltaTick,
+    ) ?? { addedNoteIds: [], deltaTick: 0 }
 
     if (selection) {
       setSelection(Selection.moved(selection, newDeltaTick, 0))
@@ -236,8 +230,7 @@ export const useDuplicateSelection = () => {
     selection,
     selectedNoteIds,
     pushHistory,
-    commands,
-    selectedTrackId,
+    duplicateNotes,
     setSelection,
     setSelectedNoteIds,
   ])
@@ -323,25 +316,15 @@ export const useQuantizeSelectedNotes = () => {
   const { selectedTrackId, selectedNoteIds } = usePianoRoll()
   const { forceQuantizeRound } = usePianoRollQuantizer()
   const { pushHistory } = useHistory()
-  const commands = useCommands()
+  const quantizeNotes = useTrackCommand(selectedTrackId, quantizeNotesCmd)
 
   return useCallback(() => {
     if (selectedNoteIds.length === 0) {
       return
     }
     pushHistory()
-    commands.track.quantizeNotes(
-      selectedTrackId,
-      selectedNoteIds,
-      forceQuantizeRound,
-    )
-  }, [
-    selectedNoteIds,
-    pushHistory,
-    commands.track,
-    selectedTrackId,
-    forceQuantizeRound,
-  ])
+    quantizeNotes(selectedNoteIds, forceQuantizeRound)
+  }, [selectedNoteIds, pushHistory, quantizeNotes, forceQuantizeRound])
 }
 
 export const useSelectAllNotes = () => {

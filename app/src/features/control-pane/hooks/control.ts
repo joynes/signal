@@ -1,8 +1,13 @@
-import { ControlEventsClipboardDataSchema } from "@signal-app/core"
+import {
+  ControlEventsClipboardDataSchema,
+  duplicateEvents as duplicateEventsCmd,
+  getControlClipboardDataForSelection as getControlClipboardDataForSelectionCmd,
+  pasteClipboardDataAtPosition as pasteClipboardDataAtPositionCmd,
+} from "@signal-app/core"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { isNotUndefined } from "../../../helpers/array"
-import { useCommands } from "../../../hooks/useCommands"
+import { useTrackCommand } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { useTrack } from "../../../hooks/useTrack"
@@ -74,29 +79,32 @@ export const useDeleteControlSelection = () => {
 export const useCopyControlSelection = () => {
   const { selectedTrackId } = usePianoRoll()
   const { selectedEventIds } = useControlPane()
-  const commands = useCommands()
+  const getClipboardData = useTrackCommand(
+    selectedTrackId,
+    getControlClipboardDataForSelectionCmd,
+  )
 
   return useCallback(async () => {
     if (selectedEventIds.length === 0) {
       return
     }
-    const data = commands.control.getClipboardDataForSelection(
-      selectedTrackId,
-      selectedEventIds,
-    )
+    const data = getClipboardData(selectedEventIds)
     if (!data) {
       return
     }
 
     await writeClipboardData(data)
-  }, [selectedEventIds, commands, selectedTrackId])
+  }, [selectedEventIds, getClipboardData])
 }
 
 export const usePasteControlSelection = () => {
   const { selectedTrackId } = usePianoRoll()
   const { position } = usePlayer()
   const { pushHistory } = useHistory()
-  const commands = useCommands()
+  const pasteClipboard = useTrackCommand(
+    selectedTrackId,
+    pasteClipboardDataAtPositionCmd,
+  )
 
   return useCallback(
     async (e?: ClipboardEvent) => {
@@ -108,13 +116,9 @@ export const usePasteControlSelection = () => {
       }
 
       pushHistory()
-      commands.control.pasteClipboardDataAtPosition(
-        selectedTrackId,
-        data,
-        position,
-      )
+      pasteClipboard(data, position)
     },
-    [commands, position, pushHistory, selectedTrackId],
+    [pasteClipboard, position, pushHistory],
   )
 }
 
@@ -132,7 +136,7 @@ export const useDuplicateControlSelection = () => {
   const { selectedTrackId } = usePianoRoll()
   const { pushHistory } = useHistory()
   const { selectedEventIds, setSelectedEventIds } = useControlPane()
-  const commands = useCommands()
+  const duplicateEvents = useTrackCommand(selectedTrackId, duplicateEventsCmd)
 
   return useCallback(() => {
     if (selectedEventIds.length === 0) {
@@ -142,16 +146,7 @@ export const useDuplicateControlSelection = () => {
     pushHistory()
 
     // select the created events
-    const addedEventIds = commands.track.duplicateEvents(
-      selectedTrackId,
-      selectedEventIds,
-    )
+    const addedEventIds = duplicateEvents(selectedEventIds) ?? []
     setSelectedEventIds(addedEventIds)
-  }, [
-    selectedEventIds,
-    pushHistory,
-    setSelectedEventIds,
-    commands,
-    selectedTrackId,
-  ])
+  }, [selectedEventIds, pushHistory, setSelectedEventIds, duplicateEvents])
 }

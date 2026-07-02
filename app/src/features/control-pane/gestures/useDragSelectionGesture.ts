@@ -1,10 +1,13 @@
-import { TrackEventOf } from "@signal-app/core"
+import {
+  removeRedundantEventsForEventIds as removeRedundantEventsForEventIdsCmd,
+  TrackEventOf,
+} from "@signal-app/core"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { observeDrag2 } from "../../../helpers/observeDrag"
-import { useCommands } from "../../../hooks/useCommands"
+import { useTrackCommand } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
 import { useTrack } from "../../../hooks/useTrack"
@@ -24,7 +27,10 @@ export const useDragSelectionGesture = (): MouseDownHandler<
   const { selectedEventIds: _selectedEventIds, setSelectedEventIds } =
     useControlPane()
   const { quantizeRound } = useQuantizer()
-  const commands = useCommands()
+  const removeRedundantEvents = useTrackCommand(
+    selectedTrackId,
+    removeRedundantEventsForEventIdsCmd,
+  )
 
   return useCallback(
     (
@@ -79,21 +85,17 @@ export const useDragSelectionGesture = (): MouseDownHandler<
 
         onMouseUp: () => {
           // Find events with the same tick and remove it
-          commands.track.removeRedundantEventsForEventIds(
-            selectedTrackId,
-            selectedEventIds,
-          )
+          removeRedundantEvents(selectedEventIds)
         },
       })
     },
     [
       pushHistory,
-      selectedTrackId,
       _selectedEventIds,
       setSelectedEventIds,
       getEvents,
       updateEvents,
-      commands,
+      removeRedundantEvents,
       quantizeRound,
     ],
   )

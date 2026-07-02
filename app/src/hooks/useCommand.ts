@@ -1,0 +1,53 @@
+import { Song, Track, TrackId } from "@signal-app/core"
+import { useCallback } from "react"
+import { useStores } from "./useStores"
+
+export function useSongCommand<A extends unknown[], R>(
+  cmd: (song: Song) => (...a: A) => R,
+): (...a: A) => R {
+  const { songStore } = useStores()
+  return useCallback((...a: A) => cmd(songStore.song)(...a), [songStore, cmd])
+}
+
+export function useTrackCommand<A extends unknown[], R>(
+  trackId: TrackId,
+  cmd: (track: Track) => (...a: A) => R,
+): (...a: A) => R | undefined {
+  const { songStore } = useStores()
+  return useCallback(
+    (...a: A) => {
+      const track = songStore.song.getTrack(trackId)
+      if (!track) {
+        return undefined
+      }
+      return cmd(track)(...a)
+    },
+    [songStore, trackId, cmd],
+  )
+}
+
+export function useTracksCommand<A extends unknown[], R>(
+  cmd: (tracks: readonly Track[]) => (...a: A) => R,
+): (...a: A) => R {
+  const { songStore } = useStores()
+  return useCallback(
+    (...a: A) => cmd(songStore.song.tracks)(...a),
+    [songStore, cmd],
+  )
+}
+
+export function useConductorTrackCommand<A extends unknown[], R>(
+  cmd: (track: Track) => (...a: A) => R,
+): (...a: A) => R | undefined {
+  const { songStore } = useStores()
+  return useCallback(
+    (...a: A) => {
+      const conductorTrack = songStore.song.conductorTrack
+      if (!conductorTrack) {
+        return undefined
+      }
+      return cmd(conductorTrack)(...a)
+    },
+    [songStore, cmd],
+  )
+}

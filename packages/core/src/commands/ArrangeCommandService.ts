@@ -9,7 +9,6 @@ import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
 import { ArrangePoint } from "../entities/transform/ArrangePoint"
 import { isNotUndefined } from "../helpers/array"
 import { isEventInRange } from "../helpers/filterEvents"
-import { ISongStore } from "./interfaces"
 import {
   BatchUpdateOperation,
   batchUpdateNotesVelocity as batchUpdateNotesVelocityForTrack,
@@ -28,7 +27,7 @@ const runTrackTransaction = <T>(tracks: readonly Track[], fn: () => T): T => {
 }
 
 // returns moved event ids
-const moveEventsBetweenTracks =
+export const moveEventsBetweenTracks =
   (tracks: readonly Track[]) =>
   (
     eventIdForTrackIndex: { [trackIndex: number]: number[] },
@@ -77,7 +76,7 @@ const moveEventsBetweenTracks =
     })
   }
 
-const batchUpdateNotesVelocity =
+export const batchUpdateArrangeNotesVelocity =
   (tracks: readonly Track[]) =>
   (selection: ArrangeSelection, operation: BatchUpdateOperation) => {
     const eventIdForTrackIndex = getEventsInSelection(tracks)(selection)
@@ -95,7 +94,7 @@ const batchUpdateNotesVelocity =
     })
   }
 
-const duplicateSelection =
+export const duplicateSelection =
   (tracks: readonly Track[]) =>
   (selection: ArrangeSelection): ArrangeSelection => {
     const deltaTick = selection.toTick - selection.fromTick
@@ -128,7 +127,7 @@ const duplicateSelection =
     }
   }
 
-const deleteSelection =
+export const deleteSelection =
   (tracks: readonly Track[]) => (selection: ArrangeSelection) => {
     const selectedEventIds = getEventsInSelection(tracks)(selection)
     runTrackTransaction(tracks, () => {
@@ -138,7 +137,7 @@ const deleteSelection =
     })
   }
 
-const transposeSelection =
+export const transposeSelection =
   (tracks: readonly Track[]) =>
   (selection: ArrangeSelection, deltaPitch: number) => {
     const selectedEventIds = getEventsInSelection(tracks)(selection)
@@ -156,7 +155,7 @@ const transposeSelection =
     })
   }
 
-const getClipboardDataForSelection =
+export const getArrangeClipboardDataForSelection =
   (tracks: readonly Track[]) =>
   (selection: ArrangeSelection): ArrangeNotesClipboardData => {
     const selectedEventIds = getEventsInSelection(tracks)(selection)
@@ -178,7 +177,7 @@ const getClipboardDataForSelection =
     }
   }
 
-const pasteClipboardDataAt =
+export const pasteClipboardDataAt =
   (tracks: readonly Track[]) =>
   (
     data: ArrangeNotesClipboardData,
@@ -207,7 +206,7 @@ const pasteClipboardDataAt =
   }
 
 // returns { trackIndex: [eventId] }
-const getEventsInSelection =
+export const getEventsInSelection =
   (tracks: readonly Track[]) => (selection: ArrangeSelection) => {
     const ids: { [key: number]: number[] } = {}
     for (
@@ -224,33 +223,8 @@ const getEventsInSelection =
     return ids
   }
 
-const hasSelectionNotes =
+export const hasSelectionNotes =
   (tracks: readonly Track[]) => (selection: ArrangeSelection) => {
     const selectedEventIds = getEventsInSelection(tracks)(selection)
     return Object.values(selectedEventIds).some((ids) => ids.length > 0)
   }
-
-export function createArrangeCommandService(songStore: ISongStore) {
-  function bindTracks<Args extends unknown[], Result>(
-    command: (tracks: readonly Track[]) => (...args: Args) => Result,
-  ): (...args: Args) => Result {
-    return (...args: Args) => {
-      return command(songStore.song.tracks)(...args)
-    }
-  }
-  return {
-    moveEventsBetweenTracks: bindTracks(moveEventsBetweenTracks),
-    batchUpdateNotesVelocity: bindTracks(batchUpdateNotesVelocity),
-    duplicateSelection: bindTracks(duplicateSelection),
-    deleteSelection: bindTracks(deleteSelection),
-    transposeSelection: bindTracks(transposeSelection),
-    getClipboardDataForSelection: bindTracks(getClipboardDataForSelection),
-    pasteClipboardDataAt: bindTracks(pasteClipboardDataAt),
-    getEventsInSelection: bindTracks(getEventsInSelection),
-    hasSelectionNotes: bindTracks(hasSelectionNotes),
-  }
-}
-
-export type ArrangeCommandService = ReturnType<
-  typeof createArrangeCommandService
->

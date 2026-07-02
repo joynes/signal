@@ -1,18 +1,28 @@
 import {
+  addTimeSignature as addTimeSignatureCmd,
   type BatchUpdateOperation,
+  batchUpdateNotesVelocity as batchUpdateNotesVelocityCmd,
+  getMeasureStartTick as getMeasureStartTickCmd,
   getProgramNumberEvent,
+  hasTimeSignatureAt as hasTimeSignatureAtCmd,
   isProgramChangeEvent,
   programChangeMidiEvent,
   TrackEvent,
   TrackEventOf,
   TrackId,
+  updateEventsInRange as updateEventsInRangeCmd,
+  updateEventsInRangeWithEasing as updateEventsInRangeWithEasingCmd,
 } from "@signal-app/core"
 import type { AnyChannelEvent, AnyEvent, ProgramChangeEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { ValueEventType } from "../features/control-pane/entities/ValueEventType"
 import { usePianoRoll } from "../features/piano-roll/hooks/usePianoRoll"
 import { addedSet, deletedSet } from "../helpers/set"
-import { useCommands } from "../hooks/useCommands"
+import {
+  useConductorTrackCommand,
+  useSongCommand,
+  useTrackCommand,
+} from "../hooks/useCommand"
 import { useConductorTrack } from "../hooks/useConductorTrack"
 import { useHistory } from "../hooks/useHistory"
 import { usePlayer } from "../hooks/usePlayer"
@@ -77,7 +87,7 @@ export const useUpdateEventsInRange = (
   createEvent: (value: number) => AnyEvent,
 ) => {
   const { quantizeFloor, quantizeUnit } = useQuantizer()
-  const commands = useCommands()
+  const updateEventsInRange = useTrackCommand(trackId, updateEventsInRangeCmd)
 
   return useCallback(
     (
@@ -86,8 +96,7 @@ export const useUpdateEventsInRange = (
       startTick: number,
       endTick: number,
     ) => {
-      commands.track.updateEventsInRange(
-        trackId,
+      updateEventsInRange(
         filterEvent,
         createEvent,
         quantizeFloor,
@@ -98,7 +107,13 @@ export const useUpdateEventsInRange = (
         endTick,
       )
     },
-    [commands, trackId, filterEvent, createEvent, quantizeFloor, quantizeUnit],
+    [
+      updateEventsInRange,
+      filterEvent,
+      createEvent,
+      quantizeFloor,
+      quantizeUnit,
+    ],
   )
 }
 
@@ -115,7 +130,10 @@ export const useUpdateValueEvents = (type: ValueEventType) => {
 export const useUpdateValueEventsWithCurve = (type: ValueEventType) => {
   const { selectedTrackId } = usePianoRoll()
   const { quantizeFloor, quantizeUnit } = useQuantizer()
-  const commands = useCommands()
+  const updateEventsWithEasing = useTrackCommand(
+    selectedTrackId,
+    updateEventsInRangeWithEasingCmd,
+  )
 
   return useCallback(
     (
@@ -125,8 +143,7 @@ export const useUpdateValueEventsWithCurve = (type: ValueEventType) => {
       endTick: number,
       easing: (t: number) => number,
     ) => {
-      commands.track.updateEventsInRangeWithEasing(
-        selectedTrackId,
+      updateEventsWithEasing(
         ValueEventType.getEventPredicate(type),
         ValueEventType.getEventFactory(type),
         quantizeFloor,
@@ -138,7 +155,7 @@ export const useUpdateValueEventsWithCurve = (type: ValueEventType) => {
         easing,
       )
     },
-    [commands, selectedTrackId, type, quantizeFloor, quantizeUnit],
+    [updateEventsWithEasing, type, quantizeFloor, quantizeUnit],
   )
 }
 
@@ -296,26 +313,24 @@ export const useToggleAllGhostTracks = () => {
 
 export const useAddTimeSignature = () => {
   const { pushHistory } = useHistory()
-  const commands = useCommands()
+  const getMeasureStartTick = useSongCommand(getMeasureStartTickCmd)
+  const hasTimeSignatureAt = useConductorTrackCommand(hasTimeSignatureAtCmd)
+  const addTimeSignature = useConductorTrackCommand(addTimeSignatureCmd)
 
   return useCallback(
     (tick: number, numerator: number, denominator: number) => {
-      const measureStartTick = commands.conductorTrack.getMeasureStartTick(tick)
+      const measureStartTick = getMeasureStartTick(tick)
 
       // prevent duplication
-      if (commands.conductorTrack.hasTimeSignatureAt(measureStartTick)) {
+      if (hasTimeSignatureAt(measureStartTick)) {
         return
       }
 
       pushHistory()
 
-      commands.conductorTrack.addTimeSignature(
-        measureStartTick,
-        numerator,
-        denominator,
-      )
+      addTimeSignature(measureStartTick, numerator, denominator)
     },
-    [pushHistory, commands],
+    [pushHistory, getMeasureStartTick, hasTimeSignatureAt, addTimeSignature],
   )
 }
 
@@ -338,17 +353,16 @@ export const useUpdateTimeSignature = () => {
 export const useBatchUpdateSelectedNotesVelocity = () => {
   const { selectedTrackId, selectedNoteIds } = usePianoRoll()
   const { pushHistory } = useHistory()
-  const commands = useCommands()
+  const batchUpdateNotesVelocity = useTrackCommand(
+    selectedTrackId,
+    batchUpdateNotesVelocityCmd,
+  )
 
   return useCallback(
     (operation: BatchUpdateOperation) => {
       pushHistory()
-      commands.track.batchUpdateNotesVelocity(
-        selectedTrackId,
-        selectedNoteIds,
-        operation,
-      )
+      batchUpdateNotesVelocity(selectedNoteIds, operation)
     },
-    [selectedTrackId, selectedNoteIds, pushHistory, commands],
+    [selectedNoteIds, pushHistory, batchUpdateNotesVelocity],
   )
 }
