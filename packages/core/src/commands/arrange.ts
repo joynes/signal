@@ -13,7 +13,7 @@ import {
   BatchUpdateOperation,
   batchUpdateNotesVelocity as batchUpdateNotesVelocityForTrack,
   transposeNotes,
-} from "./TrackCommandService"
+} from "./track"
 
 const runTrackTransaction = <T>(tracks: readonly Track[], fn: () => T): T => {
   const runInAllTracks = (index: number): T => {
