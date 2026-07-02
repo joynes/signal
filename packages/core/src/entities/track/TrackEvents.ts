@@ -18,6 +18,16 @@ import { validateMidiEvent } from "./validate"
 export namespace TrackEvents {
   // array mutation
 
+  export const updateEvents =
+    (updates: Partial<TrackEvent>[]) =>
+    (events: TickOrderedArray<TrackEvent>): void => {
+      updates.forEach((update) => {
+        if (update.id !== undefined) {
+          updateEvent(update.id, update)(events)
+        }
+      })
+    }
+
   export const updateEvent =
     <T extends TrackEvent>(id: number, obj: Partial<T>) =>
     (events: TickOrderedArray<TrackEvent>): T | null => {

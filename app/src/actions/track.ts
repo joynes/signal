@@ -1,7 +1,7 @@
 import {
   addTimeSignature as addTimeSignatureCmd,
   type BatchUpdateOperation,
-  batchUpdateNotesVelocity as batchUpdateNotesVelocityCmd,
+  batchUpdateNotesVelocity,
   getMeasureStartTick as getMeasureStartTickCmd,
   getProgramNumberEvent,
   hasTimeSignatureAt as hasTimeSignatureAtCmd,
@@ -22,6 +22,7 @@ import {
   useConductorTrackCommand,
   useSongCommand,
   useTrackCommand,
+  useMutateTrack,
 } from "../hooks/useCommand"
 import { useConductorTrack } from "../hooks/useConductorTrack"
 import { useHistory } from "../hooks/useHistory"
@@ -353,16 +354,13 @@ export const useUpdateTimeSignature = () => {
 export const useBatchUpdateSelectedNotesVelocity = () => {
   const { selectedTrackId, selectedNoteIds } = usePianoRoll()
   const { pushHistory } = useHistory()
-  const batchUpdateNotesVelocity = useTrackCommand(
-    selectedTrackId,
-    batchUpdateNotesVelocityCmd,
-  )
+  const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(
     (operation: BatchUpdateOperation) => {
       pushHistory()
-      batchUpdateNotesVelocity(selectedNoteIds, operation)
+      mutate(batchUpdateNotesVelocity(selectedNoteIds, operation))
     },
-    [selectedNoteIds, pushHistory, batchUpdateNotesVelocity],
+    [selectedNoteIds, pushHistory, mutate],
   )
 }

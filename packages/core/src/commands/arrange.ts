@@ -86,9 +86,8 @@ export const batchUpdateArrangeNotesVelocity =
       )) {
         const trackIndex = parseInt(trackIndexStr, 10)
         const track = tracks[trackIndex]
-        batchUpdateNotesVelocityForTrack(track)(
-          selectedEventIdsValue,
-          operation,
+        track.mutate(
+          batchUpdateNotesVelocityForTrack(selectedEventIdsValue, operation),
         )
       }
     })

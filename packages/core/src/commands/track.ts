@@ -7,6 +7,7 @@ import {
   Track,
   TrackEvent,
   TrackEvents,
+  TrackEventsMutator,
 } from "../entities"
 import { NoteNumber } from "../entities/unit/NoteNumber"
 import { closedRange, isNotNull, isNotUndefined } from "../helpers/array"
@@ -18,12 +19,13 @@ export interface BatchUpdateOperation {
 }
 
 export const batchUpdateNotesVelocity =
-  (track: Track) => (noteIds: number[], operation: BatchUpdateOperation) => {
+  (noteIds: number[], operation: BatchUpdateOperation): TrackEventsMutator =>
+  (events) => {
     const selectedNotes = noteIds
-      .map((id) => track.getEventById(id))
+      .map((id) => events.get(id))
       .filter(isNotUndefined)
       .filter(isNoteEvent)
-    track.updateEvents(
+    TrackEvents.updateEvents(
       selectedNotes.map((note) => ({
         id: note.id,
         velocity: clamp(
@@ -32,7 +34,7 @@ export const batchUpdateNotesVelocity =
           127,
         ),
       })),
-    )
+    )(events)
   }
 
 export const transposeNotes =

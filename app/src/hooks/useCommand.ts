@@ -52,7 +52,7 @@ export function useConductorTrackCommand<A extends unknown[], R>(
   )
 }
 
-export function useTrackMutation(
+export function useMutateTrack(
   trackId: TrackId,
 ): <R = void>(fn: TrackEventsMutator<R>) => R | undefined {
   const { songStore } = useStores()
