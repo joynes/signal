@@ -7,7 +7,7 @@ import {
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { isNotUndefined } from "../../../helpers/array"
-import { useTrackCommand } from "../../../hooks/useCommand"
+import { useTrackCommand, useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { useTrack } from "../../../hooks/useTrack"
@@ -136,7 +136,7 @@ export const useDuplicateControlSelection = () => {
   const { selectedTrackId } = usePianoRoll()
   const { pushHistory } = useHistory()
   const { selectedEventIds, setSelectedEventIds } = useControlPane()
-  const duplicateEvents = useTrackCommand(selectedTrackId, duplicateEventsCmd)
+  const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(() => {
     if (selectedEventIds.length === 0) {
@@ -146,7 +146,7 @@ export const useDuplicateControlSelection = () => {
     pushHistory()
 
     // select the created events
-    const addedEventIds = duplicateEvents(selectedEventIds) ?? []
+    const addedEventIds = mutate(duplicateEventsCmd(selectedEventIds)) ?? []
     setSelectedEventIds(addedEventIds)
-  }, [selectedEventIds, pushHistory, setSelectedEventIds, duplicateEvents])
+  }, [selectedEventIds, pushHistory, setSelectedEventIds, mutate])
 }

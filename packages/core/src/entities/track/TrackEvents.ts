@@ -28,6 +28,17 @@ export namespace TrackEvents {
       })
     }
 
+  export const removeEvents =
+    (ids: number[]) =>
+    (events: TickOrderedArray<TrackEvent>): void => {
+      ids.forEach((id) => events.remove(id))
+    }
+
+  export const addEvents =
+    <T extends TrackEvent>(newEvents: Omit<T, "id">[]) =>
+    (events: TickOrderedArray<TrackEvent>): T[] =>
+      newEvents.map((e) => addEvent<T>(e)(events))
+
   export const updateEvent =
     <T extends TrackEvent>(id: number, obj: Partial<T>) =>
     (events: TickOrderedArray<TrackEvent>): T | null => {

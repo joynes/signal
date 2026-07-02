@@ -7,7 +7,7 @@ import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { observeDrag2 } from "../../../helpers/observeDrag"
-import { useTrackCommand } from "../../../hooks/useCommand"
+import { useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
 import { useTrack } from "../../../hooks/useTrack"
@@ -27,10 +27,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
   const { selectedEventIds: _selectedEventIds, setSelectedEventIds } =
     useControlPane()
   const { quantizeRound } = useQuantizer()
-  const removeRedundantEvents = useTrackCommand(
-    selectedTrackId,
-    removeRedundantEventsForEventIdsCmd,
-  )
+  const removeRedundantEvents = useMutateTrack(selectedTrackId)
 
   return useCallback(
     (
@@ -85,7 +82,9 @@ export const useDragSelectionGesture = (): MouseDownHandler<
 
         onMouseUp: () => {
           // Find events with the same tick and remove it
-          removeRedundantEvents(selectedEventIds)
+          removeRedundantEvents(
+            removeRedundantEventsForEventIdsCmd(selectedEventIds),
+          )
         },
       })
     },

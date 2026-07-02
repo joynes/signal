@@ -4,7 +4,7 @@ import { Point } from "../../../entities/geometry/Point"
 import { usePianoRoll } from "../../../features/piano-roll/hooks/usePianoRoll"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { observeDrag2 } from "../../../helpers/observeDrag"
-import { useTrackCommand } from "../../../hooks/useCommand"
+import { useMutateTrack } from "../../../hooks/useCommand"
 import { useTickScroll } from "../../../hooks/useTickScroll"
 import { VelocityTransform } from "../entities/VelocityTransform"
 
@@ -16,10 +16,7 @@ export const useVelocityPaintGesture = ({
   const { transform } = useTickScroll()
   const { scrollLeft } = useTickScroll()
   const { selectedTrackId, selectedNoteIds } = usePianoRoll()
-  const updateVelocities = useTrackCommand(
-    selectedTrackId,
-    updateVelocitiesInRangeCmd,
-  )
+  const updateVelocities = useMutateTrack(selectedTrackId)
 
   return useCallback(
     (ev: React.MouseEvent) => {
@@ -44,7 +41,15 @@ export const useVelocityPaintGesture = ({
           const tick = transform.getTick(local.x)
           const value = calcValue(e)
 
-          updateVelocities(selectedNoteIds, lastTick, lastValue, tick, value)
+          updateVelocities(
+            updateVelocitiesInRangeCmd(
+              selectedNoteIds,
+              lastTick,
+              lastValue,
+              tick,
+              value,
+            ),
+          )
           lastTick = tick
           lastValue = value
         },

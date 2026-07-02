@@ -4,7 +4,6 @@ import {
   isNoteEvent,
   NoteEvent,
   Range,
-  Track,
   TrackEvent,
   TrackEvents,
   TrackEventsMutator,
@@ -38,11 +37,12 @@ export const batchUpdateNotesVelocity =
   }
 
 export const transposeNotes =
-  (track: Track) => (noteIds: number[], deltaPitch: number) => {
-    track.updateEvents(
+  (noteIds: number[], deltaPitch: number): TrackEventsMutator =>
+  (events) => {
+    TrackEvents.updateEvents(
       noteIds
         .map((id) => {
-          const n = track.getEventById(id)
+          const n = events.get(id)
           if (n === undefined || !isNoteEvent(n)) {
             return null
           }
@@ -52,39 +52,45 @@ export const transposeNotes =
           }
         })
         .filter(isNotNull),
-    )
+    )(events)
   }
 
-export const duplicateEvents = (track: Track) => (eventIds: number[]) => {
-  const selectedEvents = eventIds
-    .map((id) => track.getEventById(id))
-    .filter(isNotUndefined)
+export const duplicateEvents = (eventIds: number[]): TrackEventsMutator<number[]> =>
+  (events) => {
+    const selectedEvents = eventIds
+      .map((id) => events.get(id))
+      .filter(isNotUndefined)
 
-  // move to the end of selection
-  const deltaTick =
-    (maxBy(selectedEvents, (e) => e.tick)?.tick ?? 0) -
-    (minBy(selectedEvents, (e) => e.tick)?.tick ?? 0)
+    // move to the end of selection
+    const deltaTick =
+      (maxBy(selectedEvents, (e) => e.tick)?.tick ?? 0) -
+      (minBy(selectedEvents, (e) => e.tick)?.tick ?? 0)
 
-  const events = selectedEvents.map((note) => ({
-    ...note,
-    tick: note.tick + deltaTick,
-  }))
+    const newEvents = selectedEvents.map((e) => ({
+      ...e,
+      tick: e.tick + deltaTick,
+    }))
 
-  return track
-    .transaction(() => events.map((e) => track.createOrUpdate(e)))
-    .filter(isNotUndefined)
-    .map((e) => e.id)
-}
+    return newEvents
+      .map((e) => TrackEvents.createOrUpdate(e)(events))
+      .filter(isNotUndefined)
+      .map((e) => e.id)
+  }
 
 // duplicate notes with an optional deltaTick
 // if deltaTick is 0, duplicate to the right of the selected notes
 export const duplicateNotes =
-  (track: Track) => (noteIds: number[], deltaTick: number) => {
+  (
+    noteIds: number[],
+    initialDeltaTick: number,
+  ): TrackEventsMutator<{ addedNoteIds: number[]; deltaTick: number }> =>
+  (events) => {
     const selectedNotes = noteIds
-      .map((id) => track.getEventById(id))
+      .map((id) => events.get(id))
       .filter(isNotUndefined)
       .filter(isNoteEvent)
 
+    let deltaTick = initialDeltaTick
     if (deltaTick === 0) {
       const left = min(selectedNotes.map((n) => n.tick)) ?? 0
       const right = max(selectedNotes.map((n) => n.tick + n.duration)) ?? 0
@@ -96,25 +102,21 @@ export const duplicateNotes =
       tick: note.tick + deltaTick,
     }))
 
-    // select the created notes
-    const addedNoteIds = track.addEvents(notes).map((n: TrackEvent) => n.id)
+    const addedNoteIds = TrackEvents.addEvents(notes)(events).map((e) => e.id)
 
-    return {
-      addedNoteIds,
-      deltaTick,
-    }
+    return { addedNoteIds, deltaTick }
   }
 
 // update velocities of notes in the specified range using linear interpolation
 export const updateVelocitiesInRange =
-  (track: Track) =>
   (
     selectedNoteIds: number[], // if empty, apply to all notes
     startTick: number,
     startValue: number,
     endTick: number,
     endValue: number,
-  ) => {
+  ): TrackEventsMutator =>
+  (events) => {
     const minTick = Math.min(startTick, endTick)
     const maxTick = Math.max(startTick, endTick)
     const minValue = Math.min(startValue, endValue)
@@ -132,53 +134,53 @@ export const updateVelocitiesInRange =
         ),
       )
 
+    const allEvents = events.getArray()
     const notes =
       selectedNoteIds.length > 0
-        ? selectedNoteIds.map((id) => track.getEventById(id) as NoteEvent)
-        : track.events.filter(isNoteEvent)
+        ? selectedNoteIds.map((id) => events.get(id) as NoteEvent)
+        : allEvents.filter(isNoteEvent)
 
-    const events = notes.filter(isEventInRange(Range.create(minTick, maxTick)))
+    const eventsToUpdate = notes.filter(
+      isEventInRange(Range.create(minTick, maxTick)),
+    )
 
-    track.transaction(() => {
-      track.updateEvents(
-        events.map((e: TrackEvent) => ({
-          id: e.id,
-          velocity: getValue(e.tick),
-        })),
-      )
-    })
+    TrackEvents.updateEvents(
+      eventsToUpdate.map((e: TrackEvent) => ({
+        id: e.id,
+        velocity: getValue(e.tick),
+      })),
+    )(events)
   }
 
 export const removeRedundantEvents =
-  (track: Track) =>
   <T extends TrackEvent>(
     event: T & { subtype?: string; controllerType?: number },
-  ) => {
+  ): TrackEventsMutator =>
+  (events) => {
     const eventsIdsToRemove = TrackEvents.getRedundantEvents(event)(
-      track.events,
+      events.getArray(),
     )
       .filter((e) => e.id !== event.id)
       .map((e) => e.id)
-    track.removeEvents(eventsIdsToRemove)
+    TrackEvents.removeEvents(eventsIdsToRemove)(events)
   }
 
 export const removeRedundantEventsForEventIds =
-  (track: Track) => (eventIds: number[]) => {
-    const controllerEvents = track.events.filter((e: TrackEvent) =>
-      eventIds.includes(e.id),
-    )
-    track.transaction(() =>
-      controllerEvents.forEach((e: TrackEvent) =>
-        removeRedundantEvents(track)(e),
-      ),
+  (eventIds: number[]): TrackEventsMutator =>
+  (events) => {
+    const controllerEvents = events
+      .getArray()
+      .filter((e: TrackEvent) => eventIds.includes(e.id))
+    controllerEvents.forEach((e: TrackEvent) =>
+      removeRedundantEvents(e)(events),
     )
   }
 
 export const quantizeNotes =
-  (track: Track) =>
-  (noteIds: number[], quantizeRound: (tick: number) => number) => {
+  (noteIds: number[], quantizeRound: (tick: number) => number): TrackEventsMutator =>
+  (events) => {
     const notes = noteIds
-      .map((id) => track.getEventById(id))
+      .map((id) => events.get(id))
       .filter(isNotUndefined)
       .filter(isNoteEvent)
       .map((e) => ({
@@ -186,12 +188,11 @@ export const quantizeNotes =
         tick: quantizeRound(e.tick),
       }))
 
-    track.updateEvents(notes)
+    TrackEvents.updateEvents(notes)(events)
   }
 
 // Update events in the range with easing interpolation values
 export const updateEventsInRangeWithEasing =
-  (track: Track) =>
   (
     filterEvent: (e: TrackEvent) => boolean,
     createEvent: (value: number) => AnyEvent,
@@ -202,7 +203,8 @@ export const updateEventsInRangeWithEasing =
     startTick: number,
     endTick: number,
     easing: (t: number) => number,
-  ) => {
+  ): TrackEventsMutator =>
+  (events) => {
     const minTick = Math.min(startTick, endTick)
     const maxTick = Math.max(startTick, endTick)
     const _startTick = quantizeFloor(Math.max(0, minTick))
@@ -223,7 +225,8 @@ export const updateEventsInRangeWithEasing =
             )
           }
 
-    const events = track.events
+    const filteredEvents = events
+      .getArray()
       .filter(filterEvent)
       .filter(
         (e) =>
@@ -232,21 +235,17 @@ export const updateEventsInRangeWithEasing =
           e.tick <= Math.max(maxTick, _endTick),
       )
 
-    track.transaction(() => {
-      track.removeEvents(events.map((e) => e.id))
-      const newEvents = closedRange(_startTick, _endTick, quantizeUnit).map(
-        (tick) => ({
-          ...createEvent(getValue(tick)),
-          tick,
-        }),
-      )
-      track.addEvents(newEvents)
-    })
+    TrackEvents.removeEvents(filteredEvents.map((e) => e.id))(events)
+    TrackEvents.addEvents(
+      closedRange(_startTick, _endTick, quantizeUnit).map((tick) => ({
+        ...createEvent(getValue(tick)),
+        tick,
+      })),
+    )(events)
   }
 
 // Update  events in the range with linear interpolation values
 export const updateEventsInRange =
-  (track: Track) =>
   (
     filterEvent: (e: TrackEvent) => boolean,
     createEvent: (value: number) => AnyEvent,
@@ -256,7 +255,8 @@ export const updateEventsInRange =
     endValue: number,
     startTick: number,
     endTick: number,
-  ) => {
+  ): TrackEventsMutator =>
+  (events) => {
     const minTick = Math.min(startTick, endTick)
     const maxTick = Math.max(startTick, endTick)
     const _startTick = quantizeFloor(Math.max(0, minTick))
@@ -283,7 +283,7 @@ export const updateEventsInRange =
             )
 
     // Delete events in the dragged area
-    const events = track.events.filter(filterEvent).filter(
+    const filteredEvents = events.getArray().filter(filterEvent).filter(
       (e) =>
         // to prevent remove the event created previously, do not remove the event placed at startTick
         e.tick !== startTick &&
@@ -291,18 +291,13 @@ export const updateEventsInRange =
         e.tick <= Math.max(maxTick, _endTick),
     )
 
-    track.transaction(() => {
-      track.removeEvents(events.map((e) => e.id))
-
-      const newEvents = closedRange(_startTick, _endTick, quantizeUnit).map(
-        (tick) => ({
-          ...createEvent(getValue(tick)),
-          tick,
-        }),
-      )
-
-      track.addEvents(newEvents)
-    })
+    TrackEvents.removeEvents(filteredEvents.map((e) => e.id))(events)
+    TrackEvents.addEvents(
+      closedRange(_startTick, _endTick, quantizeUnit).map((tick) => ({
+        ...createEvent(getValue(tick)),
+        tick,
+      })),
+    )(events)
   }
 
 const applyOperation = (operation: BatchUpdateOperation, value: number) => {

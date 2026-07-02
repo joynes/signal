@@ -149,7 +149,7 @@ export const transposeSelection =
         if (track === undefined) {
           continue
         }
-        transposeNotes(track)(eventIds, deltaPitch)
+        track.mutate(transposeNotes(eventIds, deltaPitch))
       }
     })
   }

@@ -67,3 +67,19 @@ export function useMutateTrack(
     [songStore, trackId],
   )
 }
+
+export function useMutateConductorTrack(): <R = void>(
+  fn: TrackEventsMutator<R>,
+) => R | undefined {
+  const { songStore } = useStores()
+  return useCallback(
+    <R = void>(fn: TrackEventsMutator<R>) => {
+      const conductorTrack = songStore.song.conductorTrack
+      if (!conductorTrack) {
+        return undefined
+      }
+      return conductorTrack.mutate(fn)
+    },
+    [songStore],
+  )
+}

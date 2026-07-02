@@ -12,7 +12,7 @@ import { min } from "lodash"
 import { useCallback } from "react"
 import { Rect } from "../../../entities/geometry/Rect"
 import { isNotUndefined } from "../../../helpers/array"
-import { useTrackCommand } from "../../../hooks/useCommand"
+import { useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { usePreviewNote } from "../../../hooks/usePreviewNote"
@@ -53,7 +53,7 @@ export const useTransposeSelection = () => {
   const { selectedTrackId, selection, selectedNoteIds, setSelection } =
     usePianoRoll()
   const { pushHistory } = useHistory()
-  const transposeNotes = useTrackCommand(selectedTrackId, transposeNotesCmd)
+  const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(
     (deltaPitch: number) => {
@@ -64,9 +64,9 @@ export const useTransposeSelection = () => {
         setSelection(s)
       }
 
-      transposeNotes(selectedNoteIds, deltaPitch)
+      mutate(transposeNotesCmd(selectedNoteIds, deltaPitch))
     },
-    [pushHistory, selection, setSelection, transposeNotes, selectedNoteIds],
+    [pushHistory, selection, setSelection, mutate, selectedNoteIds],
   )
 }
 
@@ -206,7 +206,7 @@ export const useDuplicateSelection = () => {
     setSelectedNoteIds,
   } = usePianoRoll()
   const { pushHistory } = useHistory()
-  const duplicateNotes = useTrackCommand(selectedTrackId, duplicateNotesCmd)
+  const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(() => {
     if (selection === null && selectedNoteIds.length === 0) {
@@ -217,10 +217,9 @@ export const useDuplicateSelection = () => {
 
     // move to the end of selection
     const deltaTick = selection ? selection.toTick - selection.fromTick : 0
-    const { addedNoteIds, deltaTick: newDeltaTick } = duplicateNotes(
-      selectedNoteIds,
-      deltaTick,
-    ) ?? { addedNoteIds: [], deltaTick: 0 }
+    const { addedNoteIds, deltaTick: newDeltaTick } =
+      mutate(duplicateNotesCmd(selectedNoteIds, deltaTick)) ??
+      { addedNoteIds: [], deltaTick: 0 }
 
     if (selection) {
       setSelection(Selection.moved(selection, newDeltaTick, 0))
@@ -230,7 +229,7 @@ export const useDuplicateSelection = () => {
     selection,
     selectedNoteIds,
     pushHistory,
-    duplicateNotes,
+    mutate,
     setSelection,
     setSelectedNoteIds,
   ])
@@ -316,15 +315,15 @@ export const useQuantizeSelectedNotes = () => {
   const { selectedTrackId, selectedNoteIds } = usePianoRoll()
   const { forceQuantizeRound } = usePianoRollQuantizer()
   const { pushHistory } = useHistory()
-  const quantizeNotes = useTrackCommand(selectedTrackId, quantizeNotesCmd)
+  const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(() => {
     if (selectedNoteIds.length === 0) {
       return
     }
     pushHistory()
-    quantizeNotes(selectedNoteIds, forceQuantizeRound)
-  }, [selectedNoteIds, pushHistory, quantizeNotes, forceQuantizeRound])
+    mutate(quantizeNotesCmd(selectedNoteIds, forceQuantizeRound))
+  }, [selectedNoteIds, pushHistory, mutate, forceQuantizeRound])
 }
 
 export const useSelectAllNotes = () => {

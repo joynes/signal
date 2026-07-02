@@ -20,9 +20,8 @@ import { usePianoRoll } from "../features/piano-roll/hooks/usePianoRoll"
 import { addedSet, deletedSet } from "../helpers/set"
 import {
   useConductorTrackCommand,
-  useSongCommand,
-  useTrackCommand,
   useMutateTrack,
+  useSongCommand,
 } from "../hooks/useCommand"
 import { useConductorTrack } from "../hooks/useConductorTrack"
 import { useHistory } from "../hooks/useHistory"
@@ -88,7 +87,7 @@ export const useUpdateEventsInRange = (
   createEvent: (value: number) => AnyEvent,
 ) => {
   const { quantizeFloor, quantizeUnit } = useQuantizer()
-  const updateEventsInRange = useTrackCommand(trackId, updateEventsInRangeCmd)
+  const mutate = useMutateTrack(trackId)
 
   return useCallback(
     (
@@ -97,24 +96,20 @@ export const useUpdateEventsInRange = (
       startTick: number,
       endTick: number,
     ) => {
-      updateEventsInRange(
-        filterEvent,
-        createEvent,
-        quantizeFloor,
-        quantizeUnit,
-        startValue,
-        endValue,
-        startTick,
-        endTick,
+      mutate(
+        updateEventsInRangeCmd(
+          filterEvent,
+          createEvent,
+          quantizeFloor,
+          quantizeUnit,
+          startValue,
+          endValue,
+          startTick,
+          endTick,
+        ),
       )
     },
-    [
-      updateEventsInRange,
-      filterEvent,
-      createEvent,
-      quantizeFloor,
-      quantizeUnit,
-    ],
+    [mutate, filterEvent, createEvent, quantizeFloor, quantizeUnit],
   )
 }
 
@@ -131,10 +126,7 @@ export const useUpdateValueEvents = (type: ValueEventType) => {
 export const useUpdateValueEventsWithCurve = (type: ValueEventType) => {
   const { selectedTrackId } = usePianoRoll()
   const { quantizeFloor, quantizeUnit } = useQuantizer()
-  const updateEventsWithEasing = useTrackCommand(
-    selectedTrackId,
-    updateEventsInRangeWithEasingCmd,
-  )
+  const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(
     (
@@ -144,19 +136,21 @@ export const useUpdateValueEventsWithCurve = (type: ValueEventType) => {
       endTick: number,
       easing: (t: number) => number,
     ) => {
-      updateEventsWithEasing(
-        ValueEventType.getEventPredicate(type),
-        ValueEventType.getEventFactory(type),
-        quantizeFloor,
-        quantizeUnit,
-        startValue,
-        endValue,
-        startTick,
-        endTick,
-        easing,
+      mutate(
+        updateEventsInRangeWithEasingCmd(
+          ValueEventType.getEventPredicate(type),
+          ValueEventType.getEventFactory(type),
+          quantizeFloor,
+          quantizeUnit,
+          startValue,
+          endValue,
+          startTick,
+          endTick,
+          easing,
+        ),
       )
     },
-    [updateEventsWithEasing, type, quantizeFloor, quantizeUnit],
+    [mutate, type, quantizeFloor, quantizeUnit],
   )
 }
 

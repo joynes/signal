@@ -10,7 +10,7 @@ import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { isNotUndefined } from "../../../helpers/array"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
-import { useConductorTrackCommand } from "../../../hooks/useCommand"
+import { useConductorTrackCommand, useMutateConductorTrack } from "../../../hooks/useCommand"
 import { useConductorTrack } from "../../../hooks/useConductorTrack"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
@@ -25,9 +25,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
   const { transform, getLocal } = useTempoTransform()
   const { quantizeRound } = useQuantizer()
   const moveTempoEvents = useConductorTrackCommand(moveTempoEventsCmd)
-  const removeRedundantEvents = useConductorTrackCommand(
-    removeRedundantEventsForEventIdsCmd,
-  )
+  const mutateConductorTrack = useMutateConductorTrack()
 
   return useCallback(
     (e: MouseEvent, hitEventId: number) => {
@@ -82,7 +80,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
         },
         onMouseUp: () => {
           // Find events with the same tick and remove it
-          removeRedundantEvents(selectedEventIds)
+          mutateConductorTrack(removeRedundantEventsForEventIdsCmd(selectedEventIds))
         },
       })
     },
@@ -95,7 +93,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
       getEventById,
       quantizeRound,
       moveTempoEvents,
-      removeRedundantEvents,
+      mutateConductorTrack,
     ],
   )
 }
