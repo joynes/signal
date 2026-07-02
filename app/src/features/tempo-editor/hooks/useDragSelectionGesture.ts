@@ -1,6 +1,6 @@
 import {
-  moveTempoEvents as moveTempoEventsCmd,
-  removeRedundantEventsForEventIds as removeRedundantEventsForEventIdsCmd,
+  moveTempoEvents,
+  removeRedundantEventsForEventIds,
   TrackEventOf,
 } from "@signal-app/core"
 import { SetTempoEvent } from "midifile-ts"
@@ -10,7 +10,7 @@ import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { isNotUndefined } from "../../../helpers/array"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
-import { useConductorTrackCommand, useMutateConductorTrack } from "../../../hooks/useCommand"
+import { useMutateConductorTrack } from "../../../hooks/useCommand"
 import { useConductorTrack } from "../../../hooks/useConductorTrack"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
@@ -24,7 +24,6 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
     useTempoEditor()
   const { transform, getLocal } = useTempoTransform()
   const { quantizeRound } = useQuantizer()
-  const moveTempoEvents = useConductorTrackCommand(moveTempoEventsCmd)
   const mutateConductorTrack = useMutateConductorTrack()
 
   return useCallback(
@@ -68,11 +67,13 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
 
           const deltaValue = pos.bpm - start.bpm
 
-          moveTempoEvents(
-            selectedEventIds,
-            quantizedDeltaTick - lastDeltaTick,
-            deltaValue - lastDeltaValue,
-            transform.maxBPM,
+          mutateConductorTrack(
+            moveTempoEvents(
+              selectedEventIds,
+              quantizedDeltaTick - lastDeltaTick,
+              deltaValue - lastDeltaValue,
+              transform.maxBPM,
+            ),
           )
 
           lastDeltaTick = quantizedDeltaTick
@@ -80,7 +81,9 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
         },
         onMouseUp: () => {
           // Find events with the same tick and remove it
-          mutateConductorTrack(removeRedundantEventsForEventIdsCmd(selectedEventIds))
+          mutateConductorTrack(
+            removeRedundantEventsForEventIds(selectedEventIds),
+          )
         },
       })
     },
@@ -92,7 +95,6 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
       setSelectedEventIds,
       getEventById,
       quantizeRound,
-      moveTempoEvents,
       mutateConductorTrack,
     ],
   )

@@ -1,13 +1,13 @@
 import {
   ControlEventsClipboardDataSchema,
-  duplicateEvents as duplicateEventsCmd,
-  getControlClipboardDataForSelection as getControlClipboardDataForSelectionCmd,
-  pasteClipboardDataAtPosition as pasteClipboardDataAtPositionCmd,
+  duplicateEvents,
+  getControlClipboardDataForSelection,
+  pasteClipboardDataAtPosition,
 } from "@signal-app/core"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { isNotUndefined } from "../../../helpers/array"
-import { useTrackCommand, useMutateTrack } from "../../../hooks/useCommand"
+import { useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { useTrack } from "../../../hooks/useTrack"
@@ -79,32 +79,26 @@ export const useDeleteControlSelection = () => {
 export const useCopyControlSelection = () => {
   const { selectedTrackId } = usePianoRoll()
   const { selectedEventIds } = useControlPane()
-  const getClipboardData = useTrackCommand(
-    selectedTrackId,
-    getControlClipboardDataForSelectionCmd,
-  )
+  const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(async () => {
     if (selectedEventIds.length === 0) {
       return
     }
-    const data = getClipboardData(selectedEventIds)
+    const data = mutate(getControlClipboardDataForSelection(selectedEventIds))
     if (!data) {
       return
     }
 
     await writeClipboardData(data)
-  }, [selectedEventIds, getClipboardData])
+  }, [selectedEventIds, mutate])
 }
 
 export const usePasteControlSelection = () => {
   const { selectedTrackId } = usePianoRoll()
   const { position } = usePlayer()
   const { pushHistory } = useHistory()
-  const pasteClipboard = useTrackCommand(
-    selectedTrackId,
-    pasteClipboardDataAtPositionCmd,
-  )
+  const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(
     async (e?: ClipboardEvent) => {
@@ -116,9 +110,9 @@ export const usePasteControlSelection = () => {
       }
 
       pushHistory()
-      pasteClipboard(data, position)
+      mutate(pasteClipboardDataAtPosition(data, position))
     },
-    [pasteClipboard, position, pushHistory],
+    [mutate, position, pushHistory],
   )
 }
 
@@ -146,7 +140,7 @@ export const useDuplicateControlSelection = () => {
     pushHistory()
 
     // select the created events
-    const addedEventIds = mutate(duplicateEventsCmd(selectedEventIds)) ?? []
+    const addedEventIds = mutate(duplicateEvents(selectedEventIds)) ?? []
     setSelectedEventIds(addedEventIds)
   }, [selectedEventIds, pushHistory, setSelectedEventIds, mutate])
 }

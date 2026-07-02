@@ -1,4 +1,4 @@
-import { updateVelocitiesInRange as updateVelocitiesInRangeCmd } from "@signal-app/core"
+import { updateVelocitiesInRange } from "@signal-app/core"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { usePianoRoll } from "../../../features/piano-roll/hooks/usePianoRoll"
@@ -16,7 +16,7 @@ export const useVelocityPaintGesture = ({
   const { transform } = useTickScroll()
   const { scrollLeft } = useTickScroll()
   const { selectedTrackId, selectedNoteIds } = usePianoRoll()
-  const updateVelocities = useMutateTrack(selectedTrackId)
+  const mutateTrack = useMutateTrack(selectedTrackId)
 
   return useCallback(
     (ev: React.MouseEvent) => {
@@ -41,8 +41,8 @@ export const useVelocityPaintGesture = ({
           const tick = transform.getTick(local.x)
           const value = calcValue(e)
 
-          updateVelocities(
-            updateVelocitiesInRangeCmd(
+          mutateTrack(
+            updateVelocitiesInRange(
               selectedNoteIds,
               lastTick,
               lastValue,
@@ -55,12 +55,6 @@ export const useVelocityPaintGesture = ({
         },
       })
     },
-    [
-      scrollLeft,
-      updateVelocities,
-      selectedNoteIds,
-      transform,
-      velocityTransform,
-    ],
+    [scrollLeft, mutateTrack, selectedNoteIds, transform, velocityTransform],
   )
 }

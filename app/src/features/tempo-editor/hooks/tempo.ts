@@ -1,7 +1,7 @@
 import {
-  copyTempoEvents as copyTempoEventsCmd,
-  duplicateEvents as duplicateEventsCmd,
-  pasteTempoEventsAt as pasteTempoEventsAtCmd,
+  copyTempoEvents,
+  duplicateEvents,
+  pasteTempoEventsAt,
   TempoEventsClipboardDataSchema,
 } from "@signal-app/core"
 import { useCallback } from "react"
@@ -37,10 +37,10 @@ export const useDeleteTempoSelection = () => {
 
 export const useCopyTempoSelection = () => {
   const { selectedEventIds } = useTempoEditor()
-  const copyTempoEvents = useConductorTrackCommand(copyTempoEventsCmd)
+  const mutateConductorTrack = useMutateConductorTrack()
 
   return async () => {
-    const data = copyTempoEvents(selectedEventIds)
+    const data = mutateConductorTrack(copyTempoEvents(selectedEventIds))
     if (!data) {
       return
     }
@@ -50,12 +50,8 @@ export const useCopyTempoSelection = () => {
 
 export const usePasteTempoSelection = () => {
   const { position } = usePlayer()
-  const { id: conductorTrackId } = useConductorTrack()
   const { pushHistory } = useHistory()
-  const pasteTempoEvents = useTrackCommand(
-    conductorTrackId,
-    pasteTempoEventsAtCmd,
-  )
+  const mutateConductorTrack = useMutateConductorTrack()
 
   return async (e?: ClipboardEvent) => {
     const obj = e ? readJSONFromClipboard(e) : await readClipboardData()
@@ -66,7 +62,7 @@ export const usePasteTempoSelection = () => {
     }
 
     pushHistory()
-    pasteTempoEvents(data, position)
+    mutateConductorTrack(pasteTempoEventsAt(data, position))
   }
 }
 
@@ -92,7 +88,8 @@ export const useDuplicateTempoSelection = () => {
 
     pushHistory()
 
-    const addedEventIds = mutateConductorTrack(duplicateEventsCmd(selectedEventIds)) ?? []
+    const addedEventIds =
+      mutateConductorTrack(duplicateEvents(selectedEventIds)) ?? []
 
     // select the created events
     setSelectedEventIds(addedEventIds)

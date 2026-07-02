@@ -2,35 +2,33 @@ import { clamp, min } from "lodash"
 import { SetTempoEvent } from "midifile-ts"
 import {
   isSetTempoEvent,
+  isTimeSignatureEvent,
   Measure,
   Song,
   TempoEventsClipboardData,
-  Track,
+  TrackEvent,
   TrackEventOf,
+  TrackEvents,
+  TrackEventsMutator,
 } from "../entities"
 import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../helpers"
 import { isNotUndefined } from "../helpers/array"
 import { timeSignatureMidiEvent } from "../midi"
 
 export const moveTempoEvents =
-  (conductorTrack: Track) =>
   (
     eventIds: number[],
     deltaTick: number,
     deltaValue: number,
     maxBPM: number,
-  ) => {
-    const events = eventIds
-      .map(
-        (id) =>
-          conductorTrack.getEventById(
-            id,
-          ) as unknown as TrackEventOf<SetTempoEvent>,
-      )
+  ): TrackEventsMutator =>
+  (events) => {
+    const tempoEvents = eventIds
+      .map((id) => events.get(id) as unknown as TrackEventOf<SetTempoEvent>)
       .filter(isNotUndefined)
 
-    conductorTrack.updateEvents(
-      events.map((ev) => ({
+    TrackEvents.updateEvents(
+      tempoEvents.map((ev) => ({
         id: ev.id,
         tick: Math.max(0, Math.floor(ev.tick + deltaTick)),
         microsecondsPerBeat: Math.floor(
@@ -43,44 +41,35 @@ export const moveTempoEvents =
           ),
         ),
       })),
-    )
+    )(events)
   }
 
 export const copyTempoEvents =
-  (conductorTrack: Track) =>
-  (eventIds: number[]): TempoEventsClipboardData | null => {
-    // Copy selected events
-    const events = eventIds
-      .map((id) => conductorTrack.getEventById(id))
-      .filter(isNotUndefined)
+  (eventIds: number[]): TrackEventsMutator<TempoEventsClipboardData | null> =>
+  (events) => {
+    const tempoEvents = events
+      .getArray()
       .filter(isSetTempoEvent)
+      .filter((e) => eventIds.includes(e.id))
 
-    const minTick = min(events.map((e) => e.tick))
+    const minTick = min(tempoEvents.map((e) => e.tick))
 
     if (minTick === undefined) {
       return null
     }
 
-    const relativePositionedEvents = events.map((note) => ({
-      ...note,
-      tick: note.tick - minTick,
-    }))
-
     return {
       type: "tempo_events",
-      events: relativePositionedEvents,
+      events: tempoEvents.map((e) => ({ ...e, tick: e.tick - minTick })),
     }
   }
 
 export const pasteTempoEventsAt =
-  (conductorTrack: Track) => (data: TempoEventsClipboardData, tick: number) => {
-    const events = data.events.map((e) => ({
-      ...e,
-      tick: e.tick + tick,
-    }))
-    conductorTrack.transaction(() => {
-      events.forEach((e) => conductorTrack.createOrUpdate(e))
-    })
+  (data: TempoEventsClipboardData, tick: number): TrackEventsMutator =>
+  (events) => {
+    data.events
+      .map((e) => ({ ...e, tick: e.tick + tick }))
+      .forEach((e) => TrackEvents.createOrUpdate(e)(events))
   }
 
 export const getMeasureStartTick = (song: Song) => (tick: number) => {
@@ -88,16 +77,22 @@ export const getMeasureStartTick = (song: Song) => (tick: number) => {
   return Measure.getMeasureStart(measures, tick, timebase).tick
 }
 
-export const hasTimeSignatureAt = (conductorTrack: Track) => (tick: number) => {
-  const { timeSignatureEvents } = conductorTrack
-  return timeSignatureEvents.some((e) => e.tick === tick)
-}
+export const hasTimeSignatureAt =
+  (tick: number): TrackEventsMutator<boolean> =>
+  (events) =>
+    events
+      .getArray()
+      .filter(isTimeSignatureEvent)
+      .some((e) => e.tick === tick)
 
 export const addTimeSignature =
-  (conductorTrack: Track) =>
-  (tick: number, numerator: number, denominator: number) => {
-    return conductorTrack.addEvent({
+  (
+    tick: number,
+    numerator: number,
+    denominator: number,
+  ): TrackEventsMutator<TrackEvent> =>
+  (events) =>
+    TrackEvents.addEvent({
       ...timeSignatureMidiEvent(0, numerator, denominator),
       tick,
-    })
-  }
+    })(events)

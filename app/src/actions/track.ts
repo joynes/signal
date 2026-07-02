@@ -1,17 +1,17 @@
 import {
-  addTimeSignature as addTimeSignatureCmd,
+  addTimeSignature,
   type BatchUpdateOperation,
   batchUpdateNotesVelocity,
   getMeasureStartTick as getMeasureStartTickCmd,
   getProgramNumberEvent,
-  hasTimeSignatureAt as hasTimeSignatureAtCmd,
+  hasTimeSignatureAt,
   isProgramChangeEvent,
   programChangeMidiEvent,
   TrackEvent,
   TrackEventOf,
   TrackId,
-  updateEventsInRange as updateEventsInRangeCmd,
-  updateEventsInRangeWithEasing as updateEventsInRangeWithEasingCmd,
+  updateEventsInRange,
+  updateEventsInRangeWithEasing,
 } from "@signal-app/core"
 import type { AnyChannelEvent, AnyEvent, ProgramChangeEvent } from "midifile-ts"
 import { useCallback } from "react"
@@ -19,7 +19,7 @@ import { ValueEventType } from "../features/control-pane/entities/ValueEventType
 import { usePianoRoll } from "../features/piano-roll/hooks/usePianoRoll"
 import { addedSet, deletedSet } from "../helpers/set"
 import {
-  useConductorTrackCommand,
+  useMutateConductorTrack,
   useMutateTrack,
   useSongCommand,
 } from "../hooks/useCommand"
@@ -97,7 +97,7 @@ export const useUpdateEventsInRange = (
       endTick: number,
     ) => {
       mutate(
-        updateEventsInRangeCmd(
+        updateEventsInRange(
           filterEvent,
           createEvent,
           quantizeFloor,
@@ -137,7 +137,7 @@ export const useUpdateValueEventsWithCurve = (type: ValueEventType) => {
       easing: (t: number) => number,
     ) => {
       mutate(
-        updateEventsInRangeWithEasingCmd(
+        updateEventsInRangeWithEasing(
           ValueEventType.getEventPredicate(type),
           ValueEventType.getEventFactory(type),
           quantizeFloor,
@@ -309,23 +309,24 @@ export const useToggleAllGhostTracks = () => {
 export const useAddTimeSignature = () => {
   const { pushHistory } = useHistory()
   const getMeasureStartTick = useSongCommand(getMeasureStartTickCmd)
-  const hasTimeSignatureAt = useConductorTrackCommand(hasTimeSignatureAtCmd)
-  const addTimeSignature = useConductorTrackCommand(addTimeSignatureCmd)
+  const mutateConductorTrack = useMutateConductorTrack()
 
   return useCallback(
     (tick: number, numerator: number, denominator: number) => {
       const measureStartTick = getMeasureStartTick(tick)
 
       // prevent duplication
-      if (hasTimeSignatureAt(measureStartTick)) {
+      if (mutateConductorTrack(hasTimeSignatureAt(measureStartTick))) {
         return
       }
 
       pushHistory()
 
-      addTimeSignature(measureStartTick, numerator, denominator)
+      mutateConductorTrack(
+        addTimeSignature(measureStartTick, numerator, denominator),
+      )
     },
-    [pushHistory, getMeasureStartTick, hasTimeSignatureAt, addTimeSignature],
+    [pushHistory, getMeasureStartTick, mutateConductorTrack],
   )
 }
 

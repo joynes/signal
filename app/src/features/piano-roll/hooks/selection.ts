@@ -1,12 +1,12 @@
 import {
-  duplicateNotes as duplicateNotesCmd,
+  duplicateNotes,
   isNoteEvent,
   NoteEvent,
   PianoNotesClipboardData,
   PianoNotesClipboardDataSchema,
-  quantizeNotes as quantizeNotesCmd,
+  quantizeNotes,
   TrackEvent,
-  transposeNotes as transposeNotesCmd,
+  transposeNotes,
 } from "@signal-app/core"
 import { min } from "lodash"
 import { useCallback } from "react"
@@ -64,7 +64,7 @@ export const useTransposeSelection = () => {
         setSelection(s)
       }
 
-      mutate(transposeNotesCmd(selectedNoteIds, deltaPitch))
+      mutate(transposeNotes(selectedNoteIds, deltaPitch))
     },
     [pushHistory, selection, setSelection, mutate, selectedNoteIds],
   )
@@ -217,9 +217,9 @@ export const useDuplicateSelection = () => {
 
     // move to the end of selection
     const deltaTick = selection ? selection.toTick - selection.fromTick : 0
-    const { addedNoteIds, deltaTick: newDeltaTick } =
-      mutate(duplicateNotesCmd(selectedNoteIds, deltaTick)) ??
-      { addedNoteIds: [], deltaTick: 0 }
+    const { addedNoteIds, deltaTick: newDeltaTick } = mutate(
+      duplicateNotes(selectedNoteIds, deltaTick),
+    ) ?? { addedNoteIds: [], deltaTick: 0 }
 
     if (selection) {
       setSelection(Selection.moved(selection, newDeltaTick, 0))
@@ -322,7 +322,7 @@ export const useQuantizeSelectedNotes = () => {
       return
     }
     pushHistory()
-    mutate(quantizeNotesCmd(selectedNoteIds, forceQuantizeRound))
+    mutate(quantizeNotes(selectedNoteIds, forceQuantizeRound))
   }, [selectedNoteIds, pushHistory, mutate, forceQuantizeRound])
 }
 

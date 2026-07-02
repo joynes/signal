@@ -55,7 +55,8 @@ export const transposeNotes =
     )(events)
   }
 
-export const duplicateEvents = (eventIds: number[]): TrackEventsMutator<number[]> =>
+export const duplicateEvents =
+  (eventIds: number[]): TrackEventsMutator<number[]> =>
   (events) => {
     const selectedEvents = eventIds
       .map((id) => events.get(id))
@@ -177,7 +178,10 @@ export const removeRedundantEventsForEventIds =
   }
 
 export const quantizeNotes =
-  (noteIds: number[], quantizeRound: (tick: number) => number): TrackEventsMutator =>
+  (
+    noteIds: number[],
+    quantizeRound: (tick: number) => number,
+  ): TrackEventsMutator =>
   (events) => {
     const notes = noteIds
       .map((id) => events.get(id))
@@ -283,13 +287,16 @@ export const updateEventsInRange =
             )
 
     // Delete events in the dragged area
-    const filteredEvents = events.getArray().filter(filterEvent).filter(
-      (e) =>
-        // to prevent remove the event created previously, do not remove the event placed at startTick
-        e.tick !== startTick &&
-        e.tick >= Math.min(minTick, _startTick) &&
-        e.tick <= Math.max(maxTick, _endTick),
-    )
+    const filteredEvents = events
+      .getArray()
+      .filter(filterEvent)
+      .filter(
+        (e) =>
+          // to prevent remove the event created previously, do not remove the event placed at startTick
+          e.tick !== startTick &&
+          e.tick >= Math.min(minTick, _startTick) &&
+          e.tick <= Math.max(maxTick, _endTick),
+      )
 
     TrackEvents.removeEvents(filteredEvents.map((e) => e.id))(events)
     TrackEvents.addEvents(

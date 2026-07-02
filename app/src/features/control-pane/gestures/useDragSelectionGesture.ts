@@ -1,5 +1,5 @@
 import {
-  removeRedundantEventsForEventIds as removeRedundantEventsForEventIdsCmd,
+  removeRedundantEventsForEventIds,
   TrackEventOf,
 } from "@signal-app/core"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
@@ -27,7 +27,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
   const { selectedEventIds: _selectedEventIds, setSelectedEventIds } =
     useControlPane()
   const { quantizeRound } = useQuantizer()
-  const removeRedundantEvents = useMutateTrack(selectedTrackId)
+  const mutateTrack = useMutateTrack(selectedTrackId)
 
   return useCallback(
     (
@@ -82,9 +82,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
 
         onMouseUp: () => {
           // Find events with the same tick and remove it
-          removeRedundantEvents(
-            removeRedundantEventsForEventIdsCmd(selectedEventIds),
-          )
+          mutateTrack(removeRedundantEventsForEventIds(selectedEventIds))
         },
       })
     },
@@ -94,7 +92,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
       setSelectedEventIds,
       getEvents,
       updateEvents,
-      removeRedundantEvents,
+      mutateTrack,
       quantizeRound,
     ],
   )
