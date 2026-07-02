@@ -80,6 +80,13 @@ export class Track {
       )
       this._onEventsChanged.emit()
       this.didEventsChanged(changedEvents)
+
+      // Reactively maintain endOfTrack
+      if ("added" in change) {
+        for (const event of change.added) {
+          this.extendEndOfTrack(event)
+        }
+      }
     })
   }
 
@@ -211,11 +218,7 @@ export class Track {
   }
 
   updateEvent<T extends TrackEvent>(id: number, obj: Partial<T>): T | null {
-    const newObj = TrackEvents.updateEvent(id, obj)(this._events)
-    if (newObj !== null) {
-      this.extendEndOfTrack(newObj)
-    }
-    return newObj
+    return TrackEvents.updateEvent(id, obj)(this._events)
   }
 
   updateEvents<T extends TrackEvent>(events: Partial<T>[]) {
@@ -240,9 +243,7 @@ export class Track {
   }
 
   addEvent<T extends TrackEvent>(e: Omit<T, "id"> & { subtype?: string }): T {
-    const newEvent = TrackEvents.addEvent(e)(this._events)
-    this.extendEndOfTrack(newEvent)
-    return newEvent
+    return TrackEvents.addEvent(e)(this._events)
   }
 
   addEvents<T extends TrackEvent>(events: Omit<T, "id">[]): T[] {
