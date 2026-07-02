@@ -1,4 +1,4 @@
-import { Song, Track, TrackId } from "@signal-app/core"
+import { Song, Track, TrackEventsMutator, TrackId } from "@signal-app/core"
 import { useCallback } from "react"
 import { useStores } from "./useStores"
 
@@ -49,5 +49,21 @@ export function useConductorTrackCommand<A extends unknown[], R>(
       return cmd(conductorTrack)(...a)
     },
     [songStore, cmd],
+  )
+}
+
+export function useTrackMutation(
+  trackId: TrackId,
+): <R = void>(fn: TrackEventsMutator<R>) => R | undefined {
+  const { songStore } = useStores()
+  return useCallback(
+    <R = void>(fn: TrackEventsMutator<R>) => {
+      const track = songStore.song.getTrack(trackId)
+      if (!track) {
+        return undefined
+      }
+      return track.mutate(fn)
+    },
+    [songStore, trackId],
   )
 }

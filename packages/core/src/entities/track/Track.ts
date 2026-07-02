@@ -27,6 +27,10 @@ import { TrackEvents } from "./TrackEvents"
 export type TrackId = Branded<number, "TrackId">
 export const UNASSIGNED_TRACK_ID = -1 as TrackId
 
+export type TrackEventsMutator<R = void> = (
+  events: TickOrderedArray<TrackEvent>,
+) => R
+
 type SerializedTrack = {
   id?: TrackId
   _events?: unknown
@@ -259,6 +263,10 @@ export class Track {
 
   transaction<T>(func: (track: Track) => T) {
     return this._events.transaction(() => func(this))
+  }
+
+  mutate<R = void>(fn: TrackEventsMutator<R>): R {
+    return this._events.transaction(() => fn(this._events))
   }
 
   /* helper */
