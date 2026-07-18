@@ -9,11 +9,13 @@ import { getNotesByIds } from "../queries"
 import { TrackEventsMutator } from "../Track"
 import { addEvents, updateEvents } from "./basic"
 
-export const transposeNotes = (
-  noteIds: readonly number[],
-  deltaPitch: number,
-): TrackEventsMutator =>
-  flow(getNotesByIds(noteIds), map(transposeNote(deltaPitch)), updateEvents)
+export const transposeNotes =
+  (noteIds: readonly number[], deltaPitch: number): TrackEventsMutator =>
+  (events) => {
+    const notes = getNotesByIds(noteIds)(events)
+    const transposedNotes = notes.map(transposeNote(deltaPitch))
+    return updateEvents(transposedNotes)(events)
+  }
 
 // duplicate notes with an optional deltaTick
 // if deltaTick is 0, duplicate to the right of the selected notes
