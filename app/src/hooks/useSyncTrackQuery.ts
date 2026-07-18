@@ -1,14 +1,18 @@
-import { Track, TrackEvent } from "@signal-app/core"
-import { useCallback, useSyncExternalStore } from "react"
+import { TrackEvent, TrackId } from "@signal-app/core"
+import { useCallback } from "react"
+import { useDerivedValue } from "./useDerivedValue"
+import { useSong } from "./useSong"
 
 const noopSubscribe = () => () => {}
 
 export function useSyncTrackQuery<T>(
-  track: Track | undefined,
+  trackId: TrackId,
   query: (events: readonly TrackEvent[]) => T,
   predicate: (event: TrackEvent) => boolean,
 ): T {
-  return useSyncExternalStore(
+  const { getTrack } = useSong()
+  const track = getTrack(trackId)
+  return useDerivedValue(
     track?.observeEventsChanged(predicate).subscribe ?? noopSubscribe,
     useCallback(() => query(track?.events ?? []), [track, query]),
   )

@@ -56,10 +56,7 @@ export const getControllerEventWithType = (
 
 export const getEndOfTrackEvent = flow(filter(isEndOfTrackEvent), getLast)
 
-export const getTempo = (
-  events: readonly TrackEvent[],
-  tick: number,
-): number | undefined => {
+export const getTempo = (tick: number) => (events: readonly TrackEvent[]) => {
   const e = getTempoEvent(tick)(events)
   if (e === undefined) {
     return undefined

@@ -16,7 +16,6 @@ import { getColorEvent, getMaxTick, getTrackNameEvent } from "../event"
 import {
   isNoteEvent,
   isProgramChangeEvent,
-  isSetTempoEvent,
   isTimeSignatureEvent,
   isTrackNameEvent,
 } from "../event/identify"
@@ -65,7 +64,6 @@ export class Track {
 
   private readonly _onEventsChanged = new Emitter()
   private readonly _onProgramChangeEventsChanged = new Emitter()
-  private readonly _onSetTempoEventsChanged = new Emitter()
   private readonly _onIsRhythmTrackChanged = new Emitter()
   private readonly _onIsConductorTrackChanged = new Emitter()
   private readonly _onChanged: Observable
@@ -115,12 +113,6 @@ export class Track {
       changedEvents.some(isProgramChangeEvent)
     ) {
       this._onProgramChangeEventsChanged.emit()
-    }
-    if (
-      this._onSetTempoEventsChanged.listenerCount > 0 &&
-      changedEvents.some(isSetTempoEvent)
-    ) {
-      this._onSetTempoEventsChanged.emit()
     }
     if (changedEvents.some(isTrackNameEvent)) {
       const nextName = getTrackNameEvent(this.events)?.text
@@ -182,10 +174,6 @@ export class Track {
 
   get onEndOfTrackChanged(): Observable {
     return this._endOfTrack.onChanged
-  }
-
-  get onSetTempoEventsChanged() {
-    return this._onSetTempoEventsChanged
   }
 
   get onTimeSignatureEventsChanged() {

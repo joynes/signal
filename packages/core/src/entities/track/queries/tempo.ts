@@ -15,6 +15,7 @@ export const getSetTempoEventIdsInRange = (
   range: Range,
 ): TrackEventsQuery<readonly number[]> =>
   flow(
+    (events) => events.getArray(),
     filter(isSetTempoEvent),
     filter(isEventInRange(range)),
     map((e) => e.id),
