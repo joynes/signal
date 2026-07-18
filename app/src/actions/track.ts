@@ -8,6 +8,7 @@ import {
   hasTimeSignatureAt,
   isProgramChangeEvent,
   programChangeMidiEvent,
+  Range,
   TrackEvent,
   TrackEventOf,
   TrackId,
@@ -92,22 +93,15 @@ export const useUpdateEventsInRange = (
   const mutate = useMutateTrack(trackId)
 
   return useCallback(
-    (
-      startValue: number,
-      endValue: number,
-      startTick: number,
-      endTick: number,
-    ) => {
+    (valueRange: Range, tickRange: Range) => {
       mutate(
         updateEventsInRange(
           filterEvent,
           createEvent,
           quantizeFloor,
           quantizeUnit,
-          startValue,
-          endValue,
-          startTick,
-          endTick,
+          valueRange,
+          tickRange,
         ),
       )
     },
@@ -131,23 +125,15 @@ export const useUpdateValueEventsWithCurve = (type: ValueEventType) => {
   const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(
-    (
-      startValue: number,
-      endValue: number,
-      startTick: number,
-      endTick: number,
-      easing: (t: number) => number,
-    ) => {
+    (valueRange: Range, tickRange: Range, easing: (t: number) => number) => {
       mutate(
         updateEventsInRangeWithEasing(
           ValueEventType.getEventPredicate(type),
           ValueEventType.getEventFactory(type),
           quantizeFloor,
           quantizeUnit,
-          startValue,
-          endValue,
-          startTick,
-          endTick,
+          valueRange,
+          tickRange,
           easing,
         ),
       )

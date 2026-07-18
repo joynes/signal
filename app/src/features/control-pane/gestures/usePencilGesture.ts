@@ -1,3 +1,4 @@
+import { Range } from "@signal-app/core"
 import { useCallback } from "react"
 import { useCreateEvent, useUpdateValueEvents } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
@@ -50,7 +51,10 @@ export const usePencilGesture = (
           )
           const tick = transform.getTick(local.x)
 
-          updateValueEvents(lastValue, value, lastTick, tick)
+          updateValueEvents(
+            Range.fromUnordered(lastValue, value),
+            Range.fromUnordered(lastTick, tick),
+          )
 
           lastTick = tick
           lastValue = value

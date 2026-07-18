@@ -1,6 +1,7 @@
 import {
   bpmToUSecPerBeat,
   isSetTempoEvent,
+  Range,
   setTempoMidiEvent,
 } from "@signal-app/core"
 import { useCallback } from "react"
@@ -54,7 +55,10 @@ export const usePencilGesture = (): MouseDownHandler<
           )
           const tick = transform.getTick(local.x)
 
-          updateEventsInRange(lastValue, value, lastTick, tick)
+          updateEventsInRange(
+            Range.fromUnordered(lastValue, value),
+            Range.fromUnordered(lastTick, tick),
+          )
 
           lastTick = tick
           lastValue = value

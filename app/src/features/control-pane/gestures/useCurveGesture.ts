@@ -1,3 +1,4 @@
+import { Range } from "@signal-app/core"
 import { useCallback, useState } from "react"
 import { useUpdateValueEventsWithCurve } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
@@ -66,10 +67,8 @@ export const useCurveGesture = (type: ValueEventType, curveType: CurveType) => {
           const endTick = transform.getTick(endPoint.x)
 
           updateValueEvents(
-            startPos.value,
-            endValue,
-            startPos.tick,
-            endTick,
+            Range.fromUnordered(startPos.value, endValue),
+            Range.fromUnordered(startPos.tick, endTick),
             curveEasings[curveType],
           )
           setCurveDragState(null)
