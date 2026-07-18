@@ -1,4 +1,3 @@
-import { isNoteEvent } from "@signal-app/core"
 import { useCallback } from "react"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { usePreviewNote } from "../../../hooks/usePreviewNote"
@@ -48,7 +47,7 @@ const createUseDragNoteEdgeGesture =
               // save last note duration
               if (oldPosition.tick !== newPosition.tick) {
                 const newNote = updatedNotes.find((n) => n.id === note.id)
-                if (newNote && isNoteEvent(newNote)) {
+                if (newNote) {
                   setLastNoteDuration(newNote.duration)
                 }
               }
