@@ -5,6 +5,7 @@ import {
   ObservableValue,
   Unsubscribe,
 } from "@signal-app/observable"
+import { flow } from "lodash"
 import { TimeSignatureEvent } from "midifile-ts"
 import {
   deserializeTickOrderedArray,
@@ -20,7 +21,6 @@ import {
 } from "./identify"
 import { getTrackNameEvent } from "./selector"
 import { isSignalTrackColorEvent, SignalTrackColorEvent } from "./signalEvents"
-import { TrackColor } from "./TrackColor"
 import { TrackEvent, TrackEventOf } from "./TrackEvent"
 import { TrackEvents } from "./TrackEvents"
 
@@ -221,35 +221,6 @@ export class Track {
     return this._eventsSnapshot
   }
 
-  updateEvent<T extends TrackEvent>(id: number, obj: Partial<T>): T | null {
-    return TrackEvents.updateEvent(id, obj)(this._events)
-  }
-
-  updateEvents<T extends TrackEvent>(events: Partial<T>[]) {
-    this.transaction(() => {
-      events.forEach((event) => {
-        if (event.id === undefined) {
-          return
-        }
-        this.updateEvent(event.id, event)
-      })
-    })
-  }
-
-  removeEvent(id: number) {
-    this.removeEvents([id])
-  }
-
-  removeEvents(ids: number[]) {
-    ids.forEach((id) => {
-      this._events.remove(id)
-    })
-  }
-
-  addEvent<T extends TrackEvent>(e: Omit<T, "id"> & { subtype?: string }): T {
-    return TrackEvents.addEvent(e)(this._events)
-  }
-
   addEvents<T extends TrackEvent>(events: Omit<T, "id">[]): T[] {
     const result = this.transaction(() => {
       const dontMoveChannelEvent = this.isConductorTrack
@@ -261,21 +232,32 @@ export class Track {
     return result
   }
 
-  transaction<T>(func: (track: Track) => T) {
+  transaction = <T>(func: (track: Track) => T) => {
     return this._events.transaction(() => func(this))
   }
 
-  mutate<R = void>(fn: TrackEventsMutator<R>): R {
+  mutate = <R = void>(fn: TrackEventsMutator<R>): R => {
     return this._events.transaction(() => fn(this._events))
   }
 
-  /* helper */
+  /* mutations */
 
-  createOrUpdate<T extends TrackEvent>(
-    newEvent: Omit<T, "id"> & { subtype?: string; controllerType?: number },
-  ): T {
-    return TrackEvents.createOrUpdate(newEvent)(this._events)
-  }
+  addEvent = flow(TrackEvents.addEvent, this.mutate)
+  updateEvent = flow(TrackEvents.updateEvent, this.mutate)
+  updateEvents = flow(TrackEvents.updateEvents, this.mutate)
+  removeEvent = flow(
+    (id: number) => TrackEvents.removeEvents([id]),
+    this.mutate,
+  )
+  removeEvents = flow(TrackEvents.removeEvents, this.mutate)
+  createOrUpdate = flow(TrackEvents.createOrUpdate, this.mutate)
+  setColor = flow(TrackEvents.setColor, this.mutate)
+  setVolume = flow(TrackEvents.setVolume, this.mutate)
+  setPan = flow(TrackEvents.setPan, this.mutate)
+  setTempo = flow(TrackEvents.setTempo, this.mutate)
+  setName = flow(TrackEvents.setName, this.mutate)
+
+  /* helper */
 
   updateEndOfTrack() {
     this.endOfTrack = TrackEvents.getMaxTick(this.events)
@@ -296,23 +278,6 @@ export class Track {
 
   get color(): SignalTrackColorEvent | undefined {
     return this._color.value
-  }
-
-  setColor(color: TrackColor | null) {
-    TrackEvents.setColor(color)(this._events)
-  }
-
-  setVolume(value: number, tick: number) {
-    TrackEvents.setVolume(value, tick)(this._events)
-  }
-  setPan(value: number, tick: number) {
-    TrackEvents.setPan(value, tick)(this._events)
-  }
-  setTempo = (bpm: number, tick: number) => {
-    TrackEvents.setTempo(bpm, tick)(this._events)
-  }
-  setName(text: string) {
-    TrackEvents.setName(text)(this._events)
   }
 
   get isConductorTrack() {

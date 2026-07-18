@@ -100,10 +100,8 @@ export namespace TrackEvents {
       const events = getRedundantEvents(newEvent)(anEvents.getArray())
 
       if (events.length > 0) {
-        anEvents.transaction(() => {
-          events.forEach((e) => {
-            updateEvent(e.id, { ...newEvent, id: e.id } as Partial<T>)(anEvents)
-          })
+        events.forEach((e) => {
+          updateEvent(e.id, { ...newEvent, id: e.id } as Partial<T>)(anEvents)
         })
         return events[0] as T
       } else {

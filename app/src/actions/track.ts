@@ -9,6 +9,7 @@ import {
   programChangeMidiEvent,
   TrackEvent,
   TrackEventOf,
+  TrackEvents,
   TrackId,
   updateEventsInRange,
   updateEventsInRangeWithEasing,
@@ -191,7 +192,8 @@ export const useSetTrackName = () => {
 export const useSetTrackInstrument = (trackId: TrackId, eventId?: number) => {
   const { sendEvent, position } = usePlayer()
   const { pushHistory } = useHistory()
-  const { channel, getEvents, updateEvent, addEvent } = useTrack(trackId)
+  const { channel, getEvents } = useTrack(trackId)
+  const mutate = useMutateTrack(trackId)
 
   return useCallback(
     (programNumber: number) => {
@@ -201,12 +203,14 @@ export const useSetTrackInstrument = (trackId: TrackId, eventId?: number) => {
 
       if (eventId === undefined) {
         // get last program change event before position
-        const programNumberEvent =
-          getProgramNumberEvent(getEvents(), position) ??
-          addEvent<TrackEventOf<ProgramChangeEvent>>({
-            ...programChangeMidiEvent(0, 0, programNumber),
-            tick: 0,
-          })
+        const programNumberEvent = mutate(
+          (events) =>
+            getProgramNumberEvent(events.getArray(), position) ??
+            TrackEvents.addEvent<TrackEventOf<ProgramChangeEvent>>({
+              ...programChangeMidiEvent(0, 0, programNumber),
+              tick: 0,
+            })(events),
+        )
         targetEventId = programNumberEvent?.id
       }
 
@@ -214,14 +218,16 @@ export const useSetTrackInstrument = (trackId: TrackId, eventId?: number) => {
         return
       }
 
-      const targetEvent = updateEvent<TrackEventOf<ProgramChangeEvent>>(
-        targetEventId,
-        {
-          value: programNumber,
-        },
+      const targetEvent = mutate(
+        TrackEvents.updateEvent<TrackEventOf<ProgramChangeEvent>>(
+          targetEventId,
+          {
+            value: programNumber,
+          },
+        ),
       )
 
-      if (targetEvent === null) {
+      if (!targetEvent) {
         return
       }
 
@@ -237,23 +243,15 @@ export const useSetTrackInstrument = (trackId: TrackId, eventId?: number) => {
         }
       }
     },
-    [
-      pushHistory,
-      channel,
-      sendEvent,
-      position,
-      getEvents,
-      eventId,
-      updateEvent,
-      addEvent,
-    ],
+    [pushHistory, channel, sendEvent, position, getEvents, eventId, mutate],
   )
 }
 
 export const useInsertTrackInstrument = (trackId: TrackId) => {
   const { sendEvent } = usePlayer()
   const { pushHistory } = useHistory()
-  const { channel, addEvent } = useTrack(trackId)
+  const { channel } = useTrack(trackId)
+  const mutate = useMutateTrack(trackId)
 
   return useCallback(
     (programNumber: number, tick: number) => {
@@ -263,14 +261,16 @@ export const useInsertTrackInstrument = (trackId: TrackId) => {
 
       pushHistory()
 
-      addEvent<TrackEventOf<ProgramChangeEvent>>({
-        ...programChangeMidiEvent(0, 0, programNumber),
-        tick,
-      })
+      mutate(
+        TrackEvents.addEvent<TrackEventOf<ProgramChangeEvent>>({
+          ...programChangeMidiEvent(0, 0, programNumber),
+          tick,
+        }),
+      )
 
       sendEvent(programChangeMidiEvent(0, channel, programNumber))
     },
-    [pushHistory, channel, sendEvent, addEvent],
+    [pushHistory, channel, sendEvent, mutate],
   )
 }
 
