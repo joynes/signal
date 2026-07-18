@@ -1,5 +1,5 @@
 import {
-  ArrangeNotesClipboardDataSchema,
+  ArrangeEventsClipboardDataSchema,
   BatchUpdateOperation,
   batchUpdateArrangeNotesVelocity as batchUpdateArrangeNotesVelocityCmd,
   deleteSelection as deleteSelectionCmd,
@@ -43,7 +43,7 @@ export const useArrangePasteSelection = () => {
   return useCallback(
     async (e?: ClipboardEvent) => {
       const obj = e ? readJSONFromClipboard(e) : await readClipboardData()
-      const { data, error } = ArrangeNotesClipboardDataSchema.safeParse(obj)
+      const { data, error } = ArrangeEventsClipboardDataSchema.safeParse(obj)
       if (!data) {
         console.error("Invalid clipboard data", error)
         return

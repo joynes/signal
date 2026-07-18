@@ -1,6 +1,6 @@
 import { mapValues } from "lodash"
 import {
-  ArrangeNotesClipboardData,
+  ArrangeEventsClipboardData,
   BatchUpdateOperation,
   batchUpdateNotesVelocity,
   getEventsByIds,
@@ -100,9 +100,7 @@ export const duplicateSelection =
       )) {
         const trackIndex = parseInt(trackIndexStr, 10)
         const track = tracks[trackIndex]
-        const events = eventIds
-          .map((id) => track.getEventById(id))
-          .filter(isNotUndefined)
+        const events = track.query(getEventsByIds(eventIds))
 
         track.addEvents(
           events.map((e) => ({
@@ -151,22 +149,19 @@ export const transposeSelection =
 
 export const getArrangeClipboardDataForSelection =
   (tracks: readonly Track[]) =>
-  (selection: ArrangeSelection): ArrangeNotesClipboardData => {
+  (selection: ArrangeSelection): ArrangeEventsClipboardData => {
     const selectedEventIds = getEventsInSelection(tracks)(selection)
 
-    const notes = mapValues(selectedEventIds, (ids, trackIndex) => {
+    const events = mapValues(selectedEventIds, (ids, trackIndex) => {
       const track = tracks[parseInt(trackIndex, 10)]
-      return ids
-        .map((id) => track.getEventById(id))
-        .filter(isNotUndefined)
-        .map((note) => ({
-          ...note,
-          tick: note.tick - selection.fromTick,
-        }))
+      return track.query(getEventsByIds(ids)).map((e) => ({
+        ...e,
+        tick: e.tick - selection.fromTick,
+      }))
     })
     return {
-      type: "arrange_notes",
-      notes,
+      type: "arrange_events",
+      events,
       selectedTrackIndex: selection.fromTrackIndex,
     }
   }
@@ -174,13 +169,13 @@ export const getArrangeClipboardDataForSelection =
 export const pasteClipboardDataAt =
   (tracks: readonly Track[]) =>
   (
-    data: ArrangeNotesClipboardData,
+    data: ArrangeEventsClipboardData,
     position: number,
     selectedTrackIndex: number,
   ) => {
     runTrackTransaction(tracks, () => {
-      for (const trackIndex in data.notes) {
-        const notes = data.notes[trackIndex].map((note) => ({
+      for (const trackIndex in data.events) {
+        const events = data.events[trackIndex].map((note) => ({
           ...note,
           tick: note.tick + position,
         }))
@@ -193,7 +188,7 @@ export const pasteClipboardDataAt =
         const destTrackIndex = parseInt(trackIndex, 10) + trackNumberOffset
 
         if (destTrackIndex < tracks.length) {
-          tracks[destTrackIndex].addEvents(notes)
+          tracks[destTrackIndex].addEvents(events)
         }
       }
     })
