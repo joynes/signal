@@ -1,9 +1,6 @@
 import {
   addEvent,
-  addTimeSignature,
-  getMeasureStartTick as getMeasureStartTickCmd,
   getProgramNumberEvent,
-  hasTimeSignatureAt,
   isProgramChangeEvent,
   programChangeMidiEvent,
   Range,
@@ -17,12 +14,7 @@ import type { AnyChannelEvent, AnyEvent, ProgramChangeEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { usePianoRoll } from "../features/piano-roll/hooks/usePianoRoll"
 import { addedSet, deletedSet } from "../helpers/set"
-import {
-  useMutateConductorTrack,
-  useMutateTrack,
-  useSongCommand,
-} from "../hooks/useCommand"
-import { useConductorTrack } from "../hooks/useConductorTrack"
+import { useMutateTrack } from "../hooks/useCommand"
 import { useHistory } from "../hooks/useHistory"
 import { usePlayer } from "../hooks/usePlayer"
 import { useQuantizer } from "../hooks/useQuantizer"
@@ -124,20 +116,6 @@ export const useMuteNote = () => {
 }
 
 /* track meta */
-
-export const useSetTrackName = () => {
-  const { selectedTrackId } = usePianoRoll()
-  const { setName } = useTrack(selectedTrackId)
-  const { pushHistory } = useHistory()
-
-  return useCallback(
-    (name: string) => {
-      pushHistory()
-      setName(name)
-    },
-    [pushHistory, setName],
-  )
-}
 
 export const useSetTrackInstrument = (trackId: TrackId, eventId?: number) => {
   const { sendEvent, position } = usePlayer()
@@ -251,48 +229,4 @@ export const useToggleAllGhostTracks = () => {
       setNotGhostTrackIds(new Set(tracks.map((t) => t.id)))
     }
   }, [pushHistory, notGhostTrackIds, setNotGhostTrackIds, tracks])
-}
-
-export const useAddTimeSignature = () => {
-  const { pushHistory } = useHistory()
-  const getMeasureStartTick = useSongCommand(getMeasureStartTickCmd)
-  const mutateConductorTrack = useMutateConductorTrack()
-
-  return useCallback(
-    (tick: number, numerator: number, denominator: number) => {
-      const measureStartTick = getMeasureStartTick(tick)
-
-      // prevent duplication
-      if (
-        mutateConductorTrack((events) =>
-          hasTimeSignatureAt(measureStartTick)(events.getArray()),
-        )
-      ) {
-        return
-      }
-
-      pushHistory()
-
-      mutateConductorTrack(
-        addTimeSignature(measureStartTick, numerator, denominator),
-      )
-    },
-    [pushHistory, getMeasureStartTick, mutateConductorTrack],
-  )
-}
-
-export const useUpdateTimeSignature = () => {
-  const { updateEvent } = useConductorTrack()
-  const { pushHistory } = useHistory()
-
-  return useCallback(
-    (id: number, numerator: number, denominator: number) => {
-      pushHistory()
-      updateEvent(id, {
-        numerator,
-        denominator,
-      })
-    },
-    [pushHistory, updateEvent],
-  )
 }
