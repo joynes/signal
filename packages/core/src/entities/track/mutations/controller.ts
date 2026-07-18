@@ -1,6 +1,5 @@
 import { ControllerEvent } from "midifile-ts"
-import { isControllerEventWithType } from "../../event/identify"
-import { getLast, isTickBefore } from "../../event/selectors"
+import { getControllerEventWithType } from "../../event/selectors"
 import { TrackEventOf } from "../../event/TrackEvent"
 import { TrackEventsMutator } from "../Track"
 import { updateOrAdd } from "./basic"
@@ -11,12 +10,7 @@ const setControllerValue = (
   value: number,
 ): TrackEventsMutator =>
   updateOrAdd<TrackEventOf<ControllerEvent>>(
-    (events) =>
-      getLast(
-        events
-          .filter(isControllerEventWithType(controllerType))
-          .filter(isTickBefore(tick)),
-      ),
+    getControllerEventWithType(controllerType, tick),
     <TrackEventOf<ControllerEvent>>{
       type: "channel",
       subtype: "controller",

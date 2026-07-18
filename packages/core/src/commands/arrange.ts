@@ -1,16 +1,14 @@
 import { mapValues } from "lodash"
 import {
   ArrangeNotesClipboardData,
+  BatchUpdateOperation,
+  batchUpdateNotesVelocity,
   Range,
   Track,
   TrackEvent,
+  transposeNotes,
 } from "../entities"
 import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
-import {
-  BatchUpdateOperation,
-  batchUpdateNotesVelocity,
-  transposeNotes,
-} from "../entities/track/mutations"
 import { ArrangePoint } from "../entities/transform/ArrangePoint"
 import { isNotUndefined } from "../helpers/array"
 import { isEventInRange } from "../helpers/filterEvents"

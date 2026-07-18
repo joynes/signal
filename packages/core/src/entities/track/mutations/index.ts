@@ -1,6 +1,7 @@
 export * from "./basic"
 export * from "./batch"
 export * from "./controller"
+export * from "./note"
 export * from "./queries"
 export * from "./tempo"
 export * from "./track"

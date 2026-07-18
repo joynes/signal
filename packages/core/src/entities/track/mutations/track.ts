@@ -1,34 +1,16 @@
-import { flow, max, min } from "lodash"
 import { AnyEvent } from "midifile-ts"
-import { closedRange, isEventInRange, map } from "../../../helpers"
-import { getRedundantEvents } from "../../event"
-import { isNoteEvent } from "../../event/identify"
+import { closedRange } from "../../../helpers"
+import { getRedundantEvents, getTickSpan } from "../../event"
 import { TrackEvent } from "../../event/TrackEvent"
 import { moveEvent } from "../../event/transforms"
-import { Range } from "../../geometry/Range"
-import { getNotesDuration } from "../../note/selectors"
-import { quantizeNote, transposeNote } from "../../note/transforms"
 import { TrackEventsMutator } from "../Track"
 import {
   addEvents,
   combineMutators,
   createOrUpdate,
   removeEvents,
-  updateEvents,
 } from "./basic"
-import { getEventsByIds, getNotesByIds } from "./queries"
-
-export const transposeNotes = (
-  noteIds: number[],
-  deltaPitch: number,
-): TrackEventsMutator =>
-  flow(getNotesByIds(noteIds), map(transposeNote(deltaPitch)), updateEvents)
-
-const getTickSpan = (events: readonly TrackEvent[]) => {
-  const minTick = min(events.map((e) => e.tick)) ?? 0
-  const maxTick = max(events.map((e) => e.tick)) ?? 0
-  return maxTick - minTick
-}
+import { getEventsByIds } from "./queries"
 
 export const duplicateEvents =
   (eventIds: number[]): TrackEventsMutator<number[]> =>
@@ -43,72 +25,6 @@ export const duplicateEvents =
     return combineMutators(...newEvents.map((e) => createOrUpdate(e)))(
       events,
     ).map((e) => e.id)
-  }
-
-// duplicate notes with an optional deltaTick
-// if deltaTick is 0, duplicate to the right of the selected notes
-export const duplicateNotes =
-  (
-    noteIds: number[],
-    initialDeltaTick: number,
-  ): TrackEventsMutator<{ addedNoteIds: number[]; deltaTick: number }> =>
-  (events) => {
-    const selectedNotes = getNotesByIds(noteIds)(events)
-
-    const deltaTick =
-      initialDeltaTick === 0
-        ? getNotesDuration(selectedNotes)
-        : initialDeltaTick
-
-    const notes = selectedNotes.map(moveEvent(deltaTick))
-
-    const addedNoteIds = addEvents(notes)(events).map((e) => e.id)
-
-    return { addedNoteIds, deltaTick }
-  }
-
-// update velocities of notes in the specified range using linear interpolation
-export const updateVelocitiesInRange =
-  (
-    selectedNoteIds: number[], // if empty, apply to all notes
-    startTick: number,
-    startValue: number,
-    endTick: number,
-    endValue: number,
-  ): TrackEventsMutator =>
-  (events) => {
-    const minTick = Math.min(startTick, endTick)
-    const maxTick = Math.max(startTick, endTick)
-    const minValue = Math.min(startValue, endValue)
-    const maxValue = Math.max(startValue, endValue)
-    const getValue = (tick: number) =>
-      Math.floor(
-        Math.min(
-          maxValue,
-          Math.max(
-            minValue,
-            ((tick - startTick) / (endTick - startTick)) *
-              (endValue - startValue) +
-              startValue,
-          ),
-        ),
-      )
-
-    const notes =
-      selectedNoteIds.length > 0
-        ? getNotesByIds(selectedNoteIds)(events)
-        : events.getArray().filter(isNoteEvent)
-
-    const eventsToUpdate = notes.filter(
-      isEventInRange(Range.create(minTick, maxTick)),
-    )
-
-    updateEvents(
-      eventsToUpdate.map((e: TrackEvent) => ({
-        id: e.id,
-        velocity: getValue(e.tick),
-      })),
-    )(events)
   }
 
 export const removeRedundantEvents =
@@ -127,21 +43,6 @@ export const removeRedundantEventsForEventIds =
   (events) => {
     const controllerEvents = getEventsByIds(eventIds)(events)
     combineMutators(...controllerEvents.map(removeRedundantEvents))(events)
-  }
-
-const quantizedNotes = (
-  noteIds: number[],
-  quantizeRound: (tick: number) => number,
-) => flow(getNotesByIds(noteIds), map(quantizeNote(quantizeRound)))
-
-export const quantizeNotes =
-  (
-    noteIds: number[],
-    quantizeRound: (tick: number) => number,
-  ): TrackEventsMutator =>
-  (events) => {
-    const notes = quantizedNotes(noteIds, quantizeRound)(events)
-    updateEvents(notes)(events)
   }
 
 const interpolate = (

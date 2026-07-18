@@ -1,4 +1,4 @@
-import { flow, maxBy } from "lodash"
+import { flow, max, maxBy, min } from "lodash"
 import uniq from "lodash/uniq"
 import { filter, isNotUndefined } from "../../helpers/array"
 import {
@@ -43,6 +43,16 @@ export const getTimeSignatureEvent = (tick: number) =>
 
 export const getProgramNumberEvent = (tick: number) =>
   flow(filter(isProgramChangeEvent), filter(isTickBefore(tick)), getLast)
+
+export const getControllerEventWithType = (
+  controllerType: number,
+  tick: number,
+) =>
+  flow(
+    filter(isControllerEventWithType(controllerType)),
+    filter(isTickBefore(tick)),
+    getLast,
+  )
 
 export const getEndOfTrackEvent = flow(filter(isEndOfTrackEvent), getLast)
 
@@ -113,3 +123,9 @@ export const getRedundantEvents =
 export const hasTimeSignatureAt =
   (tick: number) => (events: readonly TrackEvent[]) =>
     events.filter(isTimeSignatureEvent).some((e) => e.tick === tick)
+
+export const getTickSpan = (events: readonly TrackEvent[]) => {
+  const minTick = min(events.map((e) => e.tick)) ?? 0
+  const maxTick = max(events.map((e) => e.tick)) ?? 0
+  return maxTick - minTick
+}
