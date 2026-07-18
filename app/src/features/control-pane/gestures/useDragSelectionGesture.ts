@@ -1,8 +1,9 @@
 import {
+  getControllerEventsByIds,
+  moveControllerEvent,
   removeRedundantEventsForEventIds,
-  TrackEventOf,
+  updateEvents,
 } from "@signal-app/core"
-import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
@@ -10,24 +11,22 @@ import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
-import { useTrack } from "../../../hooks/useTrack"
+import { useTrackQuery } from "../../../hooks/useTrackQuery"
 import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
 import { ControlCoordTransform } from "../entities/ControlCoordTransform"
 import { useControlPane } from "../hooks/useControlPane"
-
-type ControlGraphEvent = ControllerEvent | PitchBendEvent
 
 export const useDragSelectionGesture = (): MouseDownHandler<
   [number, Point, ControlCoordTransform],
   MouseEvent
 > => {
   const { selectedTrackId } = usePianoRoll()
-  const { getEvents, updateEvents } = useTrack(selectedTrackId)
+  const query = useTrackQuery(selectedTrackId)
+  const mutate = useMutateTrack(selectedTrackId)
   const { pushHistory } = useHistory()
   const { selectedEventIds: _selectedEventIds, setSelectedEventIds } =
     useControlPane()
   const { quantizeRound } = useQuantizer()
-  const mutateTrack = useMutateTrack(selectedTrackId)
 
   return useCallback(
     (
@@ -45,11 +44,10 @@ export const useDragSelectionGesture = (): MouseDownHandler<
         selectedEventIds = [hitEventId]
       }
 
-      const controllerEvents = getEvents()
-        .filter((e) => selectedEventIds.includes(e.id))
-        .map((e) => ({ ...e }) as unknown as TrackEventOf<ControlGraphEvent>) // copy
+      const dragStartEvents =
+        query(getControllerEventsByIds(selectedEventIds)) ?? []
 
-      const draggedEvent = controllerEvents.find((ev) => ev.id === hitEventId)
+      const draggedEvent = dragStartEvents.find((ev) => ev.id === hitEventId)
       if (draggedEvent === undefined) {
         return
       }
@@ -59,30 +57,30 @@ export const useDragSelectionGesture = (): MouseDownHandler<
       observeDrag2(e, {
         onMouseMove: (_e, delta) => {
           const deltaTick = transform.getTick(delta.x)
-          const offsetTick =
-            draggedEvent.tick +
-            deltaTick -
-            quantizeRound(draggedEvent.tick + deltaTick)
-          const quantizedDeltaTick = deltaTick - offsetTick
+          const quantizedDraggedTick = quantizeRound(
+            draggedEvent.tick + deltaTick,
+          )
+          const quantizedDeltaTick = quantizedDraggedTick - draggedEvent.tick
 
           const currentValue = transform.getValue(startPoint.y + delta.y)
           const deltaValue = currentValue - startValue
 
-          updateEvents(
-            controllerEvents.map((ev) => ({
-              id: ev.id,
-              tick: Math.max(0, Math.floor(ev.tick + quantizedDeltaTick)),
-              value: Math.min(
-                transform.maxValue,
-                Math.max(0, Math.floor(ev.value + deltaValue)),
+          mutate(
+            updateEvents(
+              dragStartEvents.map(
+                moveControllerEvent(
+                  quantizedDeltaTick,
+                  deltaValue,
+                  transform.maxValue,
+                ),
               ),
-            })),
+            ),
           )
         },
 
         onMouseUp: () => {
           // Find events with the same tick and remove it
-          mutateTrack(removeRedundantEventsForEventIds(selectedEventIds))
+          mutate(removeRedundantEventsForEventIds(selectedEventIds))
         },
       })
     },
@@ -90,9 +88,8 @@ export const useDragSelectionGesture = (): MouseDownHandler<
       pushHistory,
       _selectedEventIds,
       setSelectedEventIds,
-      getEvents,
-      updateEvents,
-      mutateTrack,
+      query,
+      mutate,
       quantizeRound,
     ],
   )
