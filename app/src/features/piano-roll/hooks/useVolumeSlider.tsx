@@ -1,12 +1,12 @@
-import { getVolume, volumeMidiEvent } from "@signal-app/core"
-import { useCallback, useState, useSyncExternalStore } from "react"
+import { getVolume, isVolumeEvent, volumeMidiEvent } from "@signal-app/core"
+import { useCallback, useMemo, useState } from "react"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { useTrack } from "../../../hooks/useTrack"
+import { useTrackQuery } from "../../../hooks/useTrackQuery"
 import { usePianoRoll } from "../hooks/usePianoRoll"
 
 const DEFAULT_VOLUME = 100
-const noop = () => () => {}
 
 export function useVolumeSlider() {
   const { selectedTrack, selectedTrackId: trackId } = usePianoRoll()
@@ -14,35 +14,27 @@ export function useVolumeSlider() {
   const { pushHistory } = useHistory()
   const { setVolume, channel } = useTrack(trackId)
   const [isDragging, setIsDragging] = useState(false)
-
-  const currentVolume = useSyncExternalStore(
-    selectedTrack?.onEventsChanged.subscribe ?? noop,
-    useCallback(
-      () =>
-        getVolume(position)(selectedTrack?.events ?? [])?.value ??
-        DEFAULT_VOLUME,
-      [selectedTrack, position],
-    ),
-  )
+  const query = useMemo(() => getVolume(position), [position])
+  const currentVolumeEvent = useTrackQuery(selectedTrack, query, isVolumeEvent)
 
   const setTrackVolume = useCallback(
-    (pan: number) => {
+    (volume: number) => {
       if (!isDragging) {
         // record history for the keyboard event (no dragging)
         pushHistory()
       }
 
-      setVolume(pan, position)
+      setVolume(volume, position)
 
       if (channel !== undefined) {
-        sendEvent(volumeMidiEvent(0, channel, pan))
+        sendEvent(volumeMidiEvent(0, channel, volume))
       }
     },
     [pushHistory, setVolume, position, sendEvent, channel, isDragging],
   )
 
   return {
-    value: currentVolume ?? DEFAULT_VOLUME,
+    value: currentVolumeEvent?.value ?? DEFAULT_VOLUME,
     setValue: setTrackVolume,
     onPointerDown: useCallback(() => {
       // record history only when dragging starts

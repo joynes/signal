@@ -1,12 +1,12 @@
-import { getPan, panMidiEvent } from "@signal-app/core"
-import { useCallback, useState, useSyncExternalStore } from "react"
+import { getPan, isPanEvent, panMidiEvent } from "@signal-app/core"
+import { useCallback, useMemo, useState } from "react"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { useTrack } from "../../../hooks/useTrack"
+import { useTrackQuery } from "../../../hooks/useTrackQuery"
 import { usePianoRoll } from "./usePianoRoll"
 
 const PAN_CENTER = 64
-const noop = () => () => {}
 
 export function usePanSlider() {
   const { selectedTrack, selectedTrackId: trackId } = usePianoRoll()
@@ -14,14 +14,8 @@ export function usePanSlider() {
   const { pushHistory } = useHistory()
   const { setPan, channel } = useTrack(trackId)
   const [isDragging, setIsDragging] = useState(false)
-
-  const currentPan = useSyncExternalStore(
-    selectedTrack?.onEventsChanged.subscribe ?? noop,
-    useCallback(
-      () => getPan(position)(selectedTrack?.events ?? [])?.value ?? PAN_CENTER,
-      [selectedTrack, position],
-    ),
-  )
+  const query = useMemo(() => getPan(position), [position])
+  const currentPanEvent = useTrackQuery(selectedTrack, query, isPanEvent)
 
   const setTrackPan = useCallback(
     (pan: number) => {
@@ -40,7 +34,7 @@ export function usePanSlider() {
   )
 
   return {
-    value: currentPan ?? PAN_CENTER,
+    value: currentPanEvent?.value ?? PAN_CENTER,
     setValue: setTrackPan,
     defaultValue: PAN_CENTER,
     onPointerDown: useCallback(() => {

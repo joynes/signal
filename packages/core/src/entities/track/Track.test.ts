@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { isPanEvent, isVolumeEvent } from "../event/identify"
 import { getPan, getVolume } from "../event/selectors"
 import { NoteEvent } from "../event/TrackEvent"
 import { Track } from "./Track"
@@ -227,5 +228,27 @@ describe("Track", () => {
     })
 
     expect(changes).toBe(3)
+  })
+
+  it("should observe event changes by predicate", () => {
+    const track = emptyTrack(1)
+    let panChanges = 0
+    let volumeChanges = 0
+
+    const unsubscribePan = track
+      .observeEventsChanged(isPanEvent)
+      .subscribe(() => panChanges++)
+    const unsubscribeVolume = track
+      .observeEventsChanged(isVolumeEvent)
+      .subscribe(() => volumeChanges++)
+
+    track.setPan(90, 0)
+    track.setVolume(50, 0)
+
+    expect(panChanges).toBe(1)
+    expect(volumeChanges).toBe(1)
+
+    unsubscribePan()
+    unsubscribeVolume()
   })
 })
