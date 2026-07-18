@@ -179,11 +179,5 @@ export function useTrackEvents(track: Track | undefined) {
       },
       [track],
     ),
-    getEventById: useCallback(
-      (eventId: number) => {
-        return track?.getEventById(eventId)
-      },
-      [track],
-    ),
   }
 }
