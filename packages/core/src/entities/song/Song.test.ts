@@ -34,9 +34,9 @@ describe("Song", () => {
     expect(tracks[17].channel).toBe(15)
 
     expect(getTempo(tracks[0].events, 240)).toBe(128)
-    expect(getVolume(tracks[2].events, 193)).toBe(100)
-    expect(getPan(tracks[2].events, 192)).toBe(1)
-    expect(getProgramNumberEvent(tracks[2].events, 189)?.value).toBe(29)
+    expect(getVolume(193)(tracks[2].events)?.value).toBe(100)
+    expect(getPan(192)(tracks[2].events)?.value).toBe(1)
+    expect(getProgramNumberEvent(189)(tracks[2].events)?.value).toBe(29)
   })
 
   it("should be serializable", () => {
