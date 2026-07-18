@@ -1,7 +1,7 @@
+import { ControllerEvent } from "midifile-ts"
 import { describe, expect, it } from "vitest"
 import { isPanEvent, isVolumeEvent } from "../event/identify"
-import { getPan, getVolume } from "../event/selectors"
-import { NoteEvent } from "../event/TrackEvent"
+import { NoteEvent, TrackEventOf } from "../event/TrackEvent"
 import { Track } from "./Track"
 import { emptyTrack } from "./TrackFactory"
 
@@ -81,18 +81,6 @@ describe("Track", () => {
     track.updateEndOfTrack()
     expect(track.endOfTrack).toBe(0)
   })
-  it("should update pan after setPan", () => {
-    const track = emptyTrack(1)
-    expect(getPan(1)(track.events)?.value).toBe(64)
-    track.setPan(100, 1)
-    expect(getPan(1)(track.events)?.value).toBe(100)
-  })
-  it("should update volume after setVolume", () => {
-    const track = emptyTrack(1)
-    expect(getVolume(1)(track.events)?.value).toBe(100)
-    track.setVolume(50, 1)
-    expect(getVolume(1)(track.events)?.value).toBe(50)
-  })
   it("should update color after setColor", () => {
     const track = emptyTrack(1)
     expect(track.color).toBe(undefined)
@@ -162,8 +150,20 @@ describe("Track", () => {
       .observeEventsChanged(isVolumeEvent)
       .subscribe(() => volumeChanges++)
 
-    track.setPan(90, 0)
-    track.setVolume(50, 0)
+    track.addEvent<TrackEventOf<ControllerEvent>>({
+      type: "channel",
+      subtype: "controller",
+      tick: 0,
+      controllerType: 10,
+      value: 90,
+    })
+    track.addEvent<TrackEventOf<ControllerEvent>>({
+      type: "channel",
+      subtype: "controller",
+      tick: 0,
+      controllerType: 7,
+      value: 50,
+    })
 
     expect(panChanges).toBe(1)
     expect(volumeChanges).toBe(1)

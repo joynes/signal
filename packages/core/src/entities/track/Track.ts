@@ -310,9 +310,6 @@ export class Track {
   removeEvents = flow(TrackEvents.removeEvents, this.mutate)
   createOrUpdate = flow(TrackEvents.createOrUpdate, this.mutate)
   setColor = flow(TrackEvents.setColor, this.mutate)
-  setVolume = flow(TrackEvents.setVolume, this.mutate)
-  setPan = flow(TrackEvents.setPan, this.mutate)
-  setTempo = flow(TrackEvents.setTempo, this.mutate)
   setName = flow(TrackEvents.setName, this.mutate)
 
   /* helper */
