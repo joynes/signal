@@ -1,9 +1,15 @@
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
+import { ControlEventsClipboardData } from "../../clipboard/clipboardTypes"
 import { getControllerEventWithType } from "../../event/selectors"
 import { TrackEventOf } from "../../event/TrackEvent"
 import { getEventsByIds } from "../queries/basic"
 import { TrackEventsMutator } from "../Track"
-import { createOrUpdate, updateEvent, updateOrAdd } from "./basic"
+import {
+  combineMutators,
+  createOrUpdate,
+  updateEvent,
+  updateOrAdd,
+} from "./basic"
 
 const setControllerValue = (
   controllerType: number,
@@ -47,3 +53,13 @@ export const createOrUpdateControllerEventsValue =
       })(events)
     }
   }
+
+export const pasteClipboardDataAtPosition = (
+  data: ControlEventsClipboardData,
+  position: number,
+): TrackEventsMutator =>
+  combineMutators(
+    ...data.events
+      .map((e) => ({ ...e, tick: e.tick + position }))
+      .map((e) => createOrUpdate(e)),
+  )
