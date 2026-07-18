@@ -1,4 +1,4 @@
-import { isNoteEvent, Range } from "@signal-app/core"
+import { isNoteEvent, NoteEvent, Range } from "@signal-app/core"
 import { max, min } from "lodash"
 import { useCallback } from "react"
 import { MaxNoteNumber } from "../../../Constants"
@@ -50,20 +50,18 @@ export function usePianoRollDraggable() {
               if (position.tick === undefined) {
                 return
               }
-              selectedTrack.updateEvent(note.id, {
+              return selectedTrack.updateEvent<NoteEvent>(note.id, {
                 tick: position.tick,
                 duration: note.duration + note.tick - position.tick,
               })
-              break
             }
             case "right": {
               if (position.tick === undefined) {
                 return
               }
-              selectedTrack.updateEvent(note.id, {
+              return selectedTrack.updateEvent<NoteEvent>(note.id, {
                 duration: position.tick - note.tick,
               })
-              break
             }
           }
           break
@@ -159,11 +157,11 @@ export function usePianoRollDraggable() {
     updateDraggables: useCallback(
       (updates: { draggable: PianoRollDraggable; position: NotePoint }[]) => {
         const selectedTrack = getSelectedTrack()
-        selectedTrack?.transaction(() => {
-          updates.forEach(({ draggable, position }) => {
-            updateDraggable(draggable, position)
-          })
-        })
+        return selectedTrack?.transaction(() =>
+          updates.map(({ draggable, position }) =>
+            updateDraggable(draggable, position),
+          ),
+        )
       },
       [updateDraggable, getSelectedTrack],
     ),

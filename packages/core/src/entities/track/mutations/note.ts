@@ -10,7 +10,7 @@ import { TrackEventsMutator } from "../Track"
 import { addEvents, updateEvents } from "./basic"
 
 export const transposeNotes = (
-  noteIds: number[],
+  noteIds: readonly number[],
   deltaPitch: number,
 ): TrackEventsMutator =>
   flow(getNotesByIds(noteIds), map(transposeNote(deltaPitch)), updateEvents)
@@ -19,7 +19,7 @@ export const transposeNotes = (
 // if deltaTick is 0, duplicate to the right of the selected notes
 export const duplicateNotes =
   (
-    noteIds: number[],
+    noteIds: readonly number[],
     initialDeltaTick: number,
   ): TrackEventsMutator<{ addedNoteIds: number[]; deltaTick: number }> =>
   (events) => {
@@ -38,7 +38,7 @@ export const duplicateNotes =
   }
 
 export const cloneNotes =
-  (noteIds: number[]): TrackEventsMutator<number[]> =>
+  (noteIds: readonly number[]): TrackEventsMutator<number[]> =>
   (events) => {
     const selectedNotes = getNotesByIds(noteIds)(events)
     return addEvents(selectedNotes)(events).map((e) => e.id)
@@ -47,7 +47,7 @@ export const cloneNotes =
 // update velocities of notes in the specified range using linear interpolation
 export const updateVelocitiesInRange =
   (
-    selectedNoteIds: number[], // if empty, apply to all notes
+    selectedNoteIds: readonly number[], // if empty, apply to all notes
     startTick: number,
     startValue: number,
     endTick: number,
@@ -89,13 +89,13 @@ export const updateVelocitiesInRange =
   }
 
 const quantizedNotes = (
-  noteIds: number[],
+  noteIds: readonly number[],
   quantizeRound: (tick: number) => number,
 ) => flow(getNotesByIds(noteIds), map(quantizeNote(quantizeRound)))
 
 export const quantizeNotes =
   (
-    noteIds: number[],
+    noteIds: readonly number[],
     quantizeRound: (tick: number) => number,
   ): TrackEventsMutator =>
   (events) => {

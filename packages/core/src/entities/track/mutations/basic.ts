@@ -19,7 +19,7 @@ import { TrackEventsMutator } from "../Track"
 import { TrackColor } from "../TrackColor"
 
 export const combineMutators =
-  <T>(...mutators: TrackEventsMutator<T>[]): TrackEventsMutator<T[]> =>
+  <T>(...mutators: readonly TrackEventsMutator<T>[]): TrackEventsMutator<T[]> =>
   (events) => {
     return mutators.map((mutator) => mutator(events))
   }
@@ -38,7 +38,7 @@ export const updateEvents = (
   )
 
 export const removeEvents =
-  (ids: number[]): TrackEventsMutator =>
+  (ids: readonly number[]): TrackEventsMutator =>
   (events) => {
     ids.forEach((id) => events.remove(id))
   }

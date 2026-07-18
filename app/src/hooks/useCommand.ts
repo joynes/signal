@@ -1,5 +1,6 @@
 import { Song, Track, TrackEventsMutator, TrackId } from "@signal-app/core"
 import { useCallback } from "react"
+import { useSong } from "./useSong"
 import { useStores } from "./useStores"
 
 export function useSongCommand<A extends unknown[], R>(
@@ -7,23 +8,6 @@ export function useSongCommand<A extends unknown[], R>(
 ): (...a: A) => R {
   const { songStore } = useStores()
   return useCallback((...a: A) => cmd(songStore.song)(...a), [songStore, cmd])
-}
-
-export function useTrackCommand<A extends unknown[], R>(
-  trackId: TrackId,
-  cmd: (track: Track) => (...a: A) => R,
-): (...a: A) => R | undefined {
-  const { songStore } = useStores()
-  return useCallback(
-    (...a: A) => {
-      const track = songStore.song.getTrack(trackId)
-      if (!track) {
-        return undefined
-      }
-      return cmd(track)(...a)
-    },
-    [songStore, trackId, cmd],
-  )
 }
 
 export function useTracksCommand<A extends unknown[], R>(
@@ -55,31 +39,30 @@ export function useConductorTrackCommand<A extends unknown[], R>(
 export function useMutateTrack(
   trackId: TrackId,
 ): <R = void>(fn: TrackEventsMutator<R>) => R | undefined {
-  const { songStore } = useStores()
+  const { getTrack } = useSong()
   return useCallback(
     <R = void>(fn: TrackEventsMutator<R>) => {
-      const track = songStore.song.getTrack(trackId)
+      const track = getTrack(trackId)
       if (!track) {
         return undefined
       }
       return track.mutate(fn)
     },
-    [songStore, trackId],
+    [getTrack, trackId],
   )
 }
 
 export function useMutateConductorTrack(): <R = void>(
   fn: TrackEventsMutator<R>,
 ) => R | undefined {
-  const { songStore } = useStores()
+  const { conductorTrack } = useSong()
   return useCallback(
     <R = void>(fn: TrackEventsMutator<R>) => {
-      const conductorTrack = songStore.song.conductorTrack
       if (!conductorTrack) {
         return undefined
       }
       return conductorTrack.mutate(fn)
     },
-    [songStore],
+    [conductorTrack],
   )
 }

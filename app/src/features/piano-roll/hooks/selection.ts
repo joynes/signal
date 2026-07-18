@@ -2,6 +2,7 @@ import {
   addClipboardNotes,
   cloneNotes,
   duplicateNotes,
+  getAllNoteIds,
   isNoteEvent,
   NoteEvent,
   notesToClipboardData,
@@ -302,15 +303,11 @@ export const useQuantizeSelectedNotes = () => {
 
 export const useSelectAllNotes = () => {
   const { selectedTrackId, setSelectedNoteIds } = usePianoRoll()
-  const { getEvents } = useTrack(selectedTrackId)
+  const query = useTrackQuery(selectedTrackId)
   const { setSelectedEventIds } = useControlPane()
 
   return useCallback(() => {
-    setSelectedNoteIds(
-      getEvents()
-        .filter(isNoteEvent)
-        .map((note) => note.id),
-    )
+    setSelectedNoteIds(query(getAllNoteIds()) ?? [])
     setSelectedEventIds([])
-  }, [getEvents, setSelectedNoteIds, setSelectedEventIds])
+  }, [query, setSelectedNoteIds, setSelectedEventIds])
 }

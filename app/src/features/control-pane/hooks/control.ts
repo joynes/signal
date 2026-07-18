@@ -1,12 +1,12 @@
 import {
   ControlEventsClipboardDataSchema,
+  createOrUpdateControllerEventsValue,
   duplicateEvents,
   getControlClipboardDataForSelection,
   pasteClipboardDataAtPosition,
 } from "@signal-app/core"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { useCallback } from "react"
-import { isNotUndefined } from "../../../helpers/array"
 import { useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
@@ -21,8 +21,7 @@ import { useControlPane } from "./useControlPane"
 
 export const useCreateOrUpdateControlEventsValue = () => {
   const { selectedTrackId } = usePianoRoll()
-  const { getEventById, updateEvent, createOrUpdate } =
-    useTrack(selectedTrackId)
+  const mutate = useMutateTrack(selectedTrackId)
   const { position } = usePlayer()
   const { pushHistory } = useHistory()
   const { selectedEventIds } = useControlPane()
@@ -31,29 +30,11 @@ export const useCreateOrUpdateControlEventsValue = () => {
     <T extends ControllerEvent | PitchBendEvent>(event: T) => {
       pushHistory()
 
-      const controllerEvents = selectedEventIds
-        .map((id) => getEventById(id))
-        .filter(isNotUndefined)
-
-      if (controllerEvents.length > 0) {
-        controllerEvents.forEach((e) =>
-          updateEvent(e.id, { value: event.value }),
-        )
-      } else {
-        createOrUpdate({
-          ...event,
-          tick: position,
-        })
-      }
+      mutate(
+        createOrUpdateControllerEventsValue(selectedEventIds, event, position),
+      )
     },
-    [
-      selectedEventIds,
-      getEventById,
-      updateEvent,
-      createOrUpdate,
-      position,
-      pushHistory,
-    ],
+    [selectedEventIds, mutate, position, pushHistory],
   )
 }
 

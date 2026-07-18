@@ -1,8 +1,9 @@
-import { ControllerEvent } from "midifile-ts"
+import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { getControllerEventWithType } from "../../event/selectors"
 import { TrackEventOf } from "../../event/TrackEvent"
+import { getEventsByIds } from "../queries"
 import { TrackEventsMutator } from "../Track"
-import { updateOrAdd } from "./basic"
+import { createOrUpdate, updateEvent, updateOrAdd } from "./basic"
 
 const setControllerValue = (
   controllerType: number,
@@ -25,3 +26,24 @@ export const setVolume = (value: number, tick: number): TrackEventsMutator =>
 
 export const setPan = (value: number, tick: number): TrackEventsMutator =>
   setControllerValue(10, tick, value)
+
+export const createOrUpdateControllerEventsValue =
+  <T extends ControllerEvent | PitchBendEvent>(
+    selectedEventIds: number[],
+    event: T,
+    tick: number,
+  ): TrackEventsMutator =>
+  (events) => {
+    const controllerEvents = getEventsByIds(selectedEventIds)(events) ?? []
+
+    if (controllerEvents.length > 0) {
+      controllerEvents.forEach((e) =>
+        updateEvent(e.id, { value: event.value })(events),
+      )
+    } else {
+      createOrUpdate({
+        ...event,
+        tick,
+      })(events)
+    }
+  }

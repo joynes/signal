@@ -6,7 +6,7 @@ import { TrackEventsMutator } from "../Track"
 import { updateEvents } from "./basic"
 
 export const batchUpdateNotesVelocity = (
-  noteIds: number[],
+  noteIds: readonly number[],
   operation: BatchUpdateOperation,
 ): TrackEventsMutator =>
   flow(

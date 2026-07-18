@@ -145,7 +145,7 @@ export function useTrackEvents(track: Track | undefined) {
       [track],
     ),
     removeEvents: useCallback(
-      (eventIds: number[]) => {
+      (eventIds: readonly number[]) => {
         if (track) {
           track.removeEvents(eventIds)
         }

@@ -25,7 +25,7 @@ export const moveTempoEvents = (
     updateEvents,
   )
 
-export const pasteTempoEventsAt = (
+export const addClipboardTempoEvents = (
   data: TempoEventsClipboardData,
   tick: number,
 ): TrackEventsMutator =>

@@ -44,21 +44,21 @@ export const useCreateNoteGesture = (): MouseDownHandler => {
         : (lastNoteDuration ?? quantizeUnit)
 
       const note = mutate(
-        addEvent({
+        addEvent<NoteEvent>({
           type: "channel",
           subtype: "note",
           noteNumber: noteNumber,
           tick: quantizedTick,
           velocity: newNoteVelocity,
           duration,
-        } as NoteEvent),
+        }),
       )
 
       if (note === undefined) {
         return
       }
 
-      dragNoteCenterAction(e, note.id)
+      dragNoteCenterAction(e, note)
     },
     [
       transform,

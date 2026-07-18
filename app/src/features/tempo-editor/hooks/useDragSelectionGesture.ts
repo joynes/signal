@@ -1,30 +1,28 @@
 import {
+  getSetTempoEventsByIds,
   moveTempoEvents,
   removeRedundantEventsForEventIds,
-  TrackEventOf,
 } from "@signal-app/core"
-import { SetTempoEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
-import { isNotUndefined } from "../../../helpers/array"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import { useMutateConductorTrack } from "../../../hooks/useCommand"
-import { useConductorTrack } from "../../../hooks/useConductorTrack"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
+import { useConductorTrackQuery } from "../../../hooks/useTrackQuery"
 import { useTempoEditor } from "./useTempoEditor"
 import { useTempoTransform } from "./useTempoTransform"
 
 export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
-  const { getEventById } = useConductorTrack()
   const { pushHistory } = useHistory()
   const { setSelectedEventIds, selectedEventIds: _selectedEventIds } =
     useTempoEditor()
   const { transform, getLocal } = useTempoTransform()
   const { quantizeRound } = useQuantizer()
   const mutateConductorTrack = useMutateConductorTrack()
+  const query = useConductorTrackQuery()
 
   return useCallback(
     (e: MouseEvent, hitEventId: number) => {
@@ -37,10 +35,10 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
         setSelectedEventIds(selectedEventIds)
       }
 
-      const events = selectedEventIds
-        .map((id) => getEventById(id) as unknown as TrackEventOf<SetTempoEvent>)
-        .filter(isNotUndefined)
-        .map((e) => ({ ...e })) // copy
+      const events =
+        query(getSetTempoEventsByIds(selectedEventIds))?.map((e) => ({
+          ...e, // copy
+        })) ?? []
 
       const draggedEvent = events.find((ev) => ev.id === hitEventId)
       if (draggedEvent === undefined) {
@@ -93,7 +91,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
       _selectedEventIds,
       transform,
       setSelectedEventIds,
-      getEventById,
+      query,
       quantizeRound,
       mutateConductorTrack,
     ],
