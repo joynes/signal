@@ -1,4 +1,11 @@
-import { dragNote, isNoteEvent, Range } from "@signal-app/core"
+import {
+  dragNote,
+  getDraggableArea,
+  getDraggablePosition,
+  getNotesByIds,
+  isNoteEvent,
+  Range,
+} from "@signal-app/core"
 import { max, min } from "lodash"
 import { useCallback } from "react"
 import { MaxNoteNumber } from "../../../Constants"
@@ -88,25 +95,11 @@ export function usePianoRollDraggable() {
 
         switch (draggable.type) {
           case "note": {
-            if (selectedTrack === undefined) {
-              return null
-            }
-            const note = selectedTrack.getEventById(draggable.noteId)
-            if (note === undefined || !isNoteEvent(note)) {
-              return null
-            }
-            switch (draggable.position) {
-              case "center":
-                return note
-              case "left":
-                return note
-              case "right":
-                return {
-                  tick: note.tick + note.duration,
-                  noteNumber: note.noteNumber,
-                }
-            }
-            break
+            return (
+              selectedTrack?.query(
+                getDraggablePosition(draggable.noteId, draggable.position),
+              ) ?? null
+            )
           }
           case "selection": {
             if (selection === null) {
@@ -120,7 +113,6 @@ export function usePianoRollDraggable() {
               case "right":
                 return Selection.getTo(selection)
             }
-            break
           }
         }
       },
@@ -149,48 +141,15 @@ export function usePianoRollDraggable() {
           return null
         }
         switch (draggable.type) {
-          case "note": {
-            const note = selectedTrack.getEventById(draggable.noteId)
-            if (note === undefined || !isNoteEvent(note)) {
-              return null
-            }
-            const notes = selectedNoteIds
-              .map((id) => selectedTrack.getEventById(id))
-              .filter(isNotUndefined)
-              .filter(isNoteEvent)
-            const minTick = min(notes.map((n) => n.tick)) ?? 0
-            const tickLowerBound = note.tick - minTick
-            switch (draggable.position) {
-              case "center": {
-                const maxNoteNumber = max(notes.map((n) => n.noteNumber)) ?? 0
-                const minNoteNumber = min(notes.map((n) => n.noteNumber)) ?? 0
-                const noteNumberLowerBound = note.noteNumber - minNoteNumber
-                const noteNumberUpperBound =
-                  MaxNoteNumber - (maxNoteNumber - note.noteNumber)
-                return {
-                  tickRange: Range.create(tickLowerBound, Infinity),
-                  noteNumberRange: Range.create(
-                    noteNumberLowerBound,
-                    noteNumberUpperBound,
-                  ),
-                }
-              }
-              case "left":
-                return {
-                  tickRange: Range.create(
-                    tickLowerBound,
-                    note.tick + note.duration - minLength,
-                  ),
-                  noteNumberRange: Range.point(note.noteNumber), // allow to move only vertically
-                }
-              case "right":
-                return {
-                  tickRange: Range.create(note.tick + minLength, Infinity),
-                  noteNumberRange: Range.point(note.noteNumber), // allow to move only vertically
-                }
-            }
-            break
-          }
+          case "note":
+            return selectedTrack.query(
+              getDraggableArea(
+                draggable.noteId,
+                selectedNoteIds,
+                draggable.position,
+                minLength,
+              ),
+            )
           case "selection": {
             const selection = getSelection()
             const selectedNoteIds = getSelectedNoteIds()
@@ -198,10 +157,7 @@ export function usePianoRollDraggable() {
             if (selection === null) {
               return null
             }
-            const notes = selectedNoteIds
-              .map((id) => selectedTrack.getEventById(id))
-              .filter(isNotUndefined)
-              .filter(isNoteEvent)
+            const notes = selectedTrack.query(getNotesByIds(selectedNoteIds))
             const minTick = min(notes.map((n) => n.tick)) ?? 0
             // The length of the note that protrudes from the left end of the selection
             const tickOffset = selection.fromTick - minTick
