@@ -17,11 +17,11 @@ import {
   useToggleAllGhostTracks,
   useToggleGhostTrack,
 } from "../../../actions"
-import { InstrumentBrowser } from "../../../components/InstrumentBrowser/InstrumentBrowser"
 import { useContextMenu } from "../../../hooks/useContextMenu"
 import { useRouter } from "../../../hooks/useRouter"
 import { useTrack } from "../../../hooks/useTrack"
 import { useTrackMute } from "../../../hooks/useTrackMute"
+import { InstrumentBrowser } from "../../instrument-browser"
 import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
 import { useMIDIActivity } from "../hooks/useMIDIActivity"
 import { InstrumentEmoji, InstrumentName } from "./InstrumentName"
