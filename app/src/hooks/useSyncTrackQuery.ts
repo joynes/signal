@@ -3,7 +3,7 @@ import { useCallback, useSyncExternalStore } from "react"
 
 const noopSubscribe = () => () => {}
 
-export function useTrackQuery<T>(
+export function useSyncTrackQuery<T>(
   track: Track | undefined,
   query: (events: readonly TrackEvent[]) => T,
   predicate: (event: TrackEvent) => boolean,

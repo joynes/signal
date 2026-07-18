@@ -2,8 +2,8 @@ import { getVolume, isVolumeEvent, volumeMidiEvent } from "@signal-app/core"
 import { useCallback, useMemo, useState } from "react"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
+import { useSyncTrackQuery } from "../../../hooks/useSyncTrackQuery"
 import { useTrack } from "../../../hooks/useTrack"
-import { useTrackQuery } from "../../../hooks/useTrackQuery"
 import { usePianoRoll } from "../hooks/usePianoRoll"
 
 const DEFAULT_VOLUME = 100
@@ -15,7 +15,11 @@ export function useVolumeSlider() {
   const { setVolume, channel } = useTrack(trackId)
   const [isDragging, setIsDragging] = useState(false)
   const query = useMemo(() => getVolume(position), [position])
-  const currentVolumeEvent = useTrackQuery(selectedTrack, query, isVolumeEvent)
+  const currentVolumeEvent = useSyncTrackQuery(
+    selectedTrack,
+    query,
+    isVolumeEvent,
+  )
 
   const setTrackVolume = useCallback(
     (volume: number) => {
