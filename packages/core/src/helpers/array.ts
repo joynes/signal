@@ -17,3 +17,18 @@ export const closedRange = (start: number, end: number, step: number) => {
   }
   return result
 }
+
+export const map =
+  <T, U>(fn: (item: T) => U) =>
+  (array: T[]): U[] =>
+    array.map(fn)
+
+export function filter<T, U extends T>(
+  fn: (item: T) => item is U,
+): (array: readonly T[]) => readonly U[]
+export function filter<T>(
+  fn: (item: T) => boolean,
+): (array: readonly T[]) => readonly T[]
+export function filter<T>(fn: (item: T) => boolean) {
+  return (array: readonly T[]): readonly T[] => array.filter(fn)
+}

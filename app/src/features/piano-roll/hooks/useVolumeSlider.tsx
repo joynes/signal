@@ -18,7 +18,9 @@ export function useVolumeSlider() {
   const currentVolume = useSyncExternalStore(
     selectedTrack?.onEventsChanged.subscribe ?? noop,
     useCallback(
-      () => getVolume(selectedTrack?.events ?? [], position) ?? DEFAULT_VOLUME,
+      () =>
+        getVolume(position)(selectedTrack?.events ?? [])?.value ??
+        DEFAULT_VOLUME,
       [selectedTrack, position],
     ),
   )

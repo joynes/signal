@@ -37,7 +37,7 @@ export function useTrack(id: TrackId) {
         track?.onProgramChangeEventsChanged.subscribe ?? noop,
         useCallback(
           () =>
-            getProgramNumberEvent(track?.events ?? [], position)?.value ?? 0,
+            getProgramNumberEvent(position)(track?.events ?? [])?.value ?? 0,
           [track, position],
         ),
       )

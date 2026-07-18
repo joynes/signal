@@ -6,14 +6,14 @@ import {
   TrackEvent,
 } from "../entities"
 import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
+import {
+  BatchUpdateOperation,
+  batchUpdateNotesVelocity,
+  transposeNotes,
+} from "../entities/track/mutations"
 import { ArrangePoint } from "../entities/transform/ArrangePoint"
 import { isNotUndefined } from "../helpers/array"
 import { isEventInRange } from "../helpers/filterEvents"
-import {
-  BatchUpdateOperation,
-  batchUpdateNotesVelocity as batchUpdateNotesVelocityForTrack,
-  transposeNotes,
-} from "./track"
 
 const runTrackTransaction = <T>(tracks: readonly Track[], fn: () => T): T => {
   const runInAllTracks = (index: number): T => {
@@ -86,9 +86,7 @@ export const batchUpdateArrangeNotesVelocity =
       )) {
         const trackIndex = parseInt(trackIndexStr, 10)
         const track = tracks[trackIndex]
-        track.mutate(
-          batchUpdateNotesVelocityForTrack(selectedEventIdsValue, operation),
-        )
+        track.mutate(batchUpdateNotesVelocity(selectedEventIdsValue, operation))
       }
     })
   }

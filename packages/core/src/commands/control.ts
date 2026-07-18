@@ -1,5 +1,5 @@
 import { min } from "lodash"
-import { TrackEvents, TrackEventsMutator } from "../entities"
+import { createOrUpdate, TrackEventsMutator } from "../entities"
 import { ControlEventsClipboardData } from "../entities/clipboard/clipboardTypes"
 import { isNotUndefined } from "../helpers"
 
@@ -27,5 +27,5 @@ export const pasteClipboardDataAtPosition =
   (events) => {
     data.events
       .map((e) => ({ ...e, tick: e.tick + position }))
-      .forEach((e) => TrackEvents.createOrUpdate(e)(events))
+      .forEach((e) => createOrUpdate(e)(events))
   }

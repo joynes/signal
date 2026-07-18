@@ -1,4 +1,5 @@
 import { AnyEvent } from "midifile-ts"
+import { mapToSignalEvent } from "../entities/event/signalEvents"
 import {
   AnyEventFeature,
   DeltaTimeProvider,
@@ -6,7 +7,6 @@ import {
   TickProvider,
   TrackEvent,
 } from "../entities/track"
-import { mapToSignalEvent } from "../entities/track/signalEvents"
 import { DistributiveOmit } from "../types"
 import { assemble as assembleNotes } from "./noteAssembler"
 

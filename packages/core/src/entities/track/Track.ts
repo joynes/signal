@@ -12,17 +12,20 @@ import {
   TickOrderedArray,
 } from "../../data/OrdererdArray/TickOrderedArray"
 import { Branded } from "../../types"
+import { getColorEvent, getMaxTick, getTrackNameEvent } from "../event"
 import {
   isNoteEvent,
   isProgramChangeEvent,
   isSetTempoEvent,
   isTimeSignatureEvent,
   isTrackNameEvent,
-} from "./identify"
-import { getTrackNameEvent } from "./selector"
-import { isSignalTrackColorEvent, SignalTrackColorEvent } from "./signalEvents"
-import { TrackEvent, TrackEventOf } from "./TrackEvent"
-import { TrackEvents } from "./TrackEvents"
+} from "../event/identify"
+import {
+  isSignalTrackColorEvent,
+  SignalTrackColorEvent,
+} from "../event/signalEvents"
+import { TrackEvent, TrackEventOf } from "../event/TrackEvent"
+import * as TrackEvents from "./mutations"
 
 export type TrackId = Branded<number, "TrackId">
 export const UNASSIGNED_TRACK_ID = -1 as TrackId
@@ -112,7 +115,7 @@ export class Track {
       this._name.set(nextName)
     }
     if (changedEvents.some(isSignalTrackColorEvent)) {
-      const nextColor = TrackEvents.getColorEvent(this.events)
+      const nextColor = getColorEvent(this.events)
       this._color.set(nextColor)
     }
     if (changedEvents.some(isTimeSignatureEvent)) {
@@ -260,7 +263,7 @@ export class Track {
   /* helper */
 
   updateEndOfTrack() {
-    this.endOfTrack = TrackEvents.getMaxTick(this.events)
+    this.endOfTrack = getMaxTick(this.events)
   }
 
   private extendEndOfTrack(newEvent: TrackEvent) {

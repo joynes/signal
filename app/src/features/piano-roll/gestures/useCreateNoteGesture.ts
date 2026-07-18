@@ -1,4 +1,4 @@
-import { NoteEvent, NoteNumber, TrackEvents } from "@signal-app/core"
+import { addEvent, NoteEvent, NoteNumber } from "@signal-app/core"
 import { useCallback } from "react"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { useMutateTrack } from "../../../hooks/useCommand"
@@ -44,7 +44,7 @@ export const useCreateNoteGesture = (): MouseDownHandler => {
         : (lastNoteDuration ?? quantizeUnit)
 
       const note = mutate(
-        TrackEvents.addEvent({
+        addEvent({
           type: "channel",
           subtype: "note",
           noteNumber: noteNumber,

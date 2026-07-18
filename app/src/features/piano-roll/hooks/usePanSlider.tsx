@@ -18,7 +18,7 @@ export function usePanSlider() {
   const currentPan = useSyncExternalStore(
     selectedTrack?.onEventsChanged.subscribe ?? noop,
     useCallback(
-      () => getPan(selectedTrack?.events ?? [], position) ?? PAN_CENTER,
+      () => getPan(position)(selectedTrack?.events ?? [])?.value ?? PAN_CENTER,
       [selectedTrack, position],
     ),
   )

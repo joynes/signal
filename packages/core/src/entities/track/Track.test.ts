@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { getPan, getVolume } from "./selector"
+import { getPan, getVolume } from "../event/selectors"
+import { NoteEvent } from "../event/TrackEvent"
 import { Track } from "./Track"
-import { NoteEvent } from "./TrackEvent"
 import { emptyTrack } from "./TrackFactory"
 
 describe("Track", () => {

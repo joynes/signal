@@ -3,13 +3,13 @@ import * as path from "path"
 import { describe, expect, it, vi } from "vitest"
 import { songFromMidi, songToMidi, timeSignatureMidiEvent } from "../../midi"
 import { toTrackEvents } from "../../midi/toTrackEvents"
-import { emptyTrack } from "../track"
 import {
   getPan,
   getProgramNumberEvent,
   getTempo,
   getVolume,
-} from "../track/selector"
+} from "../event/selectors"
+import { emptyTrack } from "../track"
 import { Song } from "./Song"
 import { emptySong } from "./SongFactory"
 

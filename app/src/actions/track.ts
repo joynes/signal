@@ -1,6 +1,7 @@
 import {
+  addEvent,
   addTimeSignature,
-  type BatchUpdateOperation,
+  BatchUpdateOperation,
   batchUpdateNotesVelocity,
   getMeasureStartTick as getMeasureStartTickCmd,
   getProgramNumberEvent,
@@ -9,8 +10,8 @@ import {
   programChangeMidiEvent,
   TrackEvent,
   TrackEventOf,
-  TrackEvents,
   TrackId,
+  updateEvent,
   updateEventsInRange,
   updateEventsInRangeWithEasing,
 } from "@signal-app/core"
@@ -205,8 +206,8 @@ export const useSetTrackInstrument = (trackId: TrackId, eventId?: number) => {
         // get last program change event before position
         const programNumberEvent = mutate(
           (events) =>
-            getProgramNumberEvent(events.getArray(), position) ??
-            TrackEvents.addEvent<TrackEventOf<ProgramChangeEvent>>({
+            getProgramNumberEvent(position)(events.getArray()) ??
+            addEvent<TrackEventOf<ProgramChangeEvent>>({
               ...programChangeMidiEvent(0, 0, programNumber),
               tick: 0,
             })(events),
@@ -219,12 +220,9 @@ export const useSetTrackInstrument = (trackId: TrackId, eventId?: number) => {
       }
 
       const targetEvent = mutate(
-        TrackEvents.updateEvent<TrackEventOf<ProgramChangeEvent>>(
-          targetEventId,
-          {
-            value: programNumber,
-          },
-        ),
+        updateEvent<TrackEventOf<ProgramChangeEvent>>(targetEventId, {
+          value: programNumber,
+        }),
       )
 
       if (!targetEvent) {
@@ -262,7 +260,7 @@ export const useInsertTrackInstrument = (trackId: TrackId) => {
       pushHistory()
 
       mutate(
-        TrackEvents.addEvent<TrackEventOf<ProgramChangeEvent>>({
+        addEvent<TrackEventOf<ProgramChangeEvent>>({
           ...programChangeMidiEvent(0, 0, programNumber),
           tick,
         }),
@@ -316,7 +314,11 @@ export const useAddTimeSignature = () => {
       const measureStartTick = getMeasureStartTick(tick)
 
       // prevent duplication
-      if (mutateConductorTrack(hasTimeSignatureAt(measureStartTick))) {
+      if (
+        mutateConductorTrack((events) =>
+          hasTimeSignatureAt(measureStartTick)(events.getArray()),
+        )
+      ) {
         return
       }
 
