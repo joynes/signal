@@ -11,7 +11,6 @@ import {
 } from "../entities"
 import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
 import { ArrangePoint } from "../entities/transform/ArrangePoint"
-import { isNotUndefined } from "../helpers/array"
 import { isEventInRange } from "../helpers/filterEvents"
 
 const runTrackTransaction = <T>(tracks: readonly Track[], fn: () => T): T => {

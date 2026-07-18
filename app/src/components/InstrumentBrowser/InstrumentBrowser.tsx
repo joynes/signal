@@ -12,13 +12,7 @@ import {
   PrimaryButton,
 } from "@signal-app/ui"
 import type { ProgramChangeEvent } from "midifile-ts"
-import React, {
-  type FC,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react"
+import React, { type FC, useCallback, useEffect, useState } from "react"
 import { InstrumentName } from "../../features/track-list/components/InstrumentName"
 import { useInstrumentBrowser } from "../../hooks/useInstrumentBrowser"
 import { useTrack } from "../../hooks/useTrack"

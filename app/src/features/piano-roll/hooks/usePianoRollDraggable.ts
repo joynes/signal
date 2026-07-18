@@ -3,13 +3,11 @@ import {
   getDraggableArea,
   getDraggablePosition,
   getNotesByIds,
-  isNoteEvent,
   Range,
 } from "@signal-app/core"
 import { max, min } from "lodash"
 import { useCallback } from "react"
 import { MaxNoteNumber } from "../../../Constants"
-import { isNotUndefined } from "../../../helpers/array"
 import { NotePoint } from "../entities/NotePoint"
 import { Selection } from "../entities/Selection"
 import { usePianoRoll } from "./usePianoRoll"
