@@ -28,10 +28,6 @@ export function useConductorTrack() {
         ),
       )
     },
-    getEvents: useCallback(
-      () => conductorTrack?.events ?? emptyArray,
-      [conductorTrack],
-    ),
     ...useTrackEvents(conductorTrack),
   }
 }
