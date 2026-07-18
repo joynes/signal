@@ -1,4 +1,4 @@
-import { isNoteEvent, NoteEvent, Range } from "@signal-app/core"
+import { dragNote, isNoteEvent, Range } from "@signal-app/core"
 import { max, min } from "lodash"
 import { useCallback } from "react"
 import { MaxNoteNumber } from "../../../Constants"
@@ -34,37 +34,9 @@ export function usePianoRollDraggable() {
 
       switch (draggable.type) {
         case "note": {
-          if (selectedTrack === undefined) {
-            return
-          }
-          const note = selectedTrack.getEventById(draggable.noteId)
-          if (note === undefined || !isNoteEvent(note)) {
-            return
-          }
-          switch (draggable.position) {
-            case "center": {
-              selectedTrack.updateEvent(note.id, position)
-              break
-            }
-            case "left": {
-              if (position.tick === undefined) {
-                return
-              }
-              return selectedTrack.updateEvent<NoteEvent>(note.id, {
-                tick: position.tick,
-                duration: note.duration + note.tick - position.tick,
-              })
-            }
-            case "right": {
-              if (position.tick === undefined) {
-                return
-              }
-              return selectedTrack.updateEvent<NoteEvent>(note.id, {
-                duration: position.tick - note.tick,
-              })
-            }
-          }
-          break
+          return selectedTrack?.mutate(
+            dragNote(position, draggable.noteId, draggable.position),
+          )
         }
         case "selection": {
           if (selection === null) {
