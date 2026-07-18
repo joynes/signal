@@ -1,8 +1,6 @@
 import {
   addEvent,
   addTimeSignature,
-  BatchUpdateOperation,
-  batchUpdateNotesVelocity,
   getMeasureStartTick as getMeasureStartTickCmd,
   getProgramNumberEvent,
   hasTimeSignatureAt,
@@ -296,19 +294,5 @@ export const useUpdateTimeSignature = () => {
       })
     },
     [pushHistory, updateEvent],
-  )
-}
-
-export const useBatchUpdateSelectedNotesVelocity = () => {
-  const { selectedTrackId, selectedNoteIds } = usePianoRoll()
-  const { pushHistory } = useHistory()
-  const mutate = useMutateTrack(selectedTrackId)
-
-  return useCallback(
-    (operation: BatchUpdateOperation) => {
-      pushHistory()
-      mutate(batchUpdateNotesVelocity(selectedNoteIds, operation))
-    },
-    [selectedNoteIds, pushHistory, mutate],
   )
 }
