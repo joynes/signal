@@ -15,7 +15,6 @@ import { Branded } from "../../types"
 import { getColorEvent, getMaxTick, getTrackNameEvent } from "../event"
 import {
   isNoteEvent,
-  isProgramChangeEvent,
   isTimeSignatureEvent,
   isTrackNameEvent,
 } from "../event/identify"
@@ -63,7 +62,6 @@ export class Track {
   private readonly _channel = new ObservableValue<number | undefined>(undefined)
 
   private readonly _onEventsChanged = new Emitter()
-  private readonly _onProgramChangeEventsChanged = new Emitter()
   private readonly _onIsRhythmTrackChanged = new Emitter()
   private readonly _onIsConductorTrackChanged = new Emitter()
   private readonly _onChanged: Observable
@@ -108,12 +106,6 @@ export class Track {
   private didEventsChanged = (changedEvents: readonly TrackEvent[]) => {
     this.emitFilteredEventsChanged(changedEvents)
 
-    if (
-      this._onProgramChangeEventsChanged.listenerCount > 0 &&
-      changedEvents.some(isProgramChangeEvent)
-    ) {
-      this._onProgramChangeEventsChanged.emit()
-    }
     if (changedEvents.some(isTrackNameEvent)) {
       const nextName = getTrackNameEvent(this.events)?.text
       this._name.set(nextName)
@@ -146,10 +138,6 @@ export class Track {
     this._eventsSnapshot = [...this.events]
     this.didEventsChanged(this.events)
     this.setupReactions()
-  }
-
-  get onProgramChangeEventsChanged() {
-    return this._onProgramChangeEventsChanged
   }
 
   get onChanged(): Observable {

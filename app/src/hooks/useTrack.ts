@@ -1,5 +1,6 @@
 import {
   getProgramNumberEvent,
+  isProgramChangeEvent,
   Track,
   TrackColor,
   TrackEvent,
@@ -9,6 +10,7 @@ import { useCallback, useMemo, useSyncExternalStore } from "react"
 import { TrackMute } from "../trackMute/TrackMute"
 import { usePlayer } from "./usePlayer"
 import { useSong } from "./useSong"
+import { useSyncTrackQuery } from "./useSyncTrackQuery"
 import { useTrackMute } from "./useTrackMute"
 
 const noop = () => () => {}
@@ -33,14 +35,8 @@ export function useTrack(id: TrackId) {
     },
     get programNumber() {
       const { position } = usePlayer()
-      return useSyncExternalStore(
-        track?.onProgramChangeEventsChanged.subscribe ?? noop,
-        useCallback(
-          () =>
-            getProgramNumberEvent(position)(track?.events ?? [])?.value ?? 0,
-          [track, position],
-        ),
-      )
+      const query = useMemo(() => getProgramNumberEvent(position), [position])
+      return useSyncTrackQuery(id, query, isProgramChangeEvent)?.value ?? 0
     },
     get name() {
       return useSyncExternalStore(
