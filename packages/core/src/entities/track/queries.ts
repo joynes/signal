@@ -1,15 +1,18 @@
 import { flow, min } from "lodash"
 import { SetTempoEvent } from "midifile-ts"
-import { filter, isNotUndefined } from "../../../helpers"
-import { TempoEventsClipboardData } from "../../clipboard/clipboardTypes"
-import { isNoteEvent, isSetTempoEvent } from "../../event/identify"
-import { NoteEvent, TrackEvent, TrackEventOf } from "../../event/TrackEvent"
+import { filter, isNotUndefined } from "../../helpers"
+import {
+  PianoNotesClipboardData,
+  TempoEventsClipboardData,
+} from "../clipboard/clipboardTypes"
+import { isNoteEvent, isSetTempoEvent } from "../event/identify"
+import { NoteEvent, TrackEvent, TrackEventOf } from "../event/TrackEvent"
 
 interface ReadOnlyTrackEvents {
   get(id: number): TrackEvent | undefined
 }
 
-type TrackEventsQuery<T> = (events: ReadOnlyTrackEvents) => T
+export type TrackEventsQuery<T> = (events: ReadOnlyTrackEvents) => T
 
 export const getEventsByIds =
   (ids: number[]): TrackEventsQuery<readonly TrackEvent[]> =>
@@ -40,5 +43,25 @@ export const copyTempoEvents =
     return {
       type: "tempo_events",
       events: tempoEvents.map((e) => ({ ...e, tick: e.tick - minTick })),
+    }
+  }
+
+export const notesToClipboardData =
+  (
+    noteIds: number[],
+    startTick?: number,
+  ): TrackEventsQuery<PianoNotesClipboardData | null> =>
+  (events) => {
+    const notes = getNotesByIds(noteIds)(events)
+
+    const minTick = startTick ?? min(notes.map((e) => e.tick))
+
+    if (minTick === undefined) {
+      return null
+    }
+
+    return {
+      type: "piano_notes",
+      notes: notes.map((e) => ({ ...e, tick: e.tick - minTick })),
     }
   }

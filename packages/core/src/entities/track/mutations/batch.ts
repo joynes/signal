@@ -1,9 +1,9 @@
 import { flow } from "lodash"
 import { map } from "../../../helpers"
 import { BatchUpdateOperation, batchUpdateNoteVelocity } from "../../note"
+import { getNotesByIds } from "../queries"
 import { TrackEventsMutator } from "../Track"
 import { updateEvents } from "./basic"
-import { getNotesByIds } from "./queries"
 
 export const batchUpdateNotesVelocity = (
   noteIds: number[],

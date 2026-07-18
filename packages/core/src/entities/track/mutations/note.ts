@@ -1,12 +1,13 @@
 import { flow } from "lodash"
 import { isEventInRange, map } from "../../../helpers"
+import { PianoNotesClipboardData } from "../../clipboard/clipboardTypes"
 import { isNoteEvent, moveEvent } from "../../event"
 import { TrackEvent } from "../../event/TrackEvent"
 import { Range } from "../../geometry/Range"
 import { getNotesDuration, quantizeNote, transposeNote } from "../../note"
+import { getNotesByIds } from "../queries"
 import { TrackEventsMutator } from "../Track"
 import { addEvents, updateEvents } from "./basic"
-import { getNotesByIds } from "./queries"
 
 export const transposeNotes = (
   noteIds: number[],
@@ -34,6 +35,13 @@ export const duplicateNotes =
     const addedNoteIds = addEvents(notes)(events).map((e) => e.id)
 
     return { addedNoteIds, deltaTick }
+  }
+
+export const cloneNotes =
+  (noteIds: number[]): TrackEventsMutator<number[]> =>
+  (events) => {
+    const selectedNotes = getNotesByIds(noteIds)(events)
+    return addEvents(selectedNotes)(events).map((e) => e.id)
   }
 
 // update velocities of notes in the specified range using linear interpolation
@@ -94,3 +102,11 @@ export const quantizeNotes =
     const notes = quantizedNotes(noteIds, quantizeRound)(events)
     updateEvents(notes)(events)
   }
+
+export const addClipboardNotes = (
+  data: PianoNotesClipboardData,
+  tick: number,
+) => {
+  const notes = data.notes.map(moveEvent(tick))
+  return addEvents(notes)
+}

@@ -44,7 +44,7 @@ export const removeEvents =
   }
 
 export const addEvents = <T extends TrackEvent>(
-  newEvents: Omit<T, "id">[],
+  newEvents: readonly Omit<T, "id">[],
 ): TrackEventsMutator<T[]> =>
   combineMutators(
     ...newEvents.map((e) => addEvent<T>(e)).filter(isNotUndefined),

@@ -26,6 +26,7 @@ import {
 } from "../event/signalEvents"
 import { TrackEvent, TrackEventOf } from "../event/TrackEvent"
 import * as TrackEvents from "./mutations"
+import { TrackEventsQuery } from "./queries"
 
 export type TrackId = Branded<number, "TrackId">
 export const UNASSIGNED_TRACK_ID = -1 as TrackId
@@ -293,6 +294,10 @@ export class Track {
 
   mutate = <R = void>(fn: TrackEventsMutator<R>): R => {
     return this._events.transaction(() => fn(this._events))
+  }
+
+  query = <R>(fn: TrackEventsQuery<R>): R => {
+    return fn(this._events)
   }
 
   /* mutations */

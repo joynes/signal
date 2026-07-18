@@ -4,6 +4,7 @@ import { timeSignatureMidiEvent } from "../../../midi"
 import { TempoEventsClipboardData } from "../../clipboard/clipboardTypes"
 import { TrackEvent } from "../../event/TrackEvent"
 import { moveTempoEvent } from "../../tempo/transform"
+import { getSetTempoEventsByIds } from "../queries"
 import { TrackEventsMutator } from "../Track"
 import {
   addEvent,
@@ -11,7 +12,6 @@ import {
   createOrUpdate,
   updateEvents,
 } from "./basic"
-import { getSetTempoEventsByIds } from "./queries"
 
 export const moveTempoEvents = (
   eventIds: number[],

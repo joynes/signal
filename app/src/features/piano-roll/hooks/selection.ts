@@ -1,14 +1,15 @@
 import {
+  addClipboardNotes,
+  cloneNotes,
   duplicateNotes,
   isNoteEvent,
   NoteEvent,
-  PianoNotesClipboardData,
+  notesToClipboardData,
   PianoNotesClipboardDataSchema,
   quantizeNotes,
   TrackEvent,
   transposeNotes,
 } from "@signal-app/core"
-import { min } from "lodash"
 import { useCallback } from "react"
 import { Rect } from "../../../entities/geometry/Rect"
 import { isNotUndefined } from "../../../helpers/array"
@@ -17,6 +18,7 @@ import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { usePreviewNote } from "../../../hooks/usePreviewNote"
 import { useTrack } from "../../../hooks/useTrack"
+import { useTrackQuery } from "../../../hooks/useTrackQuery"
 import {
   readClipboardData,
   readJSONFromClipboard,
@@ -73,58 +75,34 @@ export const useTransposeSelection = () => {
 export const useCloneSelection = () => {
   const { selection, selectedNoteIds, selectedTrackId, setSelectedNoteIds } =
     usePianoRoll()
-  const { getEventById, addEvents } = useTrack(selectedTrackId)
+  const mutate = useMutateTrack(selectedTrackId)
 
   return useCallback(() => {
     if (selection === null) {
       return
     }
-
-    // 選択範囲内のノートをコピーした選択範囲を作成
     // Create a selection that copies notes within selection
-    const notes = selectedNoteIds
-      .map((id) => getEventById(id))
-      .filter(isNotUndefined)
-      .map((note) => ({
-        ...note, // copy
-      }))
-    addEvents(notes)
-    setSelectedNoteIds(notes.map((e) => e.id))
-  }, [selection, selectedNoteIds, getEventById, addEvents, setSelectedNoteIds])
+    const newNoteIds = mutate(cloneNotes(selectedNoteIds)) ?? []
+    setSelectedNoteIds(newNoteIds)
+  }, [selection, selectedNoteIds, mutate, setSelectedNoteIds])
 }
 
 export const useCopySelection = () => {
   const { selection, selectedNoteIds, selectedTrackId } = usePianoRoll()
-  const { getEventById } = useTrack(selectedTrackId)
+  const query = useTrackQuery(selectedTrackId)
 
   return useCallback(async () => {
-    if (selectedNoteIds.length === 0) {
+    if (selectedNoteIds.length === 0 || query === undefined) {
       return
     }
-
-    const selectedNotes = selectedNoteIds
-      .map((id) => getEventById(id))
-      .filter(isNotUndefined)
-      .filter(isNoteEvent)
-
-    const startTick =
-      // biome-ignore lint/style/noNonNullAssertion: selectedNotes is not empty
-      selection?.fromTick ?? min(selectedNotes.map((note) => note.tick))!
-
-    // 選択されたノートをコピー
-    // Copy selected note
-    const notes = selectedNotes.map((note) => ({
-      ...note,
-      tick: note.tick - startTick, // 選択範囲からの相対位置にする
-    }))
-
-    const data: PianoNotesClipboardData = {
-      type: "piano_notes",
-      notes,
+    const data = query(
+      notesToClipboardData(selectedNoteIds, selection?.fromTick),
+    )
+    if (!data) {
+      return
     }
-
     await writeClipboardData(data)
-  }, [selection, selectedNoteIds, getEventById])
+  }, [selection, selectedNoteIds, query])
 }
 
 export const useDeleteSelection = () => {
@@ -163,7 +141,7 @@ export const useDeleteSelection = () => {
 // Paste notes copied to the current position
 export const usePasteSelection = () => {
   const { selectedTrackId } = usePianoRoll()
-  const { addEvents } = useTrack(selectedTrackId)
+  const mutate = useMutateTrack(selectedTrackId)
   const { position } = usePlayer()
   const { pushHistory } = useHistory()
 
@@ -178,13 +156,9 @@ export const usePasteSelection = () => {
 
       pushHistory()
 
-      const notes = data.notes.map((note) => ({
-        ...note,
-        tick: Math.max(0, note.tick + position),
-      }))
-      addEvents(notes)
+      mutate(addClipboardNotes(data, position))
     },
-    [addEvents, position, pushHistory],
+    [mutate, position, pushHistory],
   )
 }
 

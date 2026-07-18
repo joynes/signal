@@ -3,6 +3,7 @@ import { closedRange } from "../../../helpers"
 import { getRedundantEvents, getTickSpan } from "../../event"
 import { TrackEvent } from "../../event/TrackEvent"
 import { moveEvent } from "../../event/transforms"
+import { getEventsByIds } from "../queries"
 import { TrackEventsMutator } from "../Track"
 import {
   addEvents,
@@ -10,7 +11,6 @@ import {
   createOrUpdate,
   removeEvents,
 } from "./basic"
-import { getEventsByIds } from "./queries"
 
 export const duplicateEvents =
   (eventIds: number[]): TrackEventsMutator<number[]> =>
