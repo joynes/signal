@@ -1,15 +1,16 @@
 import { Range } from "@signal-app/core"
 import { useCallback } from "react"
-import { useCreateEvent, useUpdateEventsInRange } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import { useHistory } from "../../../hooks/useHistory"
+import { useUpdateEventsInRange } from "../../../hooks/useUpdateEventsInRange"
 import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
 import { ControlCoordTransform } from "../entities/ControlCoordTransform"
 import { ValueEventType } from "../entities/ValueEventType"
 import { useControlPane } from "../hooks/useControlPane"
+import { useCreateEvent } from "../hooks/useCreateEvent"
 
 const useUpdateValueEvents = (type: ValueEventType) => {
   const { selectedTrackId } = usePianoRoll()
