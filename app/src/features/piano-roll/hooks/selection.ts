@@ -4,15 +4,12 @@ import {
   duplicateNotes,
   getAllNoteIds,
   getNeighborNote,
-  isNoteEvent,
   notesToClipboardData,
   PianoNotesClipboardDataSchema,
   quantizeNotes,
-  TrackEvent,
   transposeNotes,
 } from "@signal-app/core"
 import { useCallback } from "react"
-import { Rect } from "../../../entities/geometry/Rect"
 import { useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
@@ -27,29 +24,6 @@ import {
 import { useControlPane } from "../../control-pane/hooks/useControlPane"
 import { Selection } from "../entities/Selection"
 import { usePianoRoll, usePianoRollQuantizer } from "./usePianoRoll"
-
-export function eventsInSelection(
-  events: readonly TrackEvent[],
-  selection: Selection,
-) {
-  const selectionRect = {
-    x: selection.fromTick,
-    width: selection.toTick - selection.fromTick,
-    y: selection.toNoteNumber,
-    height: selection.fromNoteNumber - selection.toNoteNumber,
-  }
-  return events.filter(isNoteEvent).filter((b) =>
-    Rect.intersects(
-      {
-        x: b.tick,
-        width: b.duration,
-        y: b.noteNumber - 1, // Subtract 1 since the pitch is the lower end of the rectangle
-        height: 1,
-      },
-      selectionRect,
-    ),
-  )
-}
 
 export const useTransposeSelection = () => {
   const { selectedTrackId, selection, selectedNoteIds, setSelection } =

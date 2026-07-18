@@ -1,8 +1,17 @@
-import { filter, flow, min } from "lodash"
+import { flow, min } from "lodash"
+import { filter, map } from "../../../helpers"
 import { PianoNotesClipboardData } from "../../clipboard/clipboardTypes"
 import { isNoteEvent, NoteEvent } from "../../event"
-import { sortedNotes } from "../../note"
+import { Range } from "../../geometry/Range"
+import { isNoteInRange, sortedNotes } from "../../note"
 import { getEventsByIds, TrackEventsQuery } from "./basic"
+
+export type NoteSelection = {
+  readonly fromTick: number
+  readonly toTick: number
+  readonly fromNoteNumber: number
+  readonly toNoteNumber: number
+}
 
 export const getNotesByIds = (
   ids: readonly number[],
@@ -29,12 +38,35 @@ export const notesToClipboardData =
     }
   }
 
-export const getAllNoteIds =
-  (): TrackEventsQuery<readonly number[]> => (events) =>
-    events
-      .getArray()
-      .filter(isNoteEvent)
-      .map((e) => e.id)
+const getAllNotes = (): TrackEventsQuery<readonly NoteEvent[]> =>
+  flow((events) => events.getArray(), filter(isNoteEvent))
+
+export const getAllNoteIds = (): TrackEventsQuery<readonly number[]> =>
+  flow(
+    getAllNotes(),
+    map((e) => e.id),
+  )
+
+const getNotesInSelection = (
+  selection: NoteSelection,
+): TrackEventsQuery<readonly NoteEvent[]> => {
+  const tickRange = Range.create(selection.fromTick, selection.toTick)
+  const noteNumberRange = Range.create(
+    selection.toNoteNumber,
+    selection.fromNoteNumber,
+  )
+  const isEventInRange = isNoteInRange(tickRange, noteNumberRange)
+
+  return flow(getAllNotes(), filter(isEventInRange))
+}
+
+export const getNoteIdsInSelection = (
+  selection: NoteSelection,
+): TrackEventsQuery<readonly number[]> =>
+  flow(
+    getNotesInSelection(selection),
+    map((e) => e.id),
+  )
 
 export const getNeighborNote =
   (

@@ -105,25 +105,6 @@ export function useTrack(id: TrackId) {
 
 export function useTrackEvents(track: Track | undefined) {
   return {
-    addEvent: useCallback(
-      <T extends TrackEvent>(
-        event: Omit<T, "id"> & { subtype?: string },
-      ): T | undefined => {
-        if (track) {
-          return track.addEvent(event)
-        }
-        return undefined
-      },
-      [track],
-    ),
-    addEvents: useCallback(
-      <T extends TrackEvent>(events: Omit<T, "id">[]) => {
-        if (track) {
-          return track.addEvents(events)
-        }
-      },
-      [track],
-    ),
     removeEvent: useCallback(
       (eventId: number) => {
         if (track) {

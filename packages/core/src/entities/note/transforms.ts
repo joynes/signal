@@ -44,3 +44,22 @@ export const batchUpdateNoteVelocity =
       127,
     ),
   })
+
+export const sortedNotes = (
+  notes: readonly NoteEvent[],
+): readonly NoteEvent[] =>
+  [...notes].sort((a, b) => {
+    if (a.tick < b.tick) {
+      return -1
+    }
+    if (a.tick > b.tick) {
+      return 1
+    }
+    if (a.noteNumber < b.noteNumber) {
+      return -1
+    }
+    if (a.noteNumber > b.noteNumber) {
+      return 1
+    }
+    return 0
+  })
