@@ -1,11 +1,12 @@
-import { Range } from "@signal-app/core"
+import { Range, updateEventsInRange } from "@signal-app/core"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
+import { useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
-import { useUpdateEventsInRange } from "../../../hooks/useUpdateEventsInRange"
+import { useQuantizer } from "../../../hooks/useQuantizer"
 import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
 import { ControlCoordTransform } from "../entities/ControlCoordTransform"
 import { ValueEventType } from "../entities/ValueEventType"
@@ -14,11 +15,23 @@ import { useCreateEvent } from "../hooks/useCreateEvent"
 
 const useUpdateValueEvents = (type: ValueEventType) => {
   const { selectedTrackId } = usePianoRoll()
+  const mutate = useMutateTrack(selectedTrackId)
+  const { quantizeFloor, quantizeUnit } = useQuantizer()
 
-  return useUpdateEventsInRange(
-    selectedTrackId,
-    ValueEventType.getEventPredicate(type),
-    ValueEventType.getEventFactory(type),
+  return useCallback(
+    (valueRange: Range, tickRange: Range) => {
+      mutate(
+        updateEventsInRange(
+          ValueEventType.getEventPredicate(type),
+          ValueEventType.getEventFactory(type),
+          quantizeFloor,
+          quantizeUnit,
+          valueRange,
+          tickRange,
+        ),
+      )
+    },
+    [mutate, type, quantizeFloor, quantizeUnit],
   )
 }
 
