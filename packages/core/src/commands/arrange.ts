@@ -3,6 +3,7 @@ import {
   ArrangeNotesClipboardData,
   BatchUpdateOperation,
   batchUpdateNotesVelocity,
+  getEventsByIds,
   Range,
   Track,
   TrackEvent,
@@ -38,9 +39,7 @@ export const moveEventsBetweenTracks =
       )) {
         const trackIndex = parseInt(trackIndexStr, 10)
         const track = tracks[trackIndex]
-        const events = selectedEventIdsValue
-          .map((id) => track.getEventById(id))
-          .filter(isNotUndefined)
+        const events = track.query(getEventsByIds(selectedEventIdsValue))
 
         if (delta.trackIndex === 0) {
           track.updateEvents(

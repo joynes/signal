@@ -7,6 +7,7 @@ import {
 } from "../clipboard/clipboardTypes"
 import { isNoteEvent, isSetTempoEvent } from "../event/identify"
 import { NoteEvent, TrackEvent, TrackEventOf } from "../event/TrackEvent"
+import { sortedNotes } from "../note"
 
 interface ReadOnlyTrackEvents {
   get(id: number): TrackEvent | undefined
@@ -75,3 +76,24 @@ export const getAllNoteIds =
       .getArray()
       .filter(isNoteEvent)
       .map((e) => e.id)
+
+export const getNeighborNote =
+  (
+    deltaIndex: number,
+    selectedNoteIds: readonly number[],
+  ): TrackEventsQuery<NoteEvent | null> =>
+  (events) => {
+    if (selectedNoteIds.length === 0) {
+      return null
+    }
+    const allNotes = events.getArray().filter(isNoteEvent)
+    const selectedNotes = sortedNotes(getNotesByIds(selectedNoteIds)(events))
+    if (selectedNotes.length === 0) {
+      return null
+    }
+    const firstNote = sortedNotes(selectedNotes)[0]
+    const notes = sortedNotes(allNotes)
+    const currentIndex = notes.findIndex((n) => n.id === firstNote.id)
+    const nextNote = notes[currentIndex + deltaIndex]
+    return nextNote ?? null
+  }

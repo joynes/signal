@@ -3,8 +3,8 @@ import {
   cloneNotes,
   duplicateNotes,
   getAllNoteIds,
+  getNeighborNote,
   isNoteEvent,
-  NoteEvent,
   notesToClipboardData,
   PianoNotesClipboardDataSchema,
   quantizeNotes,
@@ -13,7 +13,6 @@ import {
 } from "@signal-app/core"
 import { useCallback } from "react"
 import { Rect } from "../../../entities/geometry/Rect"
-import { isNotUndefined } from "../../../helpers/array"
 import { useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
@@ -223,56 +222,24 @@ export const useSelectNote = () => {
   )
 }
 
-const sortedNotes = (notes: NoteEvent[]): NoteEvent[] =>
-  notes.filter(isNoteEvent).sort((a, b) => {
-    if (a.tick < b.tick) {
-      return -1
-    }
-    if (a.tick > b.tick) {
-      return 1
-    }
-    if (a.noteNumber < b.noteNumber) {
-      return -1
-    }
-    if (a.noteNumber > b.noteNumber) {
-      return 1
-    }
-    return 0
-  })
-
 const useSelectNeighborNote = () => {
   const { selectedTrackId, selectedNoteIds } = usePianoRoll()
   const { previewNoteOn } = usePreviewNote()
-  const { getEvents } = useTrack(selectedTrackId)
+  const query = useTrackQuery(selectedTrackId)
   const selectNote = useSelectNote()
 
   return useCallback(
     (deltaIndex: number) => {
-      if (selectedNoteIds.length === 0) {
-        return
-      }
-
-      const allNotes = getEvents().filter(isNoteEvent)
-      const selectedNotes = sortedNotes(
-        selectedNoteIds
-          .map((id) => allNotes.find((n) => n.id === id))
-          .filter(isNotUndefined),
-      )
-      if (selectedNotes.length === 0) {
-        return
-      }
-      const firstNote = sortedNotes(selectedNotes)[0]
-      const notes = sortedNotes(allNotes)
-      const currentIndex = notes.findIndex((n) => n.id === firstNote.id)
-      const nextNote = notes[currentIndex + deltaIndex]
-      if (nextNote === undefined) {
+      const nextNote =
+        query(getNeighborNote(deltaIndex, selectedNoteIds)) ?? null
+      if (nextNote === null) {
         return
       }
 
       selectNote(nextNote.id)
       previewNoteOn(nextNote.noteNumber, nextNote.duration)
     },
-    [selectedNoteIds, getEvents, selectNote, previewNoteOn],
+    [selectedNoteIds, query, selectNote, previewNoteOn],
   )
 }
 
