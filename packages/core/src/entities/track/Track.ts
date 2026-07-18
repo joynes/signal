@@ -63,8 +63,6 @@ export class Track {
   private readonly _endOfTrack = new ObservableValue<number>(0)
   private readonly _channel = new ObservableValue<number | undefined>(undefined)
 
-  getEventById = (id: number): TrackEvent | undefined => this._events.get(id)
-
   private readonly _onEventsChanged = new Emitter()
   private readonly _onProgramChangeEventsChanged = new Emitter()
   private readonly _onSetTempoEventsChanged = new Emitter()
