@@ -1,7 +1,7 @@
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { getControllerEventWithType } from "../../event/selectors"
 import { TrackEventOf } from "../../event/TrackEvent"
-import { getEventsByIds } from "../queries"
+import { getEventsByIds } from "../queries/basic"
 import { TrackEventsMutator } from "../Track"
 import { createOrUpdate, updateEvent, updateOrAdd } from "./basic"
 

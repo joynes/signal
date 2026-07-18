@@ -1,5 +1,5 @@
 import { maxBy, minBy } from "lodash"
-import { isNoteEvent, NoteEvent } from "../track"
+import { isNoteEvent, NoteEvent } from "../event"
 
 export const getNotesDuration = (notes: readonly NoteEvent[]) => {
   const minTick = minBy(notes, (n) => n.tick)?.tick ?? 0

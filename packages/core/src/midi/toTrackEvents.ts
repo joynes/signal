@@ -1,12 +1,12 @@
 import { AnyEvent } from "midifile-ts"
-import { mapToSignalEvent } from "../entities/event/signalEvents"
 import {
   AnyEventFeature,
   DeltaTimeProvider,
   isSequencerSpecificEvent,
   TickProvider,
   TrackEvent,
-} from "../entities/track"
+} from "../entities"
+import { mapToSignalEvent } from "../entities/event/signalEvents"
 import { DistributiveOmit } from "../types"
 import { assemble as assembleNotes } from "./noteAssembler"
 

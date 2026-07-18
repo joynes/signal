@@ -3,7 +3,7 @@ import { closedRange } from "../../../helpers"
 import { getRedundantEvents, getTickSpan } from "../../event"
 import { TrackEvent } from "../../event/TrackEvent"
 import { moveEvent } from "../../event/transforms"
-import { getEventsByIds } from "../queries"
+import { getEventsByIds } from "../queries/basic"
 import { TrackEventsMutator } from "../Track"
 import {
   addEvents,

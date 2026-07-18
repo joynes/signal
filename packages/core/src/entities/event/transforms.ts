@@ -1,4 +1,4 @@
-import { TrackEvent } from "../track"
+import { TrackEvent } from "./TrackEvent"
 
 type TrackEventTransform<T extends TrackEvent> = (event: T) => T
 
