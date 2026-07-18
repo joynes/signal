@@ -1,6 +1,6 @@
 import { Range } from "@signal-app/core"
 import { useCallback } from "react"
-import { useCreateEvent, useUpdateValueEvents } from "../../../actions"
+import { useCreateEvent, useUpdateEventsInRange } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { getClientPos } from "../../../helpers/mouseEvent"
@@ -10,6 +10,16 @@ import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
 import { ControlCoordTransform } from "../entities/ControlCoordTransform"
 import { ValueEventType } from "../entities/ValueEventType"
 import { useControlPane } from "../hooks/useControlPane"
+
+const useUpdateValueEvents = (type: ValueEventType) => {
+  const { selectedTrackId } = usePianoRoll()
+
+  return useUpdateEventsInRange(
+    selectedTrackId,
+    ValueEventType.getEventPredicate(type),
+    ValueEventType.getEventFactory(type),
+  )
+}
 
 export const usePencilGesture = (
   type: ValueEventType,

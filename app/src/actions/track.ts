@@ -14,11 +14,9 @@ import {
   TrackId,
   updateEvent,
   updateEventsInRange,
-  updateEventsInRangeWithEasing,
 } from "@signal-app/core"
 import type { AnyChannelEvent, AnyEvent, ProgramChangeEvent } from "midifile-ts"
 import { useCallback } from "react"
-import { ValueEventType } from "../features/control-pane/entities/ValueEventType"
 import { usePianoRoll } from "../features/piano-roll/hooks/usePianoRoll"
 import { addedSet, deletedSet } from "../helpers/set"
 import {
@@ -106,39 +104,6 @@ export const useUpdateEventsInRange = (
       )
     },
     [mutate, filterEvent, createEvent, quantizeFloor, quantizeUnit],
-  )
-}
-
-export const useUpdateValueEvents = (type: ValueEventType) => {
-  const { selectedTrackId } = usePianoRoll()
-
-  return useUpdateEventsInRange(
-    selectedTrackId,
-    ValueEventType.getEventPredicate(type),
-    ValueEventType.getEventFactory(type),
-  )
-}
-
-export const useUpdateValueEventsWithCurve = (type: ValueEventType) => {
-  const { selectedTrackId } = usePianoRoll()
-  const { quantizeFloor, quantizeUnit } = useQuantizer()
-  const mutate = useMutateTrack(selectedTrackId)
-
-  return useCallback(
-    (valueRange: Range, tickRange: Range, easing: (t: number) => number) => {
-      mutate(
-        updateEventsInRangeWithEasing(
-          ValueEventType.getEventPredicate(type),
-          ValueEventType.getEventFactory(type),
-          quantizeFloor,
-          quantizeUnit,
-          valueRange,
-          tickRange,
-          easing,
-        ),
-      )
-    },
-    [mutate, type, quantizeFloor, quantizeUnit],
   )
 }
 
