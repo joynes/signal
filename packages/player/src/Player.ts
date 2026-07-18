@@ -1,7 +1,7 @@
+import { type Observable, ObservableValue } from "@signal-app/observable"
 import range from "lodash/range.js"
 import throttle from "lodash/throttle.js"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
-import { ObservableValue, type Observable } from "@signal-app/observable"
 import { EventScheduler } from "./EventScheduler.js"
 import { controllerMidiEvent } from "./MidiEventFactory.js"
 import { PlayerEvent } from "./PlayerEvent.js"
@@ -219,7 +219,10 @@ export class Player {
     const timestamp = performance.now()
 
     this.scheduler.loop = this.loop?.enabled ? this.loop : null
-    const events = this.scheduler.readNextEvents(this._currentTempo, timestamp)
+    const events = this.scheduler.readNextEvents(
+      this._currentTempo.value,
+      timestamp,
+    )
 
     events.forEach(({ event: e, timestamp: time }) => {
       if (
