@@ -189,11 +189,20 @@ export class Track {
     const emitter = new Emitter()
     const observable: Observable = {
       subscribe: (listener) => {
+        // Re-register when subscribe happens after a previous unsubscribe removed
+        // this predicate entry before React finishes re-subscribing.
+        if (!this._filteredEventsObservers.has(predicate)) {
+          this._filteredEventsObservers.set(predicate, { emitter, observable })
+        }
+
         const unsubscribe = emitter.subscribe(listener)
         return () => {
           unsubscribe()
           if (emitter.listenerCount === 0) {
-            this._filteredEventsObservers.delete(predicate)
+            const observer = this._filteredEventsObservers.get(predicate)
+            if (observer?.emitter === emitter) {
+              this._filteredEventsObservers.delete(predicate)
+            }
           }
         }
       },
