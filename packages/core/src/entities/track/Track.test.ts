@@ -143,12 +143,14 @@ describe("Track", () => {
     let panChanges = 0
     let volumeChanges = 0
 
-    const unsubscribePan = track
-      .observeEventsChanged(isPanEvent)
-      .subscribe(() => panChanges++)
-    const unsubscribeVolume = track
-      .observeEventsChanged(isVolumeEvent)
-      .subscribe(() => volumeChanges++)
+    const unsubscribePan = track.subscribeEventsChanged(
+      isPanEvent,
+      () => panChanges++,
+    )
+    const unsubscribeVolume = track.subscribeEventsChanged(
+      isVolumeEvent,
+      () => volumeChanges++,
+    )
 
     track.addEvent<TrackEventOf<ControllerEvent>>({
       type: "channel",
@@ -176,9 +178,10 @@ describe("Track", () => {
     const track = emptyTrack(1)
     let panChanges = 0
 
-    const unsubscribePan = track
-      .observeEventsChanged(isPanEvent)
-      .subscribe(() => panChanges++)
+    const unsubscribePan = track.subscribeEventsChanged(
+      isPanEvent,
+      () => panChanges++,
+    )
 
     track.addEvent<NoteEvent>({
       type: "channel",
@@ -199,11 +202,12 @@ describe("Track", () => {
     let firstListenerChanges = 0
     let secondListenerChanges = 0
 
-    const panObservable = track.observeEventsChanged(isPanEvent)
-    const unsubscribeFirst = panObservable.subscribe(
+    const unsubscribeFirst = track.subscribeEventsChanged(
+      isPanEvent,
       () => firstListenerChanges++,
     )
-    const unsubscribeSecond = panObservable.subscribe(
+    const unsubscribeSecond = track.subscribeEventsChanged(
+      isPanEvent,
       () => secondListenerChanges++,
     )
 
@@ -226,12 +230,17 @@ describe("Track", () => {
     const track = emptyTrack(1)
     let changes = 0
 
-    const panObservable = track.observeEventsChanged(isPanEvent)
-    const unsubscribeFirst = panObservable.subscribe(() => changes++)
+    const unsubscribeFirst = track.subscribeEventsChanged(
+      isPanEvent,
+      () => changes++,
+    )
 
     unsubscribeFirst()
 
-    const unsubscribeSecond = panObservable.subscribe(() => changes++)
+    const unsubscribeSecond = track.subscribeEventsChanged(
+      isPanEvent,
+      () => changes++,
+    )
 
     track.addEvent<TrackEventOf<ControllerEvent>>({
       type: "channel",

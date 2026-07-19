@@ -36,8 +36,8 @@ export type TrackEventsMutator<R = void> = (
 type TrackEventPredicate = (event: TrackEvent) => boolean
 
 type FilteredEventsObserver = {
+  predicate: TrackEventPredicate
   emitter: Emitter
-  observable: Observable
 }
 
 type SerializedTrack = {
@@ -65,10 +65,7 @@ export class Track {
   private readonly _onIsRhythmTrackChanged = new Emitter()
   private readonly _onIsConductorTrackChanged = new Emitter()
   private readonly _onChanged: Observable
-  private readonly _filteredEventsObservers = new Map<
-    TrackEventPredicate,
-    FilteredEventsObserver
-  >()
+  private readonly _filteredEventsObservers = new Set<FilteredEventsObserver>()
 
   private unsubscribeReaction: Unsubscribe | null = null
 
@@ -124,10 +121,10 @@ export class Track {
       return
     }
 
-    for (const [predicate, observer] of this._filteredEventsObservers) {
+    for (const observer of this._filteredEventsObservers) {
       if (
         observer.emitter.listenerCount > 0 &&
-        changedEvents.some((event) => predicate(event))
+        changedEvents.some((event) => observer.predicate(event))
       ) {
         observer.emitter.emit()
       }
@@ -180,37 +177,19 @@ export class Track {
     return this._onEventsChanged
   }
 
-  observeEventsChanged(predicate: TrackEventPredicate): Observable {
-    const found = this._filteredEventsObservers.get(predicate)
-    if (found !== undefined) {
-      return found.observable
-    }
-
+  subscribeEventsChanged(
+    predicate: TrackEventPredicate,
+    listener: () => void,
+  ): Unsubscribe {
     const emitter = new Emitter()
-    const observable: Observable = {
-      subscribe: (listener) => {
-        // Re-register when subscribe happens after a previous unsubscribe removed
-        // this predicate entry before React finishes re-subscribing.
-        if (!this._filteredEventsObservers.has(predicate)) {
-          this._filteredEventsObservers.set(predicate, { emitter, observable })
-        }
+    const observer: FilteredEventsObserver = { predicate, emitter }
+    this._filteredEventsObservers.add(observer)
+    const unsubscribe = emitter.subscribe(listener)
 
-        const unsubscribe = emitter.subscribe(listener)
-        return () => {
-          unsubscribe()
-          if (emitter.listenerCount === 0) {
-            const observer = this._filteredEventsObservers.get(predicate)
-            if (observer?.emitter === emitter) {
-              this._filteredEventsObservers.delete(predicate)
-            }
-          }
-        }
-      },
+    return () => {
+      unsubscribe()
+      this._filteredEventsObservers.delete(observer)
     }
-
-    this._filteredEventsObservers.set(predicate, { emitter, observable })
-
-    return observable
   }
 
   get timeSignatureEvents() {

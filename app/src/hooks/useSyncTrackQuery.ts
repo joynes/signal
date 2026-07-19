@@ -3,15 +3,21 @@ import { useCallback } from "react"
 import { useDerivedValue } from "./useDerivedValue"
 import { useSong } from "./useSong"
 
-const noopSubscribe = () => () => {}
+const noopSubscribe = () => {}
 
 export function useSyncTrackQueryInternal<T>(
   track: Track | undefined,
   query: (events: readonly TrackEvent[]) => T,
   predicate: (event: TrackEvent) => boolean,
 ): T {
+  const subscribeSource = useCallback(
+    (listener: () => void) =>
+      track?.subscribeEventsChanged(predicate, listener) ?? noopSubscribe,
+    [track, predicate],
+  )
+
   return useDerivedValue(
-    track?.observeEventsChanged(predicate).subscribe ?? noopSubscribe,
+    subscribeSource,
     useCallback(() => query(track?.events ?? []), [track, query]),
   )
 }
