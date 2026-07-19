@@ -1,16 +1,20 @@
 import { TrackEvent } from "../../event/TrackEvent"
+import { ReadonlyTrackEvents } from "../Track"
 
-interface ReadOnlyTrackEvents {
+type QueryTrackEvents = ReadonlyTrackEvents & {
   get(id: number): TrackEvent | undefined
   getArray(): readonly TrackEvent[]
 }
 
-export type TrackEventsQuery<T> = (events: ReadOnlyTrackEvents) => T
+const asQueryTrackEvents = (events: ReadonlyTrackEvents): QueryTrackEvents =>
+  events as QueryTrackEvents
+
+export type TrackEventsQuery<T> = (events: ReadonlyTrackEvents) => T
 
 export const getEventById =
   (id: number): TrackEventsQuery<TrackEvent | undefined> =>
   (events) =>
-    events.get(id)
+    asQueryTrackEvents(events).get(id)
 
 export const getAll: TrackEventsQuery<readonly TrackEvent[]> = (events) =>
-  events.getArray()
+  asQueryTrackEvents(events).getArray()
