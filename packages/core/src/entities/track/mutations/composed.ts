@@ -2,7 +2,7 @@ import { isNotUndefined } from "../../../helpers"
 import { getRedundantEvents } from "../../event/selectors"
 import { TrackEvent } from "../../event/TrackEvent"
 import { TrackEventsMutator } from "../Track"
-import { addEvent, updateEvent } from "./basic"
+import { addEvent, removeEvent, updateEvent } from "./basic"
 import { combineMutators } from "./higherOrder"
 
 export const updateEvents = (
@@ -24,6 +24,12 @@ export const addEvents = <T extends TrackEvent>(
   combineMutators(
     ...newEvents.map((event) => addEvent<T>(event)).filter(isNotUndefined),
   )
+
+export const removeEvents =
+  (ids: readonly number[]): TrackEventsMutator =>
+  (events) => {
+    combineMutators(...ids.map(removeEvent))(events)
+  }
 
 export const createOrUpdate =
   <T extends TrackEvent>(

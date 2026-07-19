@@ -2,18 +2,11 @@ import { isEqual, omit } from "lodash"
 import { TrackEvent } from "../../event/TrackEvent"
 import { validateMidiEvent } from "../../event/validate"
 import { TrackEventsMutator } from "../Track"
-import { combineMutators } from "./higherOrder"
 
 export const removeEvent =
   (id: number): TrackEventsMutator =>
   (events) => {
     events.remove(id)
-  }
-
-export const removeEvents =
-  (ids: readonly number[]): TrackEventsMutator =>
-  (events) => {
-    combineMutators(...ids.map(removeEvent))(events)
   }
 
 export const updateEvent =

@@ -7,8 +7,8 @@ import { moveEvent } from "../../event/transforms"
 import { Range } from "../../geometry/Range"
 import { getAll, getEventsByIds } from "../queries/basic"
 import { TrackEventsMutator } from "../Track"
-import { removeEvents } from "./basic"
 import { addEvents, createOrUpdate } from "./composed"
+import { removeEvents } from "./composed"
 import { combineMutators } from "./higherOrder"
 
 export const duplicateEvents =
