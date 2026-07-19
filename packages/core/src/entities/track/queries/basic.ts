@@ -1,4 +1,3 @@
-import { isNotUndefined } from "../../../helpers"
 import { TrackEvent } from "../../event/TrackEvent"
 
 interface ReadOnlyTrackEvents {
@@ -8,19 +7,10 @@ interface ReadOnlyTrackEvents {
 
 export type TrackEventsQuery<T> = (events: ReadOnlyTrackEvents) => T
 
-export const getEventsByIds =
-  (ids: readonly number[]): TrackEventsQuery<readonly TrackEvent[]> =>
+export const getEventById =
+  (id: number): TrackEventsQuery<TrackEvent | undefined> =>
   (events) =>
-    ids.map((id) => events.get(id)).filter(isNotUndefined)
-
-export const getEventsByIdsOrAll =
-  (ids: readonly number[]): TrackEventsQuery<readonly TrackEvent[]> =>
-  (events) => {
-    if (ids.length === 0) {
-      return getAll(events)
-    }
-    return [...getEventsByIds(ids)(events)].sort((a, b) => a.tick - b.tick)
-  }
+    events.get(id)
 
 export const getAll: TrackEventsQuery<readonly TrackEvent[]> = (events) =>
   events.getArray()

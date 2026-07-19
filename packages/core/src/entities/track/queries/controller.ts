@@ -5,7 +5,8 @@ import { ControlEventsClipboardData } from "../../clipboard/clipboardTypes"
 import { isControllerEvent, isPitchBendEvent } from "../../event"
 import { TrackEvent, TrackEventOf } from "../../event/TrackEvent"
 import { Range } from "../../geometry/Range"
-import { getEventsByIds, TrackEventsQuery } from "./basic"
+import { TrackEventsQuery } from "./basic"
+import { getEventsByIds } from "./composed"
 
 export type ControlEvent = TrackEventOf<ControllerEvent | PitchBendEvent>
 

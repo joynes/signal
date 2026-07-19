@@ -5,10 +5,10 @@ import { getRedundantEvents, getTickSpan } from "../../event"
 import { TrackEvent } from "../../event/TrackEvent"
 import { moveEvent } from "../../event/transforms"
 import { Range } from "../../geometry/Range"
-import { getAll, getEventsByIds } from "../queries/basic"
+import { getAll } from "../queries/basic"
+import { getEventsByIds } from "../queries/composed"
 import { TrackEventsMutator } from "../Track"
-import { addEvents, createOrUpdate } from "./composed"
-import { removeEvents } from "./composed"
+import { addEvents, createOrUpdate, removeEvents } from "./composed"
 import { combineMutators } from "./higherOrder"
 
 export const duplicateEvents =
