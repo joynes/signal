@@ -13,22 +13,25 @@ import {
   updateEvents,
 } from "./basic"
 
-export const moveTempoEvents = (
-  eventIds: readonly number[],
-  deltaTick: number,
-  deltaValue: number,
-  maxBPM: number,
-): TrackEventsMutator =>
-  flow(
-    getSetTempoEventsByIds(eventIds),
-    map(moveTempoEvent(deltaTick, deltaValue, maxBPM)),
-    updateEvents,
-  )
+export const moveTempoEvents =
+  (
+    eventIds: readonly number[],
+    deltaTick: number,
+    deltaValue: number,
+    maxBPM: number,
+  ): TrackEventsMutator =>
+  (events) => {
+    const updates = flow(
+      getSetTempoEventsByIds(eventIds),
+      map(moveTempoEvent(deltaTick, deltaValue, maxBPM)),
+    )(events)
+    return updateEvents(updates)(events)
+  }
 
 export const addClipboardTempoEvents = (
   data: TempoEventsClipboardData,
   tick: number,
-): TrackEventsMutator =>
+): TrackEventsMutator<readonly TrackEvent[]> =>
   combineMutators(
     ...data.events
       .map((e) => ({ ...e, tick: e.tick + tick }))

@@ -5,12 +5,15 @@ import { getNotesByIds } from "../queries"
 import { TrackEventsMutator } from "../Track"
 import { updateEvents } from "./basic"
 
-export const batchUpdateNotesVelocity = (
-  noteIds: readonly number[],
-  operation: BatchUpdateOperation,
-): TrackEventsMutator =>
-  flow(
-    getNotesByIds(noteIds),
-    map(batchUpdateNoteVelocity(operation)),
-    updateEvents,
-  )
+export const batchUpdateNotesVelocity =
+  (
+    noteIds: readonly number[],
+    operation: BatchUpdateOperation,
+  ): TrackEventsMutator =>
+  (events) => {
+    const updates = flow(
+      getNotesByIds(noteIds),
+      map(batchUpdateNoteVelocity(operation)),
+    )(events)
+    return updateEvents(updates)(events)
+  }

@@ -65,6 +65,10 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
 
           const deltaValue = pos.bpm - start.bpm
 
+          console.log(
+            `deltaTick: ${deltaTick}, quantizedDeltaTick: ${quantizedDeltaTick}, deltaValue: ${deltaValue}`,
+          )
+
           mutateConductorTrack(
             moveTempoEvents(
               selectedEventIds,

@@ -64,7 +64,7 @@ export const usePasteTempoSelection = () => {
       }
 
       pushHistory()
-      mutate(addClipboardTempoEvents(data, position))
+      mutate(addClipboardTempoEvents(data, position)) ?? []
     },
     [pushHistory, mutate, position],
   )

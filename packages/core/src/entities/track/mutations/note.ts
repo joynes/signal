@@ -12,8 +12,10 @@ import { addEvents, updateEvents } from "./basic"
 export const transposeNotes =
   (noteIds: readonly number[], deltaPitch: number): TrackEventsMutator =>
   (events) => {
-    const notes = getNotesByIds(noteIds)(events)
-    const transposedNotes = notes.map(transposeNote(deltaPitch))
+    const transposedNotes = flow(
+      getNotesByIds(noteIds),
+      map(transposeNote(deltaPitch)),
+    )(events)
     return updateEvents(transposedNotes)(events)
   }
 
