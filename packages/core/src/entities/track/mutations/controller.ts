@@ -4,12 +4,9 @@ import { getControllerEventWithType } from "../../event/selectors"
 import { TrackEventOf } from "../../event/TrackEvent"
 import { getEventsByIds } from "../queries/basic"
 import { TrackEventsMutator } from "../Track"
-import {
-  combineMutators,
-  createOrUpdate,
-  updateEvent,
-  updateOrAdd,
-} from "./basic"
+import { updateEvent } from "./basic"
+import { createOrUpdate, updateOrAdd } from "./composed"
+import { combineMutators } from "./higherOrder"
 
 const setControllerValue = (
   controllerType: number,

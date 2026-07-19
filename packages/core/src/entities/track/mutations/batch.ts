@@ -3,7 +3,7 @@ import { map } from "../../../helpers"
 import { BatchUpdateOperation, batchUpdateNoteVelocity } from "../../note"
 import { getNotesByIds } from "../queries"
 import { TrackEventsMutator } from "../Track"
-import { updateEvents } from "./basic"
+import { updateEvents } from "./composed"
 
 export const batchUpdateNotesVelocity =
   (

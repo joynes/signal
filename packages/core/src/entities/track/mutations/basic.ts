@@ -1,41 +1,20 @@
 import { isEqual, omit } from "lodash"
-import { isNotUndefined } from "../../../helpers"
-import { getRedundantEvents } from "../../event/selectors"
 import { TrackEvent } from "../../event/TrackEvent"
 import { validateMidiEvent } from "../../event/validate"
 import { TrackEventsMutator } from "../Track"
+import { combineMutators } from "./higherOrder"
 
-export const combineMutators =
-  <T>(...mutators: readonly TrackEventsMutator<T>[]): TrackEventsMutator<T[]> =>
+export const removeEvent =
+  (id: number): TrackEventsMutator =>
   (events) => {
-    return mutators.map((mutator) => mutator(events))
+    events.remove(id)
   }
-
-export const updateEvents = (
-  updates: readonly Partial<TrackEvent>[],
-): TrackEventsMutator =>
-  combineMutators(
-    ...updates
-      .map((update) => {
-        if (update.id !== undefined) {
-          return updateEvent(update.id, update)
-        }
-      })
-      .filter(isNotUndefined),
-  )
 
 export const removeEvents =
   (ids: readonly number[]): TrackEventsMutator =>
   (events) => {
-    ids.forEach((id) => events.remove(id))
+    combineMutators(...ids.map(removeEvent))(events)
   }
-
-export const addEvents = <T extends TrackEvent>(
-  newEvents: readonly Omit<T, "id">[],
-): TrackEventsMutator<T[]> =>
-  combineMutators(
-    ...newEvents.map((e) => addEvent<T>(e)).filter(isNotUndefined),
-  )
 
 export const updateEvent =
   <T extends TrackEvent>(
@@ -76,35 +55,4 @@ export const addEvent =
     return events.create({
       ...omit(e, ["deltaTime", "channel"]),
     } as T) as T
-  }
-
-export const createOrUpdate =
-  <T extends TrackEvent>(
-    newEvent: Omit<T, "id"> & { subtype?: string; controllerType?: number },
-  ): TrackEventsMutator<T> =>
-  (anEvents) => {
-    const events = getRedundantEvents(newEvent)(anEvents.getArray())
-
-    if (events.length > 0) {
-      events.forEach((e) => {
-        updateEvent(e.id, { ...newEvent, id: e.id } as Partial<T>)(anEvents)
-      })
-      return events[0] as T
-    } else {
-      return addEvent(newEvent)(anEvents)
-    }
-  }
-
-export const updateOrAdd =
-  <T extends TrackEvent>(
-    findEvent: (events: readonly TrackEvent[]) => T | undefined,
-    newEvent: Omit<T, "id"> & { subtype?: string; tick?: number },
-  ): TrackEventsMutator<T | null> =>
-  (events) => {
-    const e = findEvent(events.getArray())
-    if (e !== undefined) {
-      const { tick: _tick, ...update } = newEvent
-      return updateEvent<T>(e.id, update as Partial<T>)(events)
-    }
-    return addEvent<T>(newEvent)(events)
   }

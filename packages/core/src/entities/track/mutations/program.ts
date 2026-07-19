@@ -3,7 +3,8 @@ import { programChangeMidiEvent } from "../../../midi"
 import { TrackEventOf } from "../../event/TrackEvent"
 import { findProgramChangeEventAtOrBefore } from "../queries/program"
 import { TrackEventsMutator } from "../Track"
-import { updateEvent, updateOrAdd } from "./basic"
+import { updateEvent } from "./basic"
+import { updateOrAdd } from "./composed"
 
 export const setProgramNumberAt = (
   tick: number,

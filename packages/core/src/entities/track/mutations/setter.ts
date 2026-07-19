@@ -13,7 +13,7 @@ import {
 import { TrackEventOf } from "../../event/TrackEvent"
 import { TrackEventsMutator } from "../Track"
 import { TrackColor } from "../TrackColor"
-import { updateOrAdd } from "./basic"
+import { updateOrAdd } from "./composed"
 
 export const setTempo = (bpm: number, tick: number): TrackEventsMutator => {
   const microsecondsPerBeat = Math.floor(bpmToUSecPerBeat(bpm))

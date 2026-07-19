@@ -6,12 +6,9 @@ import { TrackEvent } from "../../event/TrackEvent"
 import { moveTempoEvent } from "../../tempo/transform"
 import { getSetTempoEventsByIds } from "../queries"
 import { TrackEventsMutator } from "../Track"
-import {
-  addEvent,
-  combineMutators,
-  createOrUpdate,
-  updateEvents,
-} from "./basic"
+import { addEvent } from "./basic"
+import { createOrUpdate, updateEvents } from "./composed"
+import { combineMutators } from "./higherOrder"
 
 export const moveTempoEvents =
   (
