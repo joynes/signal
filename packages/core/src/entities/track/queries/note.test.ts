@@ -1,6 +1,7 @@
+import { SetTempoEvent } from "midifile-ts"
 import { describe, expect, it } from "vitest"
 import { TickOrderedArray } from "../../../data/OrdererdArray/TickOrderedArray"
-import { NoteEvent, TrackEvent } from "../../event/TrackEvent"
+import { NoteEvent, TrackEvent, TrackEventOf } from "../../event/TrackEvent"
 import { addEvent } from "../mutations"
 import { TrackId } from "../Track"
 import { getArrangeNotes, getNoteIdsInSelection } from "./note"
@@ -58,7 +59,7 @@ describe("track queries/note", () => {
       velocity: 100,
     })(events)
 
-    addEvent<TrackEvent>({
+    addEvent<TrackEventOf<SetTempoEvent>>({
       type: "meta",
       subtype: "setTempo",
       tick: 20,
