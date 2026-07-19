@@ -6,8 +6,8 @@ import { TrackEvent } from "../../event/TrackEvent"
 import { Range } from "../../geometry/Range"
 import { getNotesDuration, quantizeNote, transposeNote } from "../../note"
 import { getAll, getNotesByIds } from "../queries"
-import { TrackEventsMutator } from "../Track"
 import { addEvents, updateEvents } from "./composed"
+import { TrackEventsMutator } from "./type"
 
 export const transposeNotes =
   (noteIds: readonly number[], deltaPitch: number): TrackEventsMutator =>

@@ -1,4 +1,4 @@
-import { TrackEventsMutator } from "../Track"
+import { TrackEventsMutator } from "./type"
 
 export const combineMutators =
   <T>(...mutators: readonly TrackEventsMutator<T>[]): TrackEventsMutator<T[]> =>

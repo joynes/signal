@@ -1,7 +1,8 @@
 import { flow } from "lodash"
 import { filter, some } from "../../../helpers"
 import { isTimeSignatureEvent } from "../../event"
-import { getAll, TrackEventsQuery } from "./basic"
+import { getAll } from "./basic"
+import { TrackEventsQuery } from "./type"
 
 export const hasTimeSignatureAt = (tick: number): TrackEventsQuery<boolean> =>
   flow(

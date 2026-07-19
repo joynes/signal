@@ -2,9 +2,9 @@ import { ProgramChangeEvent } from "midifile-ts"
 import { programChangeMidiEvent } from "../../../midi"
 import { TrackEventOf } from "../../event/TrackEvent"
 import { findProgramChangeEventAtOrBefore } from "../queries/program"
-import { TrackEventsMutator } from "../Track"
 import { updateEvent } from "./basic"
 import { updateOrAdd } from "./composed"
+import { TrackEventsMutator } from "./type"
 
 export const setProgramNumberAt = (
   tick: number,

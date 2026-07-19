@@ -1,15 +1,14 @@
 import { TrackEvent } from "../../event/TrackEvent"
-import { ReadonlyTrackEvents } from "../Track"
+import { TrackEventsContext } from "../TrackEventsContext"
+import { TrackEventsQuery } from "./type"
 
-type QueryTrackEvents = ReadonlyTrackEvents & {
+type QueryTrackEvents = TrackEventsContext & {
   get(id: number): TrackEvent | undefined
   getArray(): readonly TrackEvent[]
 }
 
-const asQueryTrackEvents = (events: ReadonlyTrackEvents): QueryTrackEvents =>
+const asQueryTrackEvents = (events: TrackEventsContext): QueryTrackEvents =>
   events as QueryTrackEvents
-
-export type TrackEventsQuery<T> = (events: ReadonlyTrackEvents) => T
 
 export const getEventById =
   (id: number): TrackEventsQuery<TrackEvent | undefined> =>

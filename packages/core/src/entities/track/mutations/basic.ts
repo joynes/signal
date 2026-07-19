@@ -1,17 +1,18 @@
 import { isEqual, omit } from "lodash"
 import { TrackEvent } from "../../event/TrackEvent"
 import { validateMidiEvent } from "../../event/validate"
-import { ReadonlyTrackEvents, TrackEventsMutator } from "../Track"
+import { getEventById } from "../queries"
+import { TrackEventsContext } from "../TrackEventsContext"
+import { TrackEventsMutator } from "./type"
 
-type MutableTrackEvents = ReadonlyTrackEvents & {
+type MutableTrackEvents = TrackEventsContext & {
   remove(id: number): readonly TrackEvent[]
   update(id: number, updatedElement: Partial<TrackEvent>): readonly TrackEvent[]
   create(event: Omit<TrackEvent, "id">): TrackEvent
 }
 
-const asMutableTrackEvents = (
-  events: ReadonlyTrackEvents,
-): MutableTrackEvents => events as MutableTrackEvents
+const asMutableTrackEvents = (events: TrackEventsContext): MutableTrackEvents =>
+  events as MutableTrackEvents
 
 export const removeEvent =
   (id: number): TrackEventsMutator =>
@@ -26,7 +27,7 @@ export const updateEvent =
   ): TrackEventsMutator<T | null> =>
   (events) => {
     console.log(`updateEvent: ${id}`)
-    const anObj = events.get(id)
+    const anObj = getEventById(id)(events)
     if (anObj === undefined) {
       console.warn(`unknown id: ${id}`)
       return null

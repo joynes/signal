@@ -5,10 +5,10 @@ import { TempoEventsClipboardData } from "../../clipboard/clipboardTypes"
 import { TrackEvent } from "../../event/TrackEvent"
 import { moveTempoEvent } from "../../tempo/transform"
 import { getSetTempoEventsByIds } from "../queries"
-import { TrackEventsMutator } from "../Track"
 import { addEvent } from "./basic"
 import { createOrUpdate, updateEvents } from "./composed"
 import { combineMutators } from "./higherOrder"
+import { TrackEventsMutator } from "./type"
 
 export const moveTempoEvents =
   (

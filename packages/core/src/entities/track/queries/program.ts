@@ -3,7 +3,8 @@ import { ProgramChangeEvent } from "midifile-ts"
 import { some } from "../../../helpers"
 import { isProgramChangeEvent } from "../../event"
 import { TrackEvent, TrackEventOf } from "../../event/TrackEvent"
-import { getAll, TrackEventsQuery } from "./basic"
+import { getAll } from "./basic"
+import { TrackEventsQuery } from "./type"
 
 export const findProgramChangeEventAtOrBefore =
   (tick: number) =>

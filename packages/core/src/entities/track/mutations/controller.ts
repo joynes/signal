@@ -3,10 +3,10 @@ import { ControlEventsClipboardData } from "../../clipboard/clipboardTypes"
 import { getControllerEventWithType } from "../../event/selectors"
 import { TrackEventOf } from "../../event/TrackEvent"
 import { getEventsByIds } from "../queries/composed"
-import { TrackEventsMutator } from "../Track"
 import { updateEvent } from "./basic"
 import { createOrUpdate, updateOrAdd } from "./composed"
 import { combineMutators } from "./higherOrder"
+import { TrackEventsMutator } from "./type"
 
 const setControllerValue = (
   controllerType: number,

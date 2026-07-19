@@ -4,8 +4,9 @@ import { filter, isEventInRange, map } from "../../../helpers"
 import { TempoEventsClipboardData } from "../../clipboard/clipboardTypes"
 import { isSetTempoEvent, TrackEventOf } from "../../event"
 import { Range } from "../../geometry/Range"
-import { getAll, TrackEventsQuery } from "./basic"
+import { getAll } from "./basic"
 import { getEventsByIds } from "./composed"
+import { TrackEventsQuery } from "./type"
 
 export const getSetTempoEventsByIds = (
   ids: readonly number[],
