@@ -1,9 +1,7 @@
 import {
   getProgramNumberEvent,
   isProgramChangeEvent,
-  Track,
   TrackColor,
-  TrackEvent,
   TrackId,
 } from "@signal-app/core"
 import { useCallback, useMemo, useSyncExternalStore } from "react"
@@ -91,55 +89,6 @@ export function useTrack(id: TrackId) {
       (channel: number | undefined) => {
         if (track) {
           track.channel = channel
-        }
-      },
-      [track],
-    ),
-    ...useTrackEvents(track),
-  }
-}
-
-export function useTrackEvents(track: Track | undefined) {
-  return {
-    removeEvent: useCallback(
-      (eventId: number) => {
-        if (track) {
-          track.removeEvent(eventId)
-        }
-      },
-      [track],
-    ),
-    removeEvents: useCallback(
-      (eventIds: readonly number[]) => {
-        if (track) {
-          track.removeEvents(eventIds)
-        }
-      },
-      [track],
-    ),
-    createOrUpdate: useCallback(
-      <T extends TrackEvent>(
-        newEvent: Omit<T, "id"> & { subtype?: string; controllerType?: number },
-      ) => {
-        if (track) {
-          return track.createOrUpdate(newEvent)
-        }
-      },
-      [track],
-    ),
-    updateEvent: useCallback(
-      <T extends TrackEvent>(id: number, obj: Partial<T>): T | null => {
-        if (track) {
-          return track.updateEvent(id, obj)
-        }
-        return null
-      },
-      [track],
-    ),
-    updateEvents: useCallback(
-      (events: Partial<TrackEvent>[]) => {
-        if (track) {
-          track.updateEvents(events)
         }
       },
       [track],
