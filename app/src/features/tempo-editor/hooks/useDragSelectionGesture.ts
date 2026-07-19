@@ -21,7 +21,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
     useTempoEditor()
   const { transform, getLocal } = useTempoTransform()
   const { quantizeRound } = useQuantizer()
-  const mutateConductorTrack = useMutateConductorTrack()
+  const mutate = useMutateConductorTrack()
   const query = useConductorTrackQuery()
 
   return useCallback(
@@ -69,7 +69,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
             `deltaTick: ${deltaTick}, quantizedDeltaTick: ${quantizedDeltaTick}, deltaValue: ${deltaValue}`,
           )
 
-          mutateConductorTrack(
+          mutate(
             moveTempoEvents(
               selectedEventIds,
               quantizedDeltaTick - lastDeltaTick,
@@ -83,9 +83,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
         },
         onMouseUp: () => {
           // Find events with the same tick and remove it
-          mutateConductorTrack(
-            removeRedundantEventsForEventIds(selectedEventIds),
-          )
+          mutate(removeRedundantEventsForEventIds(selectedEventIds))
         },
       })
     },
@@ -97,7 +95,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<[number]> => {
       setSelectedEventIds,
       query,
       quantizeRound,
-      mutateConductorTrack,
+      mutate,
     ],
   )
 }

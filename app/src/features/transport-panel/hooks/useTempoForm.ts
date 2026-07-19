@@ -14,7 +14,7 @@ import { useSyncTrackQuery } from "../../../hooks/useSyncTrackQuery"
 export function useTempoForm() {
   const { conductorTrack } = useSong()
   const { position, setCurrentTempo } = usePlayer()
-  const mutateConductorTrack = useMutateConductorTrack()
+  const mutate = useMutateConductorTrack()
 
   return {
     get tempo() {
@@ -30,10 +30,10 @@ export function useTempoForm() {
     },
     changeTempo: useCallback(
       (bpm: number) => {
-        mutateConductorTrack(setTempo(bpm, position))
+        mutate(setTempo(bpm, position))
         setCurrentTempo(bpm)
       },
-      [mutateConductorTrack, position, setCurrentTempo],
+      [mutate, position, setCurrentTempo],
     ),
   }
 }
