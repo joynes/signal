@@ -4,7 +4,16 @@ import { PianoNotesClipboardData } from "../../clipboard/clipboardTypes"
 import { isNoteEvent, NoteEvent } from "../../event"
 import { Range } from "../../geometry/Range"
 import { isNoteInRange, sortedNotes } from "../../note"
+import { TrackId } from "../Track"
 import { getEventsByIds, TrackEventsQuery } from "./basic"
+
+export type ArrangeNote = {
+  readonly tick: number
+  readonly duration: number
+  readonly event: NoteEvent
+  readonly trackId: TrackId
+  readonly trackIndex: number
+}
 
 export type NoteSelection = {
   readonly fromTick: number
@@ -45,6 +54,21 @@ export const getAllNoteIds = (): TrackEventsQuery<readonly number[]> =>
   flow(
     getAllNotes(),
     map((e) => e.id),
+  )
+
+export const getArrangeNotes = (
+  trackId: TrackId,
+  trackIndex: number,
+): TrackEventsQuery<readonly ArrangeNote[]> =>
+  flow(
+    getAllNotes(),
+    map((event) => ({
+      tick: event.tick,
+      duration: event.duration,
+      event,
+      trackId,
+      trackIndex,
+    })),
   )
 
 const getNotesInSelection = (
