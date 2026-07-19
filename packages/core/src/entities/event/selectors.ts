@@ -117,10 +117,6 @@ export const getRedundantEvents =
   (events: readonly TrackEvent[]) =>
     events.filter(isRedundantEvents(event))
 
-export const hasTimeSignatureAt =
-  (tick: number) => (events: readonly TrackEvent[]) =>
-    events.filter(isTimeSignatureEvent).some((e) => e.tick === tick)
-
 export const getTickSpan = (events: readonly TrackEvent[]) => {
   const minTick = min(events.map((e) => e.tick)) ?? 0
   const maxTick = max(events.map((e) => e.tick)) ?? 0

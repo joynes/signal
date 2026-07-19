@@ -5,7 +5,7 @@ import { isNoteEvent, NoteEvent } from "../../event"
 import { Range } from "../../geometry/Range"
 import { isNoteInRange, sortedNotes } from "../../note"
 import { TrackId } from "../Track"
-import { getEventsByIds, TrackEventsQuery } from "./basic"
+import { getAll, getEventsByIds, TrackEventsQuery } from "./basic"
 
 export type ArrangeNote = {
   readonly tick: number
@@ -48,7 +48,7 @@ export const notesToClipboardData =
   }
 
 const getAllNotes = (): TrackEventsQuery<readonly NoteEvent[]> =>
-  flow((events) => events.getArray(), filter(isNoteEvent))
+  flow(getAll, filter(isNoteEvent))
 
 export const getAllNoteIds = (): TrackEventsQuery<readonly number[]> =>
   flow(
@@ -101,7 +101,7 @@ export const getNeighborNote =
     if (selectedNoteIds.length === 0) {
       return null
     }
-    const allNotes = events.getArray().filter(isNoteEvent)
+    const allNotes = flow(getAll, filter(isNoteEvent))(events)
     const selectedNotes = sortedNotes(getNotesByIds(selectedNoteIds)(events))
     if (selectedNotes.length === 0) {
       return null

@@ -4,7 +4,7 @@ import { filter, isEventInRange, map } from "../../../helpers"
 import { TempoEventsClipboardData } from "../../clipboard/clipboardTypes"
 import { isSetTempoEvent, TrackEventOf } from "../../event"
 import { Range } from "../../geometry/Range"
-import { getEventsByIds, TrackEventsQuery } from "./basic"
+import { getAll, getEventsByIds, TrackEventsQuery } from "./basic"
 
 export const getSetTempoEventsByIds = (
   ids: readonly number[],
@@ -15,7 +15,7 @@ export const getSetTempoEventIdsInRange = (
   range: Range,
 ): TrackEventsQuery<readonly number[]> =>
   flow(
-    (events) => events.getArray(),
+    getAll,
     filter(isSetTempoEvent),
     filter(isEventInRange(range)),
     map((e) => e.id),

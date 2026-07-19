@@ -1,7 +1,9 @@
+import { flow } from "lodash"
 import { ProgramChangeEvent } from "midifile-ts"
+import { some } from "../../../helpers"
 import { isProgramChangeEvent } from "../../event"
 import { TrackEvent, TrackEventOf } from "../../event/TrackEvent"
-import { TrackEventsQuery } from "./basic"
+import { getAll, TrackEventsQuery } from "./basic"
 
 export const findProgramChangeEventAtOrBefore =
   (tick: number) =>
@@ -24,16 +26,13 @@ export const findProgramChangeEventAtOrBefore =
 
 export const getProgramChangeEventAtOrBefore = (
   tick: number,
-): TrackEventsQuery<TrackEventOf<ProgramChangeEvent> | undefined> => {
-  const find = findProgramChangeEventAtOrBefore(tick)
-  return (events) => find(events.getArray())
-}
+): TrackEventsQuery<TrackEventOf<ProgramChangeEvent> | undefined> =>
+  flow(getAll, findProgramChangeEventAtOrBefore(tick))
 
 export const hasProgramChangeEventAfter = (
   tick: number,
-): TrackEventsQuery<boolean> => {
-  return (events) =>
-    events
-      .getArray()
-      .some((event) => isProgramChangeEvent(event) && event.tick > tick)
-}
+): TrackEventsQuery<boolean> =>
+  flow(
+    getAll,
+    some((event) => isProgramChangeEvent(event) && event.tick > tick),
+  )

@@ -32,3 +32,7 @@ export function filter<T>(
 export function filter<T>(fn: (item: T) => boolean) {
   return (array: readonly T[]): readonly T[] => array.filter(fn)
 }
+
+export function some<T>(fn: (item: T) => boolean) {
+  return (array: readonly T[]): boolean => array.some(fn)
+}

@@ -17,7 +17,10 @@ export const getEventsByIdsOrAll =
   (ids: readonly number[]): TrackEventsQuery<readonly TrackEvent[]> =>
   (events) => {
     if (ids.length === 0) {
-      return events.getArray()
+      return getAll(events)
     }
     return [...getEventsByIds(ids)(events)].sort((a, b) => a.tick - b.tick)
   }
+
+export const getAll: TrackEventsQuery<readonly TrackEvent[]> = (events) =>
+  events.getArray()
