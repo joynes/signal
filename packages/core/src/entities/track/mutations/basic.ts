@@ -25,7 +25,7 @@ export const combineMutators =
   }
 
 export const updateEvents = (
-  updates: Partial<TrackEvent>[],
+  updates: readonly Partial<TrackEvent>[],
 ): TrackEventsMutator =>
   combineMutators(
     ...updates

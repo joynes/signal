@@ -32,7 +32,10 @@ describe("track mutations/note", () => {
 
     const addedTicks = result.addedNoteIds
       .map((id) => events.get(id))
-      .filter((event): event is NoteEvent => event !== undefined && isNoteEvent(event))
+      .filter(
+        (event): event is NoteEvent =>
+          event !== undefined && isNoteEvent(event),
+      )
       .map((event) => event.tick)
       .sort((a, b) => a - b)
 
@@ -70,7 +73,11 @@ describe("track mutations/note", () => {
     )(events)
 
     const allNotes = events.getArray().filter(isNoteEvent)
-    expect(allNotes.some((event) => event.tick === 10 && event.id === note.id)).toBe(true)
-    expect(allNotes.some((event) => event.tick === 40 && event.noteNumber === 70)).toBe(true)
+    expect(
+      allNotes.some((event) => event.tick === 10 && event.id === note.id),
+    ).toBe(true)
+    expect(
+      allNotes.some((event) => event.tick === 40 && event.noteNumber === 70),
+    ).toBe(true)
   })
 })

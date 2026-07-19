@@ -32,7 +32,10 @@ describe("track mutations/track", () => {
 
     const duplicatedTicks = newIds
       .map((id) => events.get(id))
-      .filter((event): event is NoteEvent => event !== undefined && isNoteEvent(event))
+      .filter(
+        (event): event is NoteEvent =>
+          event !== undefined && isNoteEvent(event),
+      )
       .map((event) => event.tick)
       .sort((a, b) => a - b)
 

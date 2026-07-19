@@ -5,7 +5,11 @@ import { bpmToUSecPerBeat } from "../../../helpers/bpm"
 import { isSetTempoEvent, isTimeSignatureEvent } from "../../event/identify"
 import { TrackEvent, TrackEventOf } from "../../event/TrackEvent"
 import { addEvent } from "./basic"
-import { addClipboardTempoEvents, addTimeSignature, moveTempoEvents } from "./tempo"
+import {
+  addClipboardTempoEvents,
+  addTimeSignature,
+  moveTempoEvents,
+} from "./tempo"
 
 describe("track mutations/tempo", () => {
   it("moveTempoEvents moves tick and tempo value", () => {
@@ -22,9 +26,7 @@ describe("track mutations/tempo", () => {
     const updated = events.get(tempo.id)
     expect(updated && isSetTempoEvent(updated) ? updated.tick : null).toBe(15)
     expect(
-      updated && isSetTempoEvent(updated)
-        ? updated.microsecondsPerBeat
-        : null,
+      updated && isSetTempoEvent(updated) ? updated.microsecondsPerBeat : null,
     ).toBe(Math.floor(bpmToUSecPerBeat(150)))
   })
 
@@ -35,8 +37,18 @@ describe("track mutations/tempo", () => {
       {
         type: "tempo_events",
         events: [
-          { type: "meta", subtype: "setTempo", tick: 0, microsecondsPerBeat: 500000 },
-          { type: "meta", subtype: "setTempo", tick: 20, microsecondsPerBeat: 400000 },
+          {
+            type: "meta",
+            subtype: "setTempo",
+            tick: 0,
+            microsecondsPerBeat: 500000,
+          },
+          {
+            type: "meta",
+            subtype: "setTempo",
+            tick: 20,
+            microsecondsPerBeat: 400000,
+          },
         ],
       },
       30,
