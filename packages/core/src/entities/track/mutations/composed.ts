@@ -1,6 +1,8 @@
+import { flow } from "lodash"
 import { isNotUndefined } from "../../../helpers"
 import { getRedundantEvents } from "../../event/selectors"
 import { TrackEvent } from "../../event/TrackEvent"
+import { getAll } from "../queries"
 import { TrackEventsMutator } from "../Track"
 import { addEvent, removeEvent, updateEvent } from "./basic"
 import { combineMutators } from "./higherOrder"
@@ -25,18 +27,15 @@ export const addEvents = <T extends TrackEvent>(
     ...newEvents.map((event) => addEvent<T>(event)).filter(isNotUndefined),
   )
 
-export const removeEvents =
-  (ids: readonly number[]): TrackEventsMutator =>
-  (events) => {
-    combineMutators(...ids.map(removeEvent))(events)
-  }
+export const removeEvents = (ids: readonly number[]): TrackEventsMutator =>
+  combineMutators(...ids.map(removeEvent))
 
 export const createOrUpdate =
   <T extends TrackEvent>(
     newEvent: Omit<T, "id"> & { subtype?: string; controllerType?: number },
   ): TrackEventsMutator<T> =>
   (events) => {
-    const redundantEvents = getRedundantEvents(newEvent)(events.getArray())
+    const redundantEvents = flow(getAll, getRedundantEvents(newEvent))(events)
 
     if (redundantEvents.length > 0) {
       redundantEvents.forEach((event) => {
@@ -56,7 +55,7 @@ export const updateOrAdd =
     newEvent: Omit<T, "id"> & { subtype?: string; tick?: number },
   ): TrackEventsMutator<T | null> =>
   (events) => {
-    const event = findEvent(events.getArray())
+    const event = flow(getAll, findEvent)(events)
     if (event !== undefined) {
       const { tick: _tick, ...update } = newEvent
       return updateEvent<T>(event.id, update as Partial<T>)(events)

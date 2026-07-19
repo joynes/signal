@@ -1,3 +1,4 @@
+import { flow } from "lodash"
 import { SetTempoEvent, TrackNameEvent } from "midifile-ts"
 import { bpmToUSecPerBeat } from "../../../helpers/bpm"
 import { setTempoMidiEvent, trackNameMidiEvent } from "../../../midi/MidiEvent"
@@ -11,8 +12,10 @@ import {
   SignalTrackColorEvent,
 } from "../../event/signalEvents"
 import { TrackEventOf } from "../../event/TrackEvent"
+import { getAll } from "../queries"
 import { TrackEventsMutator } from "../Track"
 import { TrackColor } from "../TrackColor"
+import { removeEvent } from "./basic"
 import { updateOrAdd } from "./composed"
 
 export const setTempo = (bpm: number, tick: number): TrackEventsMutator => {
@@ -33,9 +36,9 @@ export const setColor =
   (color: TrackColor | null): TrackEventsMutator =>
   (events) => {
     if (color === null) {
-      const e = getColorEvent(events.getArray())
+      const e = flow(getAll, getColorEvent)(events)
       if (e !== undefined) {
-        events.remove(e.id)
+        removeEvent(e.id)(events)
       }
       return
     }

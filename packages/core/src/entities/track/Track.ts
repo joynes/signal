@@ -29,9 +29,12 @@ import { TrackEventsQuery } from "./queries/basic"
 export type TrackId = Branded<number, "TrackId">
 export const UNASSIGNED_TRACK_ID = -1 as TrackId
 
-export type TrackEventsMutator<R = void> = (
-  events: TickOrderedArray<TrackEvent>,
-) => R
+export interface ReadonlyTrackEvents {
+  get(id: number): TrackEvent | undefined
+  getArray(): readonly TrackEvent[]
+}
+
+export type TrackEventsMutator<R = void> = (events: ReadonlyTrackEvents) => R
 
 type TrackEventPredicate = (event: TrackEvent) => boolean
 
