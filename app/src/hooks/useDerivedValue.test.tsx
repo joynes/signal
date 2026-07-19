@@ -148,4 +148,45 @@ describe("useDerivedValue", () => {
     expect(result.current.value.version).toBe(2)
     expect(deriveValue).toHaveBeenCalledTimes(2)
   })
+
+  it("switches source subscription when subscribeSource changes", () => {
+    const sourceA = new Emitter<void>()
+    const sourceB = new Emitter<void>()
+    const subscribeA = vi.fn(sourceA.subscribe)
+    const subscribeB = vi.fn(sourceB.subscribe)
+    let valueA = 1
+    let valueB = 10
+
+    const { result, rerender } = renderHook(
+      ({ useB }: { useB: boolean }) =>
+        useDerivedValue(useB ? subscribeB : subscribeA, () =>
+          useB ? valueB : valueA,
+        ),
+      {
+        initialProps: { useB: false },
+      },
+    )
+
+    expect(result.current).toBe(1)
+    expect(subscribeA).toHaveBeenCalledTimes(1)
+    expect(subscribeB).toHaveBeenCalledTimes(0)
+
+    rerender({ useB: true })
+
+    expect(result.current).toBe(10)
+    expect(subscribeA).toHaveBeenCalledTimes(1)
+    expect(subscribeB).toHaveBeenCalledTimes(1)
+
+    act(() => {
+      valueA = 2
+      sourceA.emit()
+    })
+    expect(result.current).toBe(10)
+
+    act(() => {
+      valueB = 20
+      sourceB.emit()
+    })
+    expect(result.current).toBe(20)
+  })
 })
