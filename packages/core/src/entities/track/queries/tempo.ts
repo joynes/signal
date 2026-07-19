@@ -6,6 +6,22 @@ import { isSetTempoEvent, TrackEventOf } from "../../event"
 import { Range } from "../../geometry/Range"
 import { getEventsByIds, TrackEventsQuery } from "./basic"
 
+export interface SetTempoEventWithNextTick {
+  event: TrackEventOf<SetTempoEvent>
+  nextTick?: number
+}
+
+export const getSetTempoEventsWithNextTick: TrackEventsQuery<
+  readonly SetTempoEventWithNextTick[]
+> = (events) => {
+  const tempoEvents = events.getArray().filter(isSetTempoEvent)
+
+  return tempoEvents.map((event, index) => ({
+    event,
+    nextTick: tempoEvents[index + 1]?.tick,
+  }))
+}
+
 export const getSetTempoEventsByIds = (
   ids: readonly number[],
 ): TrackEventsQuery<readonly TrackEventOf<SetTempoEvent>[]> =>

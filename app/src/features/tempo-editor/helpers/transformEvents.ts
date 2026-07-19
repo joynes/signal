@@ -1,40 +1,29 @@
-import { TrackEventOf } from "@signal-app/core"
-import { SetTempoEvent } from "midifile-ts"
+import { SetTempoEventWithNextTick } from "@signal-app/core"
 import { TempoGraphItem } from "../components/TempoGraphItem"
 import { TempoCoordTransform } from "../entities/TempoCoordTransform"
 
 export const transformEvents = (
-  events: readonly TrackEventOf<SetTempoEvent>[],
+  events: readonly SetTempoEventWithNextTick[],
   transform: TempoCoordTransform,
   maxX: number,
 ): TempoGraphItem[] => {
-  // まず位置だけ計算する
-  // Calculate only position
-  const items = [...events]
-    .sort((a, b) => a.tick - b.tick)
-    .map((e) => {
-      const bpm = (60 * 1000000) / e.microsecondsPerBeat
-      return {
-        id: e.id,
-        x: Math.round(transform.getX(e.tick)),
-        y: Math.round(transform.getY(bpm)),
-        microsecondsPerBeat: e.microsecondsPerBeat,
-      }
-    })
+  // events are already sorted and include next tick from core query
+  return events.map(({ event, nextTick }) => {
+    const bpm = (60 * 1000000) / event.microsecondsPerBeat
+    const x = Math.round(transform.getX(event.tick))
+    const y = Math.round(transform.getY(bpm))
+    const nextX =
+      nextTick !== undefined ? Math.round(transform.getX(nextTick)) : maxX
 
-  // 次のイベント位置まで延びるように大きさを設定する
-  // Set size to extend to the next event position
-  return items.map((e, i) => {
-    const nextX = i + 1 < items.length ? items[i + 1].x : maxX
     return {
-      id: e.id,
+      id: event.id,
       bounds: {
-        x: e.x,
-        y: e.y,
-        width: nextX - e.x,
-        height: transform.height - e.y + 1, // fit to screen bottom
+        x,
+        y,
+        width: nextX - x,
+        height: transform.height - y + 1, // fit to screen bottom
       },
-      microsecondsPerBeat: e.microsecondsPerBeat,
+      microsecondsPerBeat: event.microsecondsPerBeat,
     }
   })
 }
