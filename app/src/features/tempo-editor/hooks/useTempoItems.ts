@@ -1,28 +1,22 @@
-import { getSetTempoEventsWithNextTick, isSetTempoEvent } from "@signal-app/core"
-import { useCallback, useMemo } from "react"
-import { useDerivedValue } from "../../../hooks/useDerivedValue"
+import { filter, isSetTempoEvent, UNASSIGNED_TRACK_ID } from "@signal-app/core"
+import { useMemo } from "react"
 import { useSong } from "../../../hooks/useSong"
+import { useSyncTrackQuery } from "../../../hooks/useSyncTrackQuery"
 import { useTickScroll } from "../../../hooks/useTickScroll"
 import { transformEvents } from "../helpers/transformEvents"
 import { useTempoTransform } from "./useTempoTransform"
 
-const noopSubscribe = () => () => {}
+const filterSetTempoEvent = filter(isSetTempoEvent)
 
 export function useTempoItems() {
   const { transform } = useTempoTransform()
   const { conductorTrack } = useSong()
-  const tempoEvents = useDerivedValue(
-    useCallback(
-      (listener: () => void) =>
-        conductorTrack?.subscribeEventsChanged(isSetTempoEvent, listener) ??
-        noopSubscribe,
-      [conductorTrack],
-    ),
-    useCallback(
-      () => conductorTrack?.query(getSetTempoEventsWithNextTick) ?? [],
-      [conductorTrack],
-    ),
-  )
+  const tempoEvents =
+    useSyncTrackQuery(
+      conductorTrack?.id ?? UNASSIGNED_TRACK_ID,
+      filterSetTempoEvent,
+      isSetTempoEvent,
+    ) ?? []
   const { canvasWidth, scrollLeft } = useTickScroll()
   const items = useMemo(
     () => transformEvents(tempoEvents, transform, canvasWidth + scrollLeft),
