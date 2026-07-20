@@ -37,6 +37,20 @@ This allows the app layer to remain Jotai-based without coupling to core interna
 - Command-service pattern keeps mutation logic grouped by editing concern.
 - Domain model uses immutable-like replacement patterns in places (`tracks` ref updates) while preserving stable observable notifications.
 
+## Track Query/Mutation Design Policy
+
+Track event operations are intentionally separated into narrowly scoped query/mutation modules so the internal data shape stays hidden.
+
+Policy:
+
+- Keep `TrackEventsContext` opaque outside track internals. Callers should only use exported query/mutator functions.
+- Restrict primitive write access to mutation basics (`mutations/basic.ts`) and compose higher-level behavior in `mutations/composed.ts` and `mutations/higherOrder.ts`.
+- Keep primitive reads in `queries/basic.ts`; place multi-step selection/composition logic in `queries/composed.ts`.
+- Keep the type surface explicit and minimal through dedicated type modules (`mutations/type.ts`, `queries/type.ts`).
+- Prefer adding tests by function ownership (per mutation/query module and per case), so responsibilities remain verifiable during refactors.
+
+This boundary allows internal structures to evolve with lower regression risk while preserving a stable and focused API surface.
+
 ## Libraries and External Factors
 
 - Internal deps: `lodash`.
