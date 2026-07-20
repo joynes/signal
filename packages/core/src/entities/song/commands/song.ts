@@ -1,37 +1,43 @@
 import { TrackId } from "../../track"
 import { emptyTrack } from "../../track/TrackFactory"
-import { Song } from "../Song"
+import { SongCommand } from "./type"
 
-export const addNewTrack = (song: Song) => () => {
+export const addNewTrack = (): SongCommand<void> => (song) => {
   const channel = Math.min(song.tracks.length - 1, 0xf)
   const newTrack = emptyTrack(channel)
   song.addTrack(newTrack)
 }
 
-export const insertNewTrack = (song: Song) => (index: number) => {
-  const channel = Math.min(song.tracks.length - 1, 0xf)
-  const newTrack = emptyTrack(channel)
-  song.insertTrack(newTrack, index)
-}
-
-export const duplicateTrack = (song: Song) => (trackId: TrackId) => {
-  const track = song.getTrack(trackId)
-  if (!track) {
-    return
+export const insertNewTrack =
+  (index: number): SongCommand<void> =>
+  (song) => {
+    const channel = Math.min(song.tracks.length - 1, 0xf)
+    const newTrack = emptyTrack(channel)
+    song.insertTrack(newTrack, index)
   }
-  const trackIndex = song.tracks.findIndex((t) => t.id === trackId)
-  const newTrack = track.clone()
-  newTrack.channel = undefined
-  song.insertTrack(newTrack, trackIndex + 1)
-}
 
-export const moveTrack = (song: Song) => (id: TrackId, overId: TrackId) => {
-  const track = song.getTrack(id)
-  const overTrack = song.getTrack(overId)
-  if (track === undefined || overTrack === undefined) {
-    return
+export const duplicateTrack =
+  (trackId: TrackId): SongCommand<void> =>
+  (song) => {
+    const track = song.getTrack(trackId)
+    if (!track) {
+      return
+    }
+    const trackIndex = song.tracks.findIndex((t) => t.id === trackId)
+    const newTrack = track.clone()
+    newTrack.channel = undefined
+    song.insertTrack(newTrack, trackIndex + 1)
   }
-  const fromIndex = song.tracks.indexOf(track)
-  const toIndex = song.tracks.indexOf(overTrack)
-  song.moveTrack(fromIndex, toIndex)
-}
+
+export const moveTrack =
+  (id: TrackId, overId: TrackId): SongCommand<void> =>
+  (song) => {
+    const track = song.getTrack(id)
+    const overTrack = song.getTrack(overId)
+    if (track === undefined || overTrack === undefined) {
+      return
+    }
+    const fromIndex = song.tracks.indexOf(track)
+    const toIndex = song.tracks.indexOf(overTrack)
+    song.moveTrack(fromIndex, toIndex)
+  }
