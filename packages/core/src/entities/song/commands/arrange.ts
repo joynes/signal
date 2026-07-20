@@ -1,4 +1,5 @@
 import { mapValues } from "lodash"
+import { isEventInRange } from "../../../helpers/filterEvents"
 import {
   ArrangeEventsClipboardData,
   BatchUpdateOperation,
@@ -8,10 +9,9 @@ import {
   Track,
   TrackEvent,
   transposeNotes,
-} from "../entities"
-import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
-import { ArrangePoint } from "../entities/transform/ArrangePoint"
-import { isEventInRange } from "../helpers/filterEvents"
+} from "../.."
+import { ArrangeSelection } from "../../selection/ArrangeSelection"
+import { ArrangePoint } from "../../transform/ArrangePoint"
 
 const runTrackTransaction = <T>(tracks: readonly Track[], fn: () => T): T => {
   const runInAllTracks = (index: number): T => {

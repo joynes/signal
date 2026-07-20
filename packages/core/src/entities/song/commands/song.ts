@@ -1,4 +1,6 @@
-import { emptyTrack, Song, TrackId } from "../entities"
+import { TrackId } from "../../track"
+import { emptyTrack } from "../../track/TrackFactory"
+import { Song } from "../Song"
 
 export const addNewTrack = (song: Song) => () => {
   const channel = Math.min(song.tracks.length - 1, 0xf)
