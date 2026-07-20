@@ -20,22 +20,6 @@ export function useTracksCommand<A extends unknown[], R>(
   )
 }
 
-export function useConductorTrackCommand<A extends unknown[], R>(
-  cmd: (track: Track) => (...a: A) => R,
-): (...a: A) => R | undefined {
-  const { songStore } = useStores()
-  return useCallback(
-    (...a: A) => {
-      const conductorTrack = songStore.song.conductorTrack
-      if (!conductorTrack) {
-        return undefined
-      }
-      return cmd(conductorTrack)(...a)
-    },
-    [songStore, cmd],
-  )
-}
-
 export function useMutateTrack(
   trackId: TrackId,
 ): <R = void>(fn: TrackEventsMutator<R>) => R | undefined {
