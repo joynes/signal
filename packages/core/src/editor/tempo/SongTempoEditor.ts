@@ -1,5 +1,6 @@
 import { Unsubscribe } from "@signal-app/observable"
-import { isSetTempoEvent } from "../../entities/event"
+import { SetTempoEvent } from "midifile-ts"
+import { isSetTempoEvent, TrackEventOf } from "../../entities/event"
 import { Song } from "../../entities/song/Song"
 import { TempoItem } from "../../entities/tempo/TempoItem"
 import {
@@ -31,7 +32,7 @@ export class SongTempoEditor implements TempoEditor {
     }
 
     return track
-      .addEvents(
+      .addEvents<TrackEventOf<SetTempoEvent>>(
         items.map((item) =>
           tempoItemToSetTempoEvent({
             id: 0,
