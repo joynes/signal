@@ -8,7 +8,7 @@ type QueryTempoEditor = {
 
 const asQueryTempoEditor = (
   context: TempoEditorQueryContext,
-): QueryTempoEditor => context as QueryTempoEditor
+): QueryTempoEditor => context as unknown as QueryTempoEditor
 
 export const getItems: TempoEditorQuery<readonly TempoItem[]> = (context) =>
   asQueryTempoEditor(context).getItems()

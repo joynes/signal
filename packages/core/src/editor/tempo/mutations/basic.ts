@@ -9,7 +9,7 @@ type MutableTempoEditor = {
 
 const asMutableTempoEditor = (
   context: TempoEditorMutatorContext,
-): MutableTempoEditor => context as MutableTempoEditor
+): MutableTempoEditor => context as unknown as MutableTempoEditor
 
 export const addItem =
   (item: Omit<TempoItem, "id">): TempoEditorMutator<TempoItem | undefined> =>
