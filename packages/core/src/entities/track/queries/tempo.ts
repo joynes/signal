@@ -7,7 +7,7 @@ import { setTempoEventToTempoItem } from "../../tempo/transform"
 import { getAll, getEventById } from "./basic"
 import { TrackEventsQuery } from "./type"
 
-export const getSetTempoEvents: TrackEventsQuery<
+const getSetTempoEvents: TrackEventsQuery<
   readonly TrackEventOf<SetTempoEvent>[]
 > = flow(getAll, filter(isSetTempoEvent))
 

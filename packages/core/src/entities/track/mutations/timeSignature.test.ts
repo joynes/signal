@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest"
 import { TickOrderedArray } from "../../../data/OrdererdArray/TickOrderedArray"
 import { isTimeSignatureEvent } from "../../event/identify"
 import { TrackEvent } from "../../event/TrackEvent"
-import { addTimeSignature } from "./tempo"
+import { addTimeSignature } from "./timeSignature"
 
-describe("track mutations/tempo", () => {
+describe("track mutations/timeSignature", () => {
   it("addTimeSignature creates a time signature event at tick", () => {
     const events = new TickOrderedArray<TrackEvent>()
 
