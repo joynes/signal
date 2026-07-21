@@ -1,5 +1,4 @@
 import { HitArea } from "@ryohey/webgl-react"
-import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "@signal-app/core"
 import { FC, useCallback, useMemo } from "react"
 import { Rect } from "../../../../entities/geometry/Rect"
 import { useTickScroll } from "../../../../hooks/useTickScroll"
@@ -50,8 +49,7 @@ export const TempoItems: FC<TempoItemsProps> = ({ width, zIndex }) => {
     (e: WheelEvent, item: TempoGraphItem) => {
       const event = items.filter((ev) => ev.id === item.id)[0]
       const movement = e.deltaY > 0 ? -1 : 1
-      const bpm = uSecPerBeatToBPM(event.microsecondsPerBeat)
-      changeTempo(event.id, Math.floor(bpmToUSecPerBeat(bpm + movement)))
+      changeTempo(event.id, Math.max(1, Math.floor(event.bpm + movement)))
     },
     [items, changeTempo],
   )

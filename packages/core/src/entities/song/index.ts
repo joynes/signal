@@ -1,5 +1,6 @@
 export * from "./collectAllEvents"
 export * from "./commands"
+export * from "./editor"
 export * from "./Song"
 export * from "./SongFactory"
 export * from "./selectors"

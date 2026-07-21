@@ -1,11 +1,19 @@
+import { SongTempoEditor } from "@signal-app/core"
 import { atom, useAtomValue, useSetAtom, useStore } from "jotai"
 import { Store } from "jotai/vanilla/store"
-import { createContext, useContext, useMemo } from "react"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+} from "react"
 import { BeatsProvider, createBeatsScope } from "../../../hooks/useBeats"
 import {
   createQuantizerScope,
   QuantizerProvider,
 } from "../../../hooks/useQuantizer"
+import { useStores } from "../../../hooks/useStores"
 import {
   createTickScrollScope,
   TickScrollProvider,
@@ -21,6 +29,8 @@ type TempoEditorStore = {
 
 // biome-ignore lint/style/noNonNullAssertion: we assume the provider is always used
 const TempoEditorStoreContext = createContext<TempoEditorStore>(null!)
+// biome-ignore lint/style/noNonNullAssertion: we assume the provider is always used
+const TempoEditorContext = createContext<SongTempoEditor>(null!)
 
 export function TempoEditorProvider({
   children,
@@ -28,6 +38,11 @@ export function TempoEditorProvider({
   children: React.ReactNode
 }) {
   const store = useStore()
+  const { songStore } = useStores()
+  const song = useSyncExternalStore(
+    songStore.onSongChanged.subscribe,
+    useCallback(() => songStore.song, [songStore]),
+  )
 
   const tempoEditorStore = useMemo(() => {
     // should match the order in TempoEditorScope
@@ -41,10 +56,14 @@ export function TempoEditorProvider({
     }
   }, [store])
 
+  const tempoEditor = useMemo(() => new SongTempoEditor(song), [song])
+
   return (
-    <TempoEditorStoreContext.Provider value={tempoEditorStore}>
-      {children}
-    </TempoEditorStoreContext.Provider>
+    <TempoEditorContext.Provider value={tempoEditor}>
+      <TempoEditorStoreContext.Provider value={tempoEditorStore}>
+        {children}
+      </TempoEditorStoreContext.Provider>
+    </TempoEditorContext.Provider>
   )
 }
 
@@ -65,6 +84,10 @@ export function TempoEditorScope({ children }: { children: React.ReactNode }) {
 export function useTempoTickScroll() {
   const { tickScrollScope } = useContext(TempoEditorStoreContext)
   return useTickScroll(tickScrollScope)
+}
+
+export function useTempoEditorService() {
+  return useContext(TempoEditorContext)
 }
 
 export function useTempoEditor() {

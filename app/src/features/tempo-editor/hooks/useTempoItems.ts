@@ -1,26 +1,20 @@
-import { filter, isSetTempoEvent, UNASSIGNED_TRACK_ID } from "@signal-app/core"
-import { useMemo } from "react"
-import { useSong } from "../../../hooks/useSong"
-import { useSyncTrackQuery } from "../../../hooks/useSyncTrackQuery"
+import { useMemo, useSyncExternalStore } from "react"
 import { useTickScroll } from "../../../hooks/useTickScroll"
 import { transformEvents } from "../helpers/transformEvents"
+import { useTempoEditorService } from "./useTempoEditor"
 import { useTempoTransform } from "./useTempoTransform"
-
-const filterSetTempoEvent = filter(isSetTempoEvent)
 
 export function useTempoItems() {
   const { transform } = useTempoTransform()
-  const { conductorTrack } = useSong()
-  const tempoEvents =
-    useSyncTrackQuery(
-      conductorTrack?.id ?? UNASSIGNED_TRACK_ID,
-      filterSetTempoEvent,
-      isSetTempoEvent,
-    ) ?? []
+  const tempoEditor = useTempoEditorService()
+  const tempoItems = useSyncExternalStore(
+    tempoEditor.observeTempoItems,
+    tempoEditor.listItems,
+  )
   const { canvasWidth, scrollLeft } = useTickScroll()
   const items = useMemo(
-    () => transformEvents(tempoEvents, transform, canvasWidth + scrollLeft),
-    [tempoEvents, transform, canvasWidth, scrollLeft],
+    () => transformEvents(tempoItems, transform, canvasWidth + scrollLeft),
+    [tempoItems, transform, canvasWidth, scrollLeft],
   )
 
   return {

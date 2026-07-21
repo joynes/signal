@@ -1,6 +1,7 @@
 import { flow, min } from "lodash"
 import { SetTempoEvent } from "midifile-ts"
 import { filter, isEventInRange, map } from "../../../helpers"
+import { uSecPerBeatToBPM } from "../../../helpers/bpm"
 import { TempoEventsClipboardData } from "../../clipboard/clipboardTypes"
 import { isSetTempoEvent, TrackEventOf } from "../../event"
 import { Range } from "../../geometry/Range"
@@ -8,10 +9,23 @@ import { getAll } from "./basic"
 import { getEventsByIds } from "./composed"
 import { TrackEventsQuery } from "./type"
 
+export const getSetTempoEvents: TrackEventsQuery<
+  readonly TrackEventOf<SetTempoEvent>[]
+> = flow(getAll, filter(isSetTempoEvent))
+
 export const getSetTempoEventsByIds = (
   ids: readonly number[],
 ): TrackEventsQuery<readonly TrackEventOf<SetTempoEvent>[]> =>
   flow(getEventsByIds(ids), filter(isSetTempoEvent))
+
+export const getTempoItems: TrackEventsQuery<
+  readonly { id: number; tick: number; bpm: number }[]
+> = (events) =>
+  getSetTempoEvents(events).map((event) => ({
+    id: event.id,
+    tick: event.tick,
+    bpm: uSecPerBeatToBPM(event.microsecondsPerBeat),
+  }))
 
 export const getSetTempoEventIdsInRange = (
   range: Range,
