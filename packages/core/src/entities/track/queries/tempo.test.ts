@@ -31,5 +31,4 @@ describe("track queries/tempo", () => {
     expect(getTempoItemById(note.id)(events)).toBeUndefined()
     expect(getTempoItemById(999)(events)).toBeUndefined()
   })
-
 })

@@ -2,13 +2,15 @@ import { Unsubscribe } from "@signal-app/observable"
 import { isSetTempoEvent } from "../../entities/event"
 import { Song } from "../../entities/song/Song"
 import { TempoItem } from "../../entities/tempo/TempoItem"
-import { tempoItemToSetTempoEvent } from "../../entities/tempo/transform"
+import {
+  setTempoEventToTempoItem,
+  tempoItemToSetTempoEvent,
+} from "../../entities/tempo/transform"
 import {
   getTempoItemById,
   getTempoItems,
   updateEvents,
 } from "../../entities/track"
-import { setTempoMidiEvent } from "../../midi"
 import { TempoEditorMutator } from "./mutations/type"
 import { TempoEditorQuery } from "./queries/type"
 import { TempoEditor } from "./type"
@@ -30,16 +32,14 @@ export class SongTempoEditor implements TempoEditor {
 
     return track
       .addEvents(
-        items.map((item) => ({
-          ...setTempoMidiEvent(0, Math.floor(bpmToUSecPerBeat(item.bpm))),
-          tick: Math.max(0, Math.floor(item.tick)),
-        })),
+        items.map((item) =>
+          tempoItemToSetTempoEvent({
+            id: 0,
+            ...item,
+          }),
+        ),
       )
-      .map((event) => ({
-        id: event.id,
-        tick: event.tick,
-        bpm: 60000000 / event.microsecondsPerBeat,
-      }))
+      .map(setTempoEventToTempoItem)
   }
 
   removeItems = (ids: readonly number[]): void => {
