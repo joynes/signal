@@ -1,4 +1,4 @@
-import { SongTempoEditor } from "@signal-app/core"
+import { SongTempoEditor, TempoEditor } from "@signal-app/core"
 import { atom, useAtomValue, useSetAtom, useStore } from "jotai"
 import { Store } from "jotai/vanilla/store"
 import {
@@ -30,7 +30,7 @@ type TempoEditorStore = {
 // biome-ignore lint/style/noNonNullAssertion: we assume the provider is always used
 const TempoEditorStoreContext = createContext<TempoEditorStore>(null!)
 // biome-ignore lint/style/noNonNullAssertion: we assume the provider is always used
-const TempoEditorContext = createContext<SongTempoEditor>(null!)
+const TempoEditorContext = createContext<TempoEditor>(null!)
 
 export function TempoEditorProvider({
   children,

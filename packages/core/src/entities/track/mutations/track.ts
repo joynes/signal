@@ -1,6 +1,6 @@
 import { flow } from "lodash"
 import { AnyEvent } from "midifile-ts"
-import { closedRange, filter, map } from "../../../helpers"
+import { closedRange, filter, interpolate, map } from "../../../helpers"
 import { getRedundantEvents, getTickSpan } from "../../event"
 import { TrackEvent } from "../../event/TrackEvent"
 import { moveEvent } from "../../event/transforms"
@@ -46,24 +46,6 @@ export const removeRedundantEventsForEventIds =
     const controllerEvents = getEventsByIds(eventIds)(events)
     combineMutators(...controllerEvents.map(removeRedundantEvents))(events)
   }
-
-const interpolate = (
-  valueRange: Range,
-  tickRange: Range,
-  easing: (t: number) => number,
-) => {
-  const [startValue, endValue] = valueRange
-  const [startTick, endTick] = tickRange
-
-  return endTick === startTick
-    ? () => endValue
-    : (tick: number) => {
-        const t = (tick - startTick) / (endTick - startTick)
-        const easedT = easing(t)
-        const value = startValue + easedT * (endValue - startValue)
-        return Math.floor(Range.clamp(valueRange, value))
-      }
-}
 
 // Update events in the range with easing interpolation values
 export const updateEventsInRangeWithEasing =

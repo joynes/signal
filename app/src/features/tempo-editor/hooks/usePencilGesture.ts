@@ -1,39 +1,25 @@
-import {
-  bpmToUSecPerBeat,
-  createOrUpdate,
-  isSetTempoEvent,
-  Range,
-  setTempoMidiEvent,
-  updateEventsInRange,
-} from "@signal-app/core"
+import { createOrUpdateItem, Range, updateItemsInRange } from "@signal-app/core"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
-import { useMutateConductorTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { useQuantizer } from "../../../hooks/useQuantizer"
 import { TempoCoordTransform } from "../entities/TempoCoordTransform"
+import { useTempoEditorService } from "./useTempoEditor"
 
 const useUpdateTempoEventsInRange = () => {
   const { quantizeFloor, quantizeUnit } = useQuantizer()
-  const mutate = useMutateConductorTrack()
+  const tempoEditor = useTempoEditorService()
 
   return useCallback(
     (valueRange: Range, tickRange: Range) => {
-      mutate(
-        updateEventsInRange(
-          isSetTempoEvent,
-          (v) => setTempoMidiEvent(0, bpmToUSecPerBeat(v)),
-          quantizeFloor,
-          quantizeUnit,
-          valueRange,
-          tickRange,
-        ),
+      tempoEditor.mutate(
+        updateItemsInRange(valueRange, tickRange, quantizeFloor, quantizeUnit),
       )
     },
-    [mutate, quantizeFloor, quantizeUnit],
+    [tempoEditor, quantizeFloor, quantizeUnit],
   )
 }
 
@@ -42,7 +28,7 @@ export const usePencilGesture = (): MouseDownHandler<
 > => {
   const { pushHistory } = useHistory()
   const { quantizeRound } = useQuantizer()
-  const mutate = useMutateConductorTrack()
+  const tempoEditor = useTempoEditorService()
   const updateTempoEventsInRange = useUpdateTempoEventsInRange()
 
   return useCallback(
@@ -51,13 +37,7 @@ export const usePencilGesture = (): MouseDownHandler<
 
       const startClientPos = getClientPos(e)
       const pos = transform.fromPosition(startPoint)
-      const bpm = bpmToUSecPerBeat(pos.bpm)
-
-      const event = {
-        ...setTempoMidiEvent(0, Math.round(bpm)),
-        tick: quantizeRound(pos.tick),
-      }
-      mutate(createOrUpdate(event))
+      tempoEditor.mutate(createOrUpdateItem(quantizeRound(pos.tick), pos.bpm))
 
       let lastTick = pos.tick
       let lastValue = pos.bpm
@@ -83,6 +63,6 @@ export const usePencilGesture = (): MouseDownHandler<
         },
       })
     },
-    [pushHistory, quantizeRound, mutate, updateTempoEventsInRange],
+    [pushHistory, quantizeRound, tempoEditor, updateTempoEventsInRange],
   )
 }

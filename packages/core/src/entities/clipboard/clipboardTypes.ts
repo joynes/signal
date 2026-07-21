@@ -31,9 +31,15 @@ export type ControlEventsClipboardData = z.infer<
   typeof ControlEventsClipboardDataSchema
 >
 
+export const TempoItemClipboardDataSchema = z.object({
+  id: z.number(),
+  tick: z.number(),
+  bpm: z.number(),
+})
+
 export const TempoEventsClipboardDataSchema = z.object({
   type: z.literal("tempo_events"),
-  events: z.array(z.any().describe("TrackEventOf<SetTempoEvent>")),
+  items: z.array(TempoItemClipboardDataSchema),
 })
 
 export type TempoEventsClipboardData = z.infer<

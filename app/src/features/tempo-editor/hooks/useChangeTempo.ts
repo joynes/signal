@@ -1,3 +1,4 @@
+import { setBpm } from "@signal-app/core"
 import { useCallback } from "react"
 import { useHistory } from "../../../hooks/useHistory"
 import { useTempoEditorService } from "./useTempoEditor"
@@ -8,7 +9,7 @@ export const useChangeTempo = () => {
   return useCallback(
     (id: number, bpm: number) => {
       pushHistory()
-      tempoEditor.setBpm(id, bpm)
+      tempoEditor.mutate(setBpm(id, bpm))
     },
     [tempoEditor, pushHistory],
   )
