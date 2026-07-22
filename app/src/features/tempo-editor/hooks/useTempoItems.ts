@@ -1,10 +1,12 @@
 import { listItems } from "@signal-app/core"
-import { useSyncExternalStore } from "react"
+import { useCallback } from "react"
+import { useDerivedValue } from "../../../hooks/useDerivedValue"
 import { useTempoEditorService } from "./useTempoEditor"
 
 export function useTempoItems() {
   const tempoEditor = useTempoEditorService()
-  return useSyncExternalStore(tempoEditor.observeTempoItems, () =>
-    tempoEditor.query(listItems),
+  return useDerivedValue(
+    tempoEditor.observeTempoItems,
+    useCallback(() => tempoEditor.query(listItems), [tempoEditor]),
   )
 }

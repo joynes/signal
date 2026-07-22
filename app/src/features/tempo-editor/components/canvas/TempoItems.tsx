@@ -22,13 +22,13 @@ export const TempoItems: FC<TempoItemsProps> = ({ width, zIndex }) => {
   const { mouseMode, selectedEventIds } = useTempoEditor()
   const tempoItems = useTempoItems()
   const { transform } = useTempoTransform()
-  const { canvasWidth, scrollLeft } = useTickScroll()
+  const { scrollLeft, contentWidth } = useTickScroll()
   const dragSelectionGesture = useDragSelectionGesture()
   const changeTempo = useChangeTempo()
 
   const items = useMemo(
-    () => transformEvents(tempoItems, transform, canvasWidth + scrollLeft),
-    [tempoItems, transform, canvasWidth, scrollLeft],
+    () => transformEvents(tempoItems, transform, contentWidth),
+    [tempoItems, transform, contentWidth],
   )
 
   // draggable hit areas for each tempo changes
