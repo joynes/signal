@@ -20,7 +20,7 @@ Implements track list UI and track-level controls.
 
 ## Architecture Notes
 
-- Track list operates on non-conductor tracks and delegates mutations to command services (`commands.song.moveTrack`, `addNewTrack`).
+- Track list operates on non-conductor tracks and delegates mutations to song-level command functions (`moveTrack`, `addNewTrack` from `@signal-app/core`, invoked via `useSongCommand`).
 - Integrates with history snapshots before mutating commands (e.g., add track).
 - Feature open state is local atom while data source is shared song store.
 

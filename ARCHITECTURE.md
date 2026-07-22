@@ -82,7 +82,7 @@ This section intentionally stays lightweight. See each feature README for detail
 
 ## 6. Cross-Cutting Architectural Patterns
 
-- Command-service based domain mutations (core).
+- Mutation/query based domain commands (core), with per-domain Editor facades (e.g. `SongTempoEditor`) providing query/mutate/observe access without exposing Song internals.
 - Feature-scoped state providers for timeline/editor concerns (app).
 - Promise-based interaction UX via `dialog-hooks`.
 - Repository abstraction for cloud/data boundaries.
