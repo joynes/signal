@@ -11,6 +11,7 @@ import {
   updateControlItemsInRangeWithEasing,
 } from "./mutations/composed"
 import {
+  getControlItemsClipboardData,
   getControlItemsInRangeWithPrevious,
   listControlItems,
 } from "./queries/control"
@@ -208,6 +209,31 @@ describe("TrackControlEditor", () => {
     expect(items).toStrictEqual([
       { tick: 100, value: 10 },
       { tick: 105, value: 20 },
+    ])
+  })
+
+  it("round-trips selected items through clipboard data and paste", () => {
+    const editor = createTrackControlEditor()
+    const [first] = editor.addItems([{ tick: 10, value: 1 }])
+    const [second] = editor.addItems([{ tick: 20, value: 2 }])
+
+    const data = editor.query(
+      getControlItemsClipboardData([first.id, second.id]),
+    )
+    expect(data?.events.map((e) => e.tick)).toStrictEqual([0, 10])
+
+    editor.mutate(pasteControlItemsAtPosition(data!, 50))
+
+    const items = editor
+      .getItems()
+      .map((item) => ({ tick: item.tick, value: item.value }))
+      .sort((a, b) => a.tick - b.tick)
+
+    expect(items).toStrictEqual([
+      { tick: 10, value: 1 },
+      { tick: 20, value: 2 },
+      { tick: 50, value: 1 },
+      { tick: 60, value: 2 },
     ])
   })
 })

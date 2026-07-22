@@ -1,14 +1,14 @@
 import {
+  ControlEditor,
   ControlEventsClipboardDataSchema,
   createOrUpdateControlItemValue,
   duplicateControlItems,
-  getControlClipboardDataForSelection,
-  pasteClipboardDataAtPosition,
-  removeEvents,
+  getControlItemsClipboardData,
+  pasteControlItemsAtPosition,
+  removeControlItems,
   TrackControlEditor,
 } from "@signal-app/core"
-import { useCallback } from "react"
-import { useMutateTrack } from "../../../hooks/useCommand"
+import { useCallback, useMemo } from "react"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
 import { useSong } from "../../../hooks/useSong"
@@ -39,51 +39,74 @@ export const useCreateOrUpdateControlEventsValue = () => {
   )
 }
 
-export const useDeleteControlSelection = () => {
+// The hooks below are driven by always-mounted keyboard shortcuts and the
+// selection context menu, so they may run while control mode is "velocity"
+// (which has no ValueEventType) or before a track is selected. Unlike
+// useControlEditor(), which throws when there's nothing to give out, this
+// stays undefined-tolerant since "nothing to act on" is a normal state here.
+const useTrackControlEditorOrUndefined = (): ControlEditor | undefined => {
   const { selectedTrackId } = usePianoRoll()
-  const mutate = useMutateTrack(selectedTrackId)
+  const { getTrack } = useSong()
+  const { controlMode } = useControlPane()
+
+  return useMemo(() => {
+    if (controlMode.type === "velocity") {
+      return undefined
+    }
+    const track = getTrack(selectedTrackId)
+    return track !== undefined
+      ? new TrackControlEditor(track, controlMode)
+      : undefined
+  }, [controlMode, getTrack, selectedTrackId])
+}
+
+export const useDeleteControlSelection = () => {
   const { pushHistory } = useHistory()
   const { selectedEventIds, setSelection } = useControlPane()
+  const controlEditor = useTrackControlEditorOrUndefined()
 
   return useCallback(() => {
-    if (selectedEventIds.length === 0) {
+    if (selectedEventIds.length === 0 || controlEditor === undefined) {
       return
     }
 
     pushHistory()
 
-    // Remove selected notes and selected notes
-    mutate(removeEvents(selectedEventIds))
+    controlEditor.mutate(removeControlItems(selectedEventIds))
     setSelection(null)
-  }, [selectedEventIds, mutate, pushHistory, setSelection])
+  }, [selectedEventIds, controlEditor, pushHistory, setSelection])
 }
 
 export const useCopyControlSelection = () => {
-  const { selectedTrackId } = usePianoRoll()
   const { selectedEventIds } = useControlPane()
-  const mutate = useMutateTrack(selectedTrackId)
+  const controlEditor = useTrackControlEditorOrUndefined()
 
   return useCallback(async () => {
-    if (selectedEventIds.length === 0) {
+    if (selectedEventIds.length === 0 || controlEditor === undefined) {
       return
     }
-    const data = mutate(getControlClipboardDataForSelection(selectedEventIds))
+    const data = controlEditor.query(
+      getControlItemsClipboardData(selectedEventIds),
+    )
     if (!data) {
       return
     }
 
     await writeClipboardData(data)
-  }, [selectedEventIds, mutate])
+  }, [selectedEventIds, controlEditor])
 }
 
 export const usePasteControlSelection = () => {
-  const { selectedTrackId } = usePianoRoll()
   const { position } = usePlayer()
   const { pushHistory } = useHistory()
-  const mutate = useMutateTrack(selectedTrackId)
+  const controlEditor = useTrackControlEditorOrUndefined()
 
   return useCallback(
     async (e?: ClipboardEvent) => {
+      if (controlEditor === undefined) {
+        return
+      }
+
       const obj = e ? readJSONFromClipboard(e) : await readClipboardData()
       const { data } = ControlEventsClipboardDataSchema.safeParse(obj)
 
@@ -92,9 +115,9 @@ export const usePasteControlSelection = () => {
       }
 
       pushHistory()
-      mutate(pasteClipboardDataAtPosition(data, position))
+      controlEditor.mutate(pasteControlItemsAtPosition(data, position))
     },
-    [mutate, position, pushHistory],
+    [controlEditor, position, pushHistory],
   )
 }
 
@@ -109,38 +132,21 @@ export const useCutControlSelection = () => {
 }
 
 export const useDuplicateControlSelection = () => {
-  const { selectedTrackId } = usePianoRoll()
-  const { getTrack } = useSong()
   const { pushHistory } = useHistory()
-  const { controlMode, selectedEventIds, setSelectedEventIds } =
-    useControlPane()
+  const { selectedEventIds, setSelectedEventIds } = useControlPane()
+  const controlEditor = useTrackControlEditorOrUndefined()
 
   return useCallback(() => {
-    // Only pitchBend/controller selections reach here: velocity-mode
-    // selection lives in usePianoRoll().selectedNoteIds, never here.
-    if (selectedEventIds.length === 0 || controlMode.type === "velocity") {
-      return
-    }
-
-    const track = getTrack(selectedTrackId)
-    if (track === undefined) {
+    if (selectedEventIds.length === 0 || controlEditor === undefined) {
       return
     }
 
     pushHistory()
 
     // select the created events
-    const controlEditor = new TrackControlEditor(track, controlMode)
     const addedEventIds = controlEditor.mutate(
       duplicateControlItems(selectedEventIds),
     )
     setSelectedEventIds([...addedEventIds])
-  }, [
-    selectedEventIds,
-    controlMode,
-    getTrack,
-    selectedTrackId,
-    pushHistory,
-    setSelectedEventIds,
-  ])
+  }, [selectedEventIds, controlEditor, pushHistory, setSelectedEventIds])
 }

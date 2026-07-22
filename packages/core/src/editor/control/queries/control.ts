@@ -1,4 +1,5 @@
-import { maxBy } from "lodash"
+import { maxBy, min } from "lodash"
+import { ControlEventsClipboardData } from "../../../entities/clipboard/clipboardTypes"
 import { ControlItem } from "../../../entities/control/ControlItem"
 import { Range } from "../../../entities/geometry/Range"
 import { isEventInRange, isNotUndefined } from "../../../helpers"
@@ -12,6 +13,24 @@ export const getControlItemsByIds =
   (ids: readonly number[]): ControlEditorQuery<readonly ControlItem[]> =>
   (context) =>
     ids.map((id) => getControlItemById(id)(context)).filter(isNotUndefined)
+
+export const getControlItemsClipboardData =
+  (
+    ids: readonly number[],
+  ): ControlEditorQuery<ControlEventsClipboardData | null> =>
+  (context) => {
+    const items = getControlItemsByIds(ids)(context)
+    const minTick = min(items.map((item) => item.tick))
+
+    if (minTick === undefined) {
+      return null
+    }
+
+    return {
+      type: "control_events",
+      events: items.map((item) => ({ ...item, tick: item.tick - minTick })),
+    }
+  }
 
 export const getControlItemsInRangeWithPrevious =
   (tickRange: Range): ControlEditorQuery<readonly ControlItem[]> =>
