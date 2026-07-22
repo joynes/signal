@@ -45,12 +45,12 @@ Track event operations are intentionally separated into narrowly scoped query/mu
 Policy:
 
 - Keep `TrackEventsContext` opaque outside track internals. Callers should only use exported query/mutator functions.
-- Restrict primitive write access to mutation basics (`mutations/basic.ts`) and compose higher-level behavior in `mutations/composed.ts` and `mutations/higherOrder.ts`.
-- Keep primitive reads in `queries/basic.ts`; place multi-step selection/composition logic in `queries/composed.ts`.
+- Restrict primitive write access to `mutations/primitives.ts` and compose higher-level behavior in `mutations/composed.ts` and `mutations/higherOrder.ts`.
+- Keep primitive reads in `queries/primitives.ts`; place multi-step selection/composition logic in `queries/composed.ts`.
 - Keep the type surface explicit and minimal through dedicated type modules (`mutations/type.ts`, `queries/type.ts`).
 - Prefer adding tests by function ownership (per mutation/query module and per case), so responsibilities remain verifiable during refactors.
 
-This boundary allows internal structures to evolve with lower regression risk while preserving a stable and focused API surface.
+This boundary allows internal structures to evolve with lower regression risk while preserving a stable and focused API surface. See [ARCHITECTURE.md §6.2](../../ARCHITECTURE.md#62-core-domain-layering-oop-state--point-free-business-logic) for the broader rationale (OOP core + point-free logic, and the precedent in Haskell's `ST` monad / Clojure's transient pattern).
 
 ## Libraries and External Factors
 

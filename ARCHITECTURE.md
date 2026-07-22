@@ -124,6 +124,37 @@ Related implementation techniques used across features:
 - Targeted subscriptions (`useSyncExternalStore`) for core-backed reactive values.
 - Component-level memoization on interactive/high-frequency subtrees.
 
+### 6.2 Core Domain Layering: OOP State + Point-Free Business Logic
+
+Core domain code (`@signal-app/core`) follows a deliberate two-layer split between stateful, identity-bearing objects and the business logic that operates on them.
+
+Primary structure:
+
+- Layers with state and identity (for example `Track`) are implemented in an OOP style, owning mutable internal state.
+- Complex business logic on top of that state is expressed in a point-free style: small primitive operations combined through function composition, rather than as methods on stateful objects.
+
+What this means in practice:
+
+- Mutation/query modules split responsibilities by file: `primitives.ts` holds raw, imperative operations that touch mutable internal state directly (`getById`, `update`, `addEvent`, etc.); `composed.ts` holds only `Mutator`/`Query` functions built by composing `primitives.ts` functions.
+- The mutable API used inside `primitives.ts` (the internal update/remove/create methods) is not exported from the module, so `composed.ts` — and any code outside the module — is type-level prevented from reaching for raw mutation directly.
+- `composed.ts` is conceptually a "combinators" module: function combinators built on top of primitives.
+
+Concrete example:
+
+- [packages/core/src/entities/track/mutations/primitives.ts](packages/core/src/entities/track/mutations/primitives.ts)
+- [packages/core/src/entities/track/mutations/composed.ts](packages/core/src/entities/track/mutations/composed.ts)
+
+Why this architecture is used:
+
+- The split follows the same lineage as Haskell's `ST` monad, which uses a phantom type to keep a mutable reference from escaping its boundary, and Clojure's transient/`persistent!` pattern, which mutates destructively inside a boundary and hands back an immutable value at the edge.
+- It shares its goal with Immer's proxy-based structural sharing, but Signal mutates directly instead of going through a Proxy — trading some of Immer's ergonomics for lower overhead, closer to the transient/`ST` approach.
+- It replaces the earlier MobX-based observable design, where `Track` exposed MobX observables directly to callers. Moving to `Track`-owned `query`/`mutate` functions reduces dependence on OOP-style mutable state (MobX observables) leaking into app code and avoids the cost of constructing and discarding large numbers of POJOs on every read/write, while keeping the business logic itself point-free and composable.
+
+Related implementation techniques used across core:
+
+- `entities/track/mutations`, `entities/track/queries`, and `editor/tempo/{mutations,queries}` all follow the `primitives.ts` / `composed.ts` split.
+- Higher-order combinators (`combineMutators` in `mutations/higherOrder.ts`) compose primitive mutators without exposing mutable internals.
+
 ## 7. Platform and External Dependencies
 
 Web platform dependencies:
