@@ -1,23 +1,10 @@
 import { listItems } from "@signal-app/core"
-import { useMemo, useSyncExternalStore } from "react"
-import { useTickScroll } from "../../../hooks/useTickScroll"
-import { transformEvents } from "../helpers/transformEvents"
+import { useSyncExternalStore } from "react"
 import { useTempoEditorService } from "./useTempoEditor"
-import { useTempoTransform } from "./useTempoTransform"
 
 export function useTempoItems() {
-  const { transform } = useTempoTransform()
   const tempoEditor = useTempoEditorService()
-  const tempoItems = useSyncExternalStore(tempoEditor.observeTempoItems, () =>
+  return useSyncExternalStore(tempoEditor.observeTempoItems, () =>
     tempoEditor.query(listItems),
   )
-  const { canvasWidth, scrollLeft } = useTickScroll()
-  const items = useMemo(
-    () => transformEvents(tempoItems, transform, canvasWidth + scrollLeft),
-    [tempoItems, transform, canvasWidth, scrollLeft],
-  )
-
-  return {
-    items,
-  }
 }

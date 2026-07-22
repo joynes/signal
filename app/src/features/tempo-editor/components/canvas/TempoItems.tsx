@@ -3,10 +3,12 @@ import { FC, useCallback, useMemo } from "react"
 import { Rect } from "../../../../entities/geometry/Rect"
 import { useTickScroll } from "../../../../hooks/useTickScroll"
 import { LineGraphItems } from "../../../control-pane/components/LineGraph/LineGraphItems"
+import { transformEvents } from "../../helpers/transformEvents"
 import { useChangeTempo } from "../../hooks/useChangeTempo"
 import { useDragSelectionGesture } from "../../hooks/useDragSelectionGesture"
 import { useTempoEditor } from "../../hooks/useTempoEditor"
 import { useTempoItems } from "../../hooks/useTempoItems"
+import { useTempoTransform } from "../../hooks/useTempoTransform"
 import { TempoGraphItem } from "../TempoGraphItem"
 
 const CIRCLE_RADIUS = 4
@@ -18,10 +20,16 @@ export interface TempoItemsProps {
 
 export const TempoItems: FC<TempoItemsProps> = ({ width, zIndex }) => {
   const { mouseMode, selectedEventIds } = useTempoEditor()
-  const { items } = useTempoItems()
-  const { scrollLeft } = useTickScroll()
+  const tempoItems = useTempoItems()
+  const { transform } = useTempoTransform()
+  const { canvasWidth, scrollLeft } = useTickScroll()
   const dragSelectionGesture = useDragSelectionGesture()
   const changeTempo = useChangeTempo()
+
+  const items = useMemo(
+    () => transformEvents(tempoItems, transform, canvasWidth + scrollLeft),
+    [tempoItems, transform, canvasWidth, scrollLeft],
+  )
 
   // draggable hit areas for each tempo changes
   const controlPoints = useMemo(
