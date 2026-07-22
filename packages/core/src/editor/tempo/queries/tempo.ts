@@ -1,7 +1,7 @@
 import { TempoEventsClipboardData } from "../../../entities/clipboard/clipboardTypes"
 import { Range } from "../../../entities/geometry/Range"
 import { TempoItem } from "../../../entities/tempo/TempoItem"
-import { getById, getItems } from "./basic"
+import { getById, getItems } from "./primitives"
 import { TempoEditorQuery } from "./type"
 
 export const listItems: TempoEditorQuery<readonly TempoItem[]> = getItems

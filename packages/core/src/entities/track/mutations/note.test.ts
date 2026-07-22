@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 import { TickOrderedArray } from "../../../data/OrdererdArray/TickOrderedArray"
 import { isNoteEvent } from "../../event/identify"
 import { NoteEvent, TrackEvent } from "../../event/TrackEvent"
-import { addEvent } from "./basic"
 import { addClipboardNotes, duplicateNotes, quantizeNotes } from "./note"
+import { addEvent } from "./primitives"
 
 describe("track mutations/note", () => {
   it("duplicateNotes uses selection span when initialDeltaTick is zero", () => {

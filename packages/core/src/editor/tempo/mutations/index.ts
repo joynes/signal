@@ -1,3 +1,3 @@
-export * from "./basic"
 export * from "./composed"
+export * from "./primitives"
 export * from "./type"

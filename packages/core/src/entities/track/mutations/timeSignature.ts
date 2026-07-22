@@ -1,6 +1,6 @@
 import { timeSignatureMidiEvent } from "../../../midi"
 import { TrackEvent } from "../../event/TrackEvent"
-import { addEvent } from "./basic"
+import { addEvent } from "./primitives"
 import { TrackEventsMutator } from "./type"
 
 export const addTimeSignature = (

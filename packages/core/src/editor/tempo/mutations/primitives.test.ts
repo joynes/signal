@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { createSongTempoEditor } from "../testUtils"
-import { addItem, removeItem, updateItem } from "./basic"
+import { addItem, removeItem, updateItem } from "./primitives"
 
-describe("tempo editor basic mutations", () => {
+describe("tempo editor primitive mutations", () => {
   it("adds an item", () => {
     const editor = createSongTempoEditor()
 

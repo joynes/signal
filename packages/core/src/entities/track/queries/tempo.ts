@@ -4,7 +4,7 @@ import { filter } from "../../../helpers"
 import { isSetTempoEvent, TrackEventOf } from "../../event"
 import { TempoItem } from "../../tempo/TempoItem"
 import { setTempoEventToTempoItem } from "../../tempo/transform"
-import { getAll, getEventById } from "./basic"
+import { getAll, getEventById } from "./primitives"
 import { TrackEventsQuery } from "./type"
 
 const getSetTempoEvents: TrackEventsQuery<

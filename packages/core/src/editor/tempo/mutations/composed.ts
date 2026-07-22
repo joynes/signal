@@ -6,7 +6,7 @@ import { moveTempoItem } from "../../../entities/tempo/transform"
 import { closedRange } from "../../../helpers/array"
 import { interpolate } from "../../../helpers/interpolate"
 import { getItemsByIds, listItems } from "../queries/tempo"
-import { addItem, removeItem, updateItem } from "./basic"
+import { addItem, removeItem, updateItem } from "./primitives"
 import { TempoEditorMutator } from "./type"
 
 const createOrUpdateItems =
