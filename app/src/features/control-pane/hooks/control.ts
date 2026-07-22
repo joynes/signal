@@ -1,40 +1,41 @@
 import {
   ControlEventsClipboardDataSchema,
-  createOrUpdateControllerEventsValue,
-  duplicateEvents,
+  createOrUpdateControlItemValue,
+  duplicateControlItems,
   getControlClipboardDataForSelection,
   pasteClipboardDataAtPosition,
   removeEvents,
+  TrackControlEditor,
 } from "@signal-app/core"
-import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { useCallback } from "react"
 import { useMutateTrack } from "../../../hooks/useCommand"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
+import { useSong } from "../../../hooks/useSong"
 import {
   readClipboardData,
   readJSONFromClipboard,
   writeClipboardData,
 } from "../../../services/Clipboard"
 import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
+import { useControlEditor } from "./useControlEditor"
 import { useControlPane } from "./useControlPane"
 
 export const useCreateOrUpdateControlEventsValue = () => {
-  const { selectedTrackId } = usePianoRoll()
-  const mutate = useMutateTrack(selectedTrackId)
+  const controlEditor = useControlEditor()
   const { position } = usePlayer()
   const { pushHistory } = useHistory()
   const { selectedEventIds } = useControlPane()
 
   return useCallback(
-    <T extends ControllerEvent | PitchBendEvent>(event: T) => {
+    (value: number) => {
       pushHistory()
 
-      mutate(
-        createOrUpdateControllerEventsValue(selectedEventIds, event, position),
+      controlEditor.mutate(
+        createOrUpdateControlItemValue(selectedEventIds, value, position),
       )
     },
-    [selectedEventIds, mutate, position, pushHistory],
+    [selectedEventIds, controlEditor, position, pushHistory],
   )
 }
 
@@ -109,19 +110,37 @@ export const useCutControlSelection = () => {
 
 export const useDuplicateControlSelection = () => {
   const { selectedTrackId } = usePianoRoll()
+  const { getTrack } = useSong()
   const { pushHistory } = useHistory()
-  const { selectedEventIds, setSelectedEventIds } = useControlPane()
-  const mutate = useMutateTrack(selectedTrackId)
+  const { controlMode, selectedEventIds, setSelectedEventIds } =
+    useControlPane()
 
   return useCallback(() => {
-    if (selectedEventIds.length === 0) {
+    // Only pitchBend/controller selections reach here: velocity-mode
+    // selection lives in usePianoRoll().selectedNoteIds, never here.
+    if (selectedEventIds.length === 0 || controlMode.type === "velocity") {
+      return
+    }
+
+    const track = getTrack(selectedTrackId)
+    if (track === undefined) {
       return
     }
 
     pushHistory()
 
     // select the created events
-    const addedEventIds = mutate(duplicateEvents(selectedEventIds)) ?? []
-    setSelectedEventIds(addedEventIds)
-  }, [selectedEventIds, pushHistory, setSelectedEventIds, mutate])
+    const controlEditor = new TrackControlEditor(track, controlMode)
+    const addedEventIds = controlEditor.mutate(
+      duplicateControlItems(selectedEventIds),
+    )
+    setSelectedEventIds([...addedEventIds])
+  }, [
+    selectedEventIds,
+    controlMode,
+    getTrack,
+    selectedTrackId,
+    pushHistory,
+    setSelectedEventIds,
+  ])
 }

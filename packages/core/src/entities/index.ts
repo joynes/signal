@@ -1,5 +1,6 @@
 export * from "./beat/Beat"
 export * from "./clipboard/clipboardTypes"
+export * from "./control"
 export * from "./event"
 export * from "./event"
 export * from "./geometry"

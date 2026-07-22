@@ -1,7 +1,7 @@
 import {
   getControllerEventsByIds,
   moveControllerEvent,
-  removeRedundantEventsForEventIds,
+  removeRedundantControlItems,
   updateEvents,
 } from "@signal-app/core"
 import { useCallback } from "react"
@@ -14,6 +14,7 @@ import { useQuantizer } from "../../../hooks/useQuantizer"
 import { useTrackQuery } from "../../../hooks/useTrackQuery"
 import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"
 import { ControlCoordTransform } from "../entities/ControlCoordTransform"
+import { useControlEditor } from "../hooks/useControlEditor"
 import { useControlPane } from "../hooks/useControlPane"
 
 export const useDragSelectionGesture = (): MouseDownHandler<
@@ -27,6 +28,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
   const { selectedEventIds: _selectedEventIds, setSelectedEventIds } =
     useControlPane()
   const { quantizeRound } = useQuantizer()
+  const controlEditor = useControlEditor()
 
   return useCallback(
     (
@@ -80,7 +82,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
 
         onMouseUp: () => {
           // Find events with the same tick and remove it
-          mutate(removeRedundantEventsForEventIds(selectedEventIds))
+          controlEditor.mutate(removeRedundantControlItems(selectedEventIds))
         },
       })
     },
@@ -91,6 +93,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
       query,
       mutate,
       quantizeRound,
+      controlEditor,
     ],
   )
 }

@@ -9,6 +9,7 @@ import {
   controlModeKey,
   isEqualControlMode,
 } from "../entities/ControlMode"
+import { ControlEditorProvider } from "../hooks/useControlEditor"
 import { useControlPane } from "../hooks/useControlPane"
 import { useControlPaneGlobalKeyboardShortcut } from "../hooks/useControlPaneGlobalKeyboardShortcut"
 import { useControlPaneKeyboardShortcut } from "../hooks/useControlPaneKeyboardShortcut"
@@ -157,7 +158,11 @@ const ControlPane: FC<ControlPaneProps> = ({ axisWidth }) => {
       case "velocity":
         return <PianoVelocityControl {...controlSize} />
       default:
-        return <ValueEventGraph {...controlSize} type={mode} />
+        return (
+          <ControlEditorProvider type={mode}>
+            <ValueEventGraph {...controlSize} type={mode} />
+          </ControlEditorProvider>
+        )
     }
   })()
 
