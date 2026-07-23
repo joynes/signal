@@ -1,7 +1,7 @@
 import { SetTempoEvent } from "midifile-ts"
 import { describe, expect, it } from "vitest"
 import { TickOrderedArray } from "../../../data/OrdererdArray/TickOrderedArray"
-import { TrackEvent, TrackEventOf } from "../../event/TrackEvent"
+import { NoteEvent, TrackEvent, TrackEventOf } from "../../event/TrackEvent"
 import { addEvent } from "../mutations"
 import { getTempoItemById } from "./tempo"
 
