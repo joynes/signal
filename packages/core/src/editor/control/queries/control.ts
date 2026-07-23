@@ -3,7 +3,11 @@ import { ControlEventsClipboardData } from "../../../entities/clipboard/clipboar
 import { ControlItem } from "../../../entities/control/ControlItem"
 import { Range } from "../../../entities/geometry/Range"
 import { isEventInRange, isNotUndefined } from "../../../helpers"
-import { getControlItemById, getControlItems } from "./primitives"
+import {
+  getControlItemById,
+  getControlItems,
+  getValueEventType,
+} from "./primitives"
 import { ControlEditorQuery } from "./type"
 
 export const listControlItems: ControlEditorQuery<readonly ControlItem[]> =
@@ -28,6 +32,7 @@ export const getControlItemsClipboardData =
 
     return {
       type: "control_events",
+      valueEventType: getValueEventType(context),
       events: items.map((item) => ({ ...item, tick: item.tick - minTick })),
     }
   }

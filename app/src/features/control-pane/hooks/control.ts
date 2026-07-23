@@ -4,9 +4,11 @@ import {
   createOrUpdateControlItemValue,
   duplicateControlItems,
   getControlItemsClipboardData,
+  getValueEventType,
   pasteControlItemsAtPosition,
   removeControlItems,
   TrackControlEditor,
+  ValueEventType,
 } from "@signal-app/core"
 import { useCallback, useMemo } from "react"
 import { useHistory } from "../../../hooks/useHistory"
@@ -110,7 +112,13 @@ export const usePasteControlSelection = () => {
       const obj = e ? readJSONFromClipboard(e) : await readClipboardData()
       const { data } = ControlEventsClipboardDataSchema.safeParse(obj)
 
-      if (!data) {
+      if (
+        !data ||
+        !ValueEventType.equals(
+          data.valueEventType,
+          controlEditor.query(getValueEventType),
+        )
+      ) {
         return
       }
 

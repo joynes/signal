@@ -12,7 +12,9 @@ const asMutableControlEditor = (
 ): MutableControlEditor => context as unknown as MutableControlEditor
 
 export const addControlItem =
-  (item: Omit<ControlItem, "id">): ControlEditorMutator<ControlItem | undefined> =>
+  (
+    item: Omit<ControlItem, "id">,
+  ): ControlEditorMutator<ControlItem | undefined> =>
   (context) =>
     asMutableControlEditor(context).addItems([item])[0]
 

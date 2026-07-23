@@ -1,14 +1,12 @@
 import { max, min } from "lodash"
 import { ControlEventsClipboardData } from "../../../entities/clipboard/clipboardTypes"
 import { ControlItem } from "../../../entities/control/ControlItem"
-import {
-  controlEventToItem,
-  moveControlItem,
-} from "../../../entities/control/transform"
+import { moveControlItem } from "../../../entities/control/transform"
+import { ValueEventType } from "../../../entities/control/ValueEventType"
 import { Range } from "../../../entities/geometry/Range"
-import { ControlEvent } from "../../../entities/track/queries/controller"
 import { closedRange, interpolate } from "../../../helpers"
 import { getControlItemsByIds, listControlItems } from "../queries/control"
+import { getValueEventType } from "../queries/primitives"
 import {
   addControlItem,
   removeControlItem,
@@ -146,8 +144,16 @@ export const pasteControlItemsAtPosition =
     position: number,
   ): ControlEditorMutator<void> =>
   (context) => {
-    const items = (data.events as ControlEvent[]).map(controlEventToItem)
-    items.forEach((item) => {
+    // pitchBend and controller values live in different ranges (and
+    // different controllers mean different things), so refuse to paste
+    // data copied from a different ValueEventType.
+    if (
+      !ValueEventType.equals(data.valueEventType, getValueEventType(context))
+    ) {
+      return
+    }
+
+    data.events.forEach((item) => {
       addControlItem({
         tick: Math.max(0, item.tick + position),
         value: item.value,

@@ -1,5 +1,5 @@
 import { clamp } from "lodash"
-import { ControlEvent } from "../track/queries/controller"
+import { ControlEvent } from "./ControlEvent"
 import { ControlItem } from "./ControlItem"
 
 export const controlEventToItem = (event: ControlEvent): ControlItem => ({
