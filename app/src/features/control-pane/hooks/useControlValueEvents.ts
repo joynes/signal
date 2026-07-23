@@ -9,10 +9,7 @@ export function useControlValueEvents() {
   const controlEditor = useControlEditor()
 
   return useDerivedValue(
-    useCallback(
-      (listener: () => void) => controlEditor.observeItems(listener),
-      [controlEditor],
-    ),
+    controlEditor.observeItems,
     useCallback(
       () => controlEditor.query(getItemsInRangeWithPrevious(tickRange)),
       [controlEditor, tickRange],
