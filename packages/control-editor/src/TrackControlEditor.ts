@@ -1,15 +1,16 @@
-import { Unsubscribe } from "@signal-app/observable"
-import { ControlEvent } from "../../entities/control/ControlEvent"
-import { ControlItem } from "../../entities/control/ControlItem"
-import { controlEventToItem } from "../../entities/control/transform"
-import { ValueEventType } from "../../entities/control/ValueEventType"
-import { TrackEvent } from "../../entities/event/TrackEvent"
 import {
   createOrUpdate as createOrUpdateTrackEvent,
+  getAll,
+  getEventById,
+  Track,
+  TrackEvent,
   updateEvents as updateTrackEvents,
-} from "../../entities/track/mutations/composed"
-import { getAll, getEventById } from "../../entities/track/queries/primitives"
-import { Track } from "../../entities/track/Track"
+} from "@signal-app/core"
+import { Unsubscribe } from "@signal-app/observable"
+import { ControlEvent } from "./entities/ControlEvent"
+import { ControlItem } from "./entities/ControlItem"
+import { controlEventToItem } from "./entities/transform"
+import { ValueEventType } from "./entities/ValueEventType"
 import { ControlEditorMutator } from "./mutations/type"
 import { ControlEditorQuery } from "./queries/type"
 import { ControlEditor } from "./type"

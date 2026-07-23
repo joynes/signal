@@ -1,26 +1,21 @@
+import { closedRange, interpolate, Range } from "@signal-app/core"
 import { max, min } from "lodash"
-import { ControlEventsClipboardData } from "../../../entities/clipboard/clipboardTypes"
-import { ControlItem } from "../../../entities/control/ControlItem"
-import { moveControlItem } from "../../../entities/control/transform"
-import { ValueEventType } from "../../../entities/control/ValueEventType"
-import { Range } from "../../../entities/geometry/Range"
-import { closedRange, interpolate } from "../../../helpers"
-import { getControlItemsByIds, listControlItems } from "../queries/control"
+import { ControlItem } from "../entities/ControlItem"
+import { ClipboardData } from "../entities/clipboardTypes"
+import { moveControlItem } from "../entities/transform"
+import { ValueEventType } from "../entities/ValueEventType"
+import { getItemsByIds, listItems } from "../queries/items"
 import { getValueEventType } from "../queries/primitives"
-import {
-  addControlItem,
-  removeControlItem,
-  updateControlItem,
-} from "./primitives"
+import { addItem, removeItem, updateItem } from "./primitives"
 import { ControlEditorMutator } from "./type"
 
-export const removeControlItems =
+export const removeItems =
   (ids: readonly number[]): ControlEditorMutator<void> =>
   (context) => {
-    ids.forEach((id) => removeControlItem(id)(context))
+    ids.forEach((id) => removeItem(id)(context))
   }
 
-export const moveControlItems =
+export const moveItems =
   (
     ids: readonly number[],
     deltaTick: number,
@@ -28,33 +23,33 @@ export const moveControlItems =
     maxValue: number,
   ): ControlEditorMutator<void> =>
   (context) => {
-    const items = getControlItemsByIds(ids)(context)
+    const items = getItemsByIds(ids)(context)
     items
       .map(moveControlItem(deltaTick, deltaValue, maxValue))
-      .forEach((item) => updateControlItem(item)(context))
+      .forEach((item) => updateItem(item)(context))
   }
 
-export const removeRedundantControlItems =
+export const removeRedundantItems =
   (ids: readonly number[]): ControlEditorMutator<void> =>
   (context) => {
     const sourceIdByTick = new Map<number, number>()
-    getControlItemsByIds(ids)(context).forEach((item) => {
+    getItemsByIds(ids)(context).forEach((item) => {
       if (!sourceIdByTick.has(item.tick)) {
         sourceIdByTick.set(item.tick, item.id)
       }
     })
 
-    const idsToRemove = listControlItems(context).flatMap((item) => {
+    const idsToRemove = listItems(context).flatMap((item) => {
       const sourceId = sourceIdByTick.get(item.tick)
       return sourceId === undefined || sourceId === item.id ? [] : [item.id]
     })
-    idsToRemove.forEach((id) => removeControlItem(id)(context))
+    idsToRemove.forEach((id) => removeItem(id)(context))
   }
 
-export const duplicateControlItems =
+export const duplicateItems =
   (ids: readonly number[]): ControlEditorMutator<readonly number[]> =>
   (context) => {
-    const selected = getControlItemsByIds(ids)(context)
+    const selected = getItemsByIds(ids)(context)
 
     const deltaTick =
       selected.length === 0
@@ -64,7 +59,7 @@ export const duplicateControlItems =
 
     return selected
       .map((item) =>
-        addControlItem({
+        addItem({
           tick: Math.max(0, Math.floor(item.tick + deltaTick)),
           value: item.value,
         })(context),
@@ -73,23 +68,23 @@ export const duplicateControlItems =
       .map((item) => item.id)
   }
 
-export const createOrUpdateControlItemValue =
+export const createOrUpdateItemValue =
   (
     selectedItemIds: readonly number[],
     value: number,
     tick: number,
   ): ControlEditorMutator<void> =>
   (context) => {
-    const items = getControlItemsByIds(selectedItemIds)(context)
+    const items = getItemsByIds(selectedItemIds)(context)
 
     if (items.length > 0) {
-      items.forEach((item) => updateControlItem({ ...item, value })(context))
+      items.forEach((item) => updateItem({ ...item, value })(context))
     } else {
-      addControlItem({ tick: Math.max(0, Math.floor(tick)), value })(context)
+      addItem({ tick: Math.max(0, Math.floor(tick)), value })(context)
     }
   }
 
-export const updateControlItemsInRangeWithEasing =
+export const updateItemsInRangeWithEasing =
   (
     valueRange: Range,
     tickRange: Range,
@@ -107,7 +102,7 @@ export const updateControlItemsInRangeWithEasing =
     const updateStartTick = Math.min(startTick, quantizedStartTick)
     const updateEndTick = Math.max(endTick, quantizedEndTick)
 
-    const idsToRemove = listControlItems(context)
+    const idsToRemove = listItems(context)
       .filter(
         (item) =>
           item.tick !== startTick &&
@@ -115,22 +110,22 @@ export const updateControlItemsInRangeWithEasing =
           item.tick <= updateEndTick,
       )
       .map((item) => item.id)
-    idsToRemove.forEach((id) => removeControlItem(id)(context))
+    idsToRemove.forEach((id) => removeItem(id)(context))
 
     closedRange(quantizedStartTick, quantizedEndTick, quantizeUnit).forEach(
       (tick) => {
-        addControlItem({ tick, value: getValue(tick) })(context)
+        addItem({ tick, value: getValue(tick) })(context)
       },
     )
   }
 
-export const updateControlItemsInRange = (
+export const updateItemsInRange = (
   valueRange: Range,
   tickRange: Range,
   quantizeFloor: (tick: number) => number,
   quantizeUnit: number,
 ): ControlEditorMutator<void> =>
-  updateControlItemsInRangeWithEasing(
+  updateItemsInRangeWithEasing(
     valueRange,
     tickRange,
     quantizeFloor,
@@ -138,11 +133,8 @@ export const updateControlItemsInRange = (
     (t) => t,
   )
 
-export const pasteControlItemsAtPosition =
-  (
-    data: ControlEventsClipboardData,
-    position: number,
-  ): ControlEditorMutator<void> =>
+export const pasteItemsAtPosition =
+  (data: ClipboardData, position: number): ControlEditorMutator<void> =>
   (context) => {
     // pitchBend and controller values live in different ranges (and
     // different controllers mean different things), so refuse to paste
@@ -154,7 +146,7 @@ export const pasteControlItemsAtPosition =
     }
 
     data.events.forEach((item) => {
-      addControlItem({
+      addItem({
         tick: Math.max(0, item.tick + position),
         value: item.value,
       })(context)

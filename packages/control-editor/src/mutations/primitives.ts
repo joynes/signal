@@ -1,4 +1,4 @@
-import { ControlItem } from "../../../entities/control/ControlItem"
+import { ControlItem } from "../entities/ControlItem"
 import { ControlEditorMutator, ControlEditorMutatorContext } from "./type"
 
 type MutableControlEditor = {
@@ -11,20 +11,20 @@ const asMutableControlEditor = (
   context: ControlEditorMutatorContext,
 ): MutableControlEditor => context as unknown as MutableControlEditor
 
-export const addControlItem =
+export const addItem =
   (
     item: Omit<ControlItem, "id">,
   ): ControlEditorMutator<ControlItem | undefined> =>
   (context) =>
     asMutableControlEditor(context).addItems([item])[0]
 
-export const removeControlItem =
+export const removeItem =
   (id: number): ControlEditorMutator<void> =>
   (context) => {
     asMutableControlEditor(context).removeItems([id])
   }
 
-export const updateControlItem =
+export const updateItem =
   (item: ControlItem): ControlEditorMutator<void> =>
   (context) => {
     asMutableControlEditor(context).updateItems([item])

@@ -1,5 +1,9 @@
-import { controllerMidiEvent, pitchBendMidiEvent } from "../../midi"
-import { isControllerEventWithType, isPitchBendEvent } from "../event"
+import {
+  controllerMidiEvent,
+  isControllerEventWithType,
+  isPitchBendEvent,
+  pitchBendMidiEvent,
+} from "@signal-app/core"
 
 export type ValueEventType =
   | { type: "pitchBend" }

@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { createTrackControlEditor } from "../testUtils"
-import {
-  addControlItem,
-  removeControlItem,
-  updateControlItem,
-} from "./primitives"
+import { addItem, removeItem, updateItem } from "./primitives"
 
 describe("control editor primitive mutations", () => {
   it("adds an item", () => {
     const editor = createTrackControlEditor()
 
-    const added = editor.mutate(addControlItem({ tick: 10, value: 64 }))
+    const added = editor.mutate(addItem({ tick: 10, value: 64 }))
 
     expect(added).toMatchObject({ tick: 10, value: 64 })
     expect(editor.getItems()).toMatchObject([{ tick: 10, value: 64 }])
@@ -20,7 +16,7 @@ describe("control editor primitive mutations", () => {
     const editor = createTrackControlEditor()
     const [item] = editor.addItems([{ tick: 10, value: 64 }])
 
-    editor.mutate(removeControlItem(item.id))
+    editor.mutate(removeItem(item.id))
 
     expect(editor.getItems()).toStrictEqual([])
   })
@@ -29,7 +25,7 @@ describe("control editor primitive mutations", () => {
     const editor = createTrackControlEditor()
     const [item] = editor.addItems([{ tick: 10, value: 64 }])
 
-    editor.mutate(updateControlItem({ ...item, tick: 20, value: 100 }))
+    editor.mutate(updateItem({ ...item, tick: 20, value: 100 }))
 
     expect(editor.getItems()).toMatchObject([
       { id: item.id, tick: 20, value: 100 },

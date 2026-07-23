@@ -1,8 +1,5 @@
-import {
-  addControlItem,
-  Range,
-  updateControlItemsInRange,
-} from "@signal-app/core"
+import { Range } from "@signal-app/core"
+import { addItem, updateItemsInRange } from "@signal-app/control-editor"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
@@ -21,12 +18,7 @@ const useUpdateValueEvents = () => {
 
   return useCallback(
     (valueRange: Range, tickRange: Range) =>
-      updateControlItemsInRange(
-        valueRange,
-        tickRange,
-        quantizeFloor,
-        quantizeUnit,
-      ),
+      updateItemsInRange(valueRange, tickRange, quantizeFloor, quantizeUnit),
     [quantizeFloor, quantizeUnit],
   )
 }
@@ -54,7 +46,7 @@ export const usePencilGesture = (): MouseDownHandler<
       const startClientPos = getClientPos(e)
       const pos = transform.fromPosition(startPoint)
 
-      controlEditor.mutate(addControlItem({ tick: pos.tick, value: pos.value }))
+      controlEditor.mutate(addItem({ tick: pos.tick, value: pos.value }))
       sendEvent(controlEditor.createPreviewEvent(pos.value))
 
       let lastTick = pos.tick

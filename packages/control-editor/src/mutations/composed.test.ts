@@ -1,58 +1,58 @@
 import { describe, expect, it } from "vitest"
-import { ControlEventsClipboardData } from "../../../entities/clipboard/clipboardTypes"
+import { ClipboardData } from "../entities/clipboardTypes"
 import { createTrackControlEditor } from "../testUtils"
 import {
-  createOrUpdateControlItemValue,
-  duplicateControlItems,
-  moveControlItems,
-  pasteControlItemsAtPosition,
-  removeControlItems,
-  removeRedundantControlItems,
-  updateControlItemsInRange,
-  updateControlItemsInRangeWithEasing,
+  createOrUpdateItemValue,
+  duplicateItems,
+  moveItems,
+  pasteItemsAtPosition,
+  removeItems,
+  removeRedundantItems,
+  updateItemsInRange,
+  updateItemsInRangeWithEasing,
 } from "./composed"
 
 describe("control editor composed mutations", () => {
-  it("removeControlItems removes selected items", () => {
+  it("removeItems removes selected items", () => {
     const editor = createTrackControlEditor()
     const [first, second] = editor.addItems([
       { tick: 10, value: 1 },
       { tick: 20, value: 2 },
     ])
 
-    editor.mutate(removeControlItems([first.id]))
+    editor.mutate(removeItems([first.id]))
 
     expect(editor.getItems()).toMatchObject([{ id: second.id }])
   })
 
-  it("moveControlItems shifts tick and value, clamping the value", () => {
+  it("moveItems shifts tick and value, clamping the value", () => {
     const editor = createTrackControlEditor()
     const [added] = editor.addItems([{ tick: 10, value: 64 }])
 
-    editor.mutate(moveControlItems([added.id], 5, 100, 127))
+    editor.mutate(moveItems([added.id], 5, 100, 127))
 
     expect(editor.getById(added.id)).toMatchObject({ tick: 15, value: 127 })
   })
 
-  it("removeRedundantControlItems keeps the source item and removes others at the same tick", () => {
+  it("removeRedundantItems keeps the source item and removes others at the same tick", () => {
     const editor = createTrackControlEditor()
     const [source] = editor.addItems([{ tick: 10, value: 64 }])
     const [other] = editor.addItems([{ tick: 30, value: 100 }])
     editor.updateItems([{ ...other, tick: 10 }])
 
-    editor.mutate(removeRedundantControlItems([source.id]))
+    editor.mutate(removeRedundantItems([source.id]))
 
     expect(editor.getItems()).toStrictEqual([source])
   })
 
-  it("duplicateControlItems shifts a copy by the selection's tick span", () => {
+  it("duplicateItems shifts a copy by the selection's tick span", () => {
     const editor = createTrackControlEditor()
     const [first, second] = editor.addItems([
       { tick: 10, value: 1 },
       { tick: 30, value: 2 },
     ])
 
-    const newIds = editor.mutate(duplicateControlItems([first.id, second.id]))
+    const newIds = editor.mutate(duplicateItems([first.id, second.id]))
 
     const duplicatedTicks = newIds
       .map((id) => editor.getById(id)?.tick)
@@ -60,24 +60,22 @@ describe("control editor composed mutations", () => {
     expect(duplicatedTicks).toStrictEqual([30, 50])
   })
 
-  it("createOrUpdateControlItemValue creates a new item when nothing is selected", () => {
+  it("createOrUpdateItemValue creates a new item when nothing is selected", () => {
     const editor = createTrackControlEditor()
 
-    editor.mutate(createOrUpdateControlItemValue([], 64, 10))
+    editor.mutate(createOrUpdateItemValue([], 64, 10))
 
     expect(editor.getItems()).toMatchObject([{ tick: 10, value: 64 }])
   })
 
-  it("createOrUpdateControlItemValue updates every selected item's value", () => {
+  it("createOrUpdateItemValue updates every selected item's value", () => {
     const editor = createTrackControlEditor()
     const [first, second] = editor.addItems([
       { tick: 10, value: 1 },
       { tick: 20, value: 2 },
     ])
 
-    editor.mutate(
-      createOrUpdateControlItemValue([first.id, second.id], 100, 999),
-    )
+    editor.mutate(createOrUpdateItemValue([first.id, second.id], 100, 999))
 
     expect(editor.getItems()).toMatchObject([
       { tick: 10, value: 100 },
@@ -85,14 +83,14 @@ describe("control editor composed mutations", () => {
     ])
   })
 
-  it("updateControlItemsInRangeWithEasing replaces the range with an eased curve", () => {
+  it("updateItemsInRangeWithEasing replaces the range with an eased curve", () => {
     const editor = createTrackControlEditor()
     const quantizeUnit = 10
     const quantizeFloor = (tick: number) =>
       Math.floor(tick / quantizeUnit) * quantizeUnit
 
     editor.mutate(
-      updateControlItemsInRangeWithEasing(
+      updateItemsInRangeWithEasing(
         [0, 100],
         [0, 20],
         quantizeFloor,
@@ -113,14 +111,14 @@ describe("control editor composed mutations", () => {
     ])
   })
 
-  it("updateControlItemsInRange replaces the range with a linear ramp", () => {
+  it("updateItemsInRange replaces the range with a linear ramp", () => {
     const editor = createTrackControlEditor()
     const quantizeUnit = 10
     const quantizeFloor = (tick: number) =>
       Math.floor(tick / quantizeUnit) * quantizeUnit
 
     editor.mutate(
-      updateControlItemsInRange([0, 100], [0, 20], quantizeFloor, quantizeUnit),
+      updateItemsInRange([0, 100], [0, 20], quantizeFloor, quantizeUnit),
     )
 
     const items = editor
@@ -135,12 +133,12 @@ describe("control editor composed mutations", () => {
     ])
   })
 
-  it("pasteControlItemsAtPosition pastes matching-type clipboard items shifted by position", () => {
+  it("pasteItemsAtPosition pastes matching-type clipboard items shifted by position", () => {
     const editor = createTrackControlEditor({
       type: "controller",
       controllerType: 11,
     })
-    const data: ControlEventsClipboardData = {
+    const data: ClipboardData = {
       type: "control_events",
       valueEventType: { type: "controller", controllerType: 11 },
       events: [
@@ -149,7 +147,7 @@ describe("control editor composed mutations", () => {
       ],
     }
 
-    editor.mutate(pasteControlItemsAtPosition(data, 100))
+    editor.mutate(pasteItemsAtPosition(data, 100))
 
     const items = editor
       .getItems()
@@ -162,15 +160,15 @@ describe("control editor composed mutations", () => {
     ])
   })
 
-  it("pasteControlItemsAtPosition refuses clipboard data from a different ValueEventType", () => {
+  it("pasteItemsAtPosition refuses clipboard data from a different ValueEventType", () => {
     const editor = createTrackControlEditor({ type: "pitchBend" })
-    const data: ControlEventsClipboardData = {
+    const data: ClipboardData = {
       type: "control_events",
       valueEventType: { type: "controller", controllerType: 11 },
       events: [{ id: 1, tick: 0, value: 10 }],
     }
 
-    editor.mutate(pasteControlItemsAtPosition(data, 100))
+    editor.mutate(pasteItemsAtPosition(data, 100))
 
     expect(editor.getItems()).toStrictEqual([])
   })

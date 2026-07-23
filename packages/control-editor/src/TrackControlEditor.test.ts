@@ -1,10 +1,7 @@
+import { Track } from "@signal-app/core"
 import { describe, expect, it, vi } from "vitest"
-import { Track } from "../../entities/track/Track"
-import { pasteControlItemsAtPosition } from "./mutations/composed"
-import {
-  getControlItemsClipboardData,
-  listControlItems,
-} from "./queries/control"
+import { pasteItemsAtPosition } from "./mutations/composed"
+import { getItemsClipboardData, listItems } from "./queries/items"
 import { TrackControlEditor } from "./TrackControlEditor"
 import { createTrackControlEditor } from "./testUtils"
 
@@ -49,7 +46,7 @@ describe("TrackControlEditor", () => {
 
     expect(editor.query(() => "query result")).toBe("query result")
     expect(editor.mutate(() => "mutation result")).toBe("mutation result")
-    expect(editor.query(listControlItems)).toEqual(editor.getItems())
+    expect(editor.query(listItems)).toEqual(editor.getItems())
   })
 
   it("observes item changes", () => {
@@ -85,15 +82,13 @@ describe("TrackControlEditor", () => {
     const [first] = editor.addItems([{ tick: 10, value: 1 }])
     const [second] = editor.addItems([{ tick: 20, value: 2 }])
 
-    const data = editor.query(
-      getControlItemsClipboardData([first.id, second.id]),
-    )
+    const data = editor.query(getItemsClipboardData([first.id, second.id]))
     if (data === null) {
       throw new Error("expected clipboard data")
     }
     expect(data.events.map((e) => e.tick)).toStrictEqual([0, 10])
 
-    editor.mutate(pasteControlItemsAtPosition(data, 50))
+    editor.mutate(pasteItemsAtPosition(data, 50))
 
     const items = editor
       .getItems()

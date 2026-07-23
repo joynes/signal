@@ -1,4 +1,4 @@
-import { ValueEventType } from "@signal-app/core"
+import { ValueEventType } from "@signal-app/control-editor"
 import { MIDIControlEvents } from "midifile-ts"
 import React, { FC, useMemo } from "react"
 import { Size } from "../../../../entities/geometry/Size"

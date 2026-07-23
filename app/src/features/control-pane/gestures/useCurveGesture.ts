@@ -1,4 +1,5 @@
-import { Range, updateControlItemsInRangeWithEasing } from "@signal-app/core"
+import { Range } from "@signal-app/core"
+import { updateItemsInRangeWithEasing } from "@signal-app/control-editor"
 import { useCallback, useState } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
@@ -30,7 +31,7 @@ const useUpdateValueEventsWithCurve = (curveType: CurveType) => {
   return useCallback(
     (valueRange: Range, tickRange: Range) => {
       controlEditor.mutate(
-        updateControlItemsInRangeWithEasing(
+        updateItemsInRangeWithEasing(
           valueRange,
           tickRange,
           quantizeFloor,

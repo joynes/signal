@@ -71,6 +71,7 @@ Representative core modules:
 - `@signal-app/player` - Audio playback engine with SoundFont synthesis
 - `@signal-app/api` - Firebase/Cloud integration for song storage
 - `@signal-app/community` - Community features and song sharing
+- `@signal-app/control-editor` - Editor facade for pitchBend/controller automation lanes
 - `dialog-hooks` - React hooks for modal dialogs
 - `@signal-app/firebaseui-web-react` - Firebase authentication UI wrapper
 - `@signal-app/ui` - Shared design-system-like UI components

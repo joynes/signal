@@ -1,4 +1,4 @@
-import { ControlItem } from "@signal-app/core"
+import { ControlItem } from "@signal-app/control-editor"
 import React from "react"
 import { useCreateOrUpdateControlEventsValue } from "../../hooks/control"
 import { GraphAxis } from "./GraphAxis"

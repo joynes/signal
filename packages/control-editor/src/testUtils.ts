@@ -1,5 +1,5 @@
-import { ValueEventType } from "../../entities/control/ValueEventType"
-import { Track } from "../../entities/track/Track"
+import { Track } from "@signal-app/core"
+import { ValueEventType } from "./entities/ValueEventType"
 import { TrackControlEditor } from "./TrackControlEditor"
 
 export const createTrackControlEditor = (

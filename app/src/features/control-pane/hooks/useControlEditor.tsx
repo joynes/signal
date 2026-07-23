@@ -2,7 +2,7 @@ import {
   ControlEditor,
   TrackControlEditor,
   ValueEventType,
-} from "@signal-app/core"
+} from "@signal-app/control-editor"
 import { createContext, FC, ReactNode, useContext, useMemo } from "react"
 import { useSong } from "../../../hooks/useSong"
 import { usePianoRoll } from "../../piano-roll/hooks/usePianoRoll"

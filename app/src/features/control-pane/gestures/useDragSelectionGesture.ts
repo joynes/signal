@@ -1,8 +1,8 @@
 import {
-  getControlItemsByIds,
-  moveControlItems,
-  removeRedundantControlItems,
-} from "@signal-app/core"
+  getItemsByIds,
+  moveItems,
+  removeRedundantItems,
+} from "@signal-app/control-editor"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
@@ -39,7 +39,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
         selectedEventIds = [hitEventId]
       }
 
-      const items = controlEditor.query(getControlItemsByIds(selectedEventIds))
+      const items = controlEditor.query(getItemsByIds(selectedEventIds))
 
       const draggedItem = items.find((item) => item.id === hitEventId)
       if (draggedItem === undefined) {
@@ -62,7 +62,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
           const deltaValue = currentValue - startValue
 
           controlEditor.mutate(
-            moveControlItems(
+            moveItems(
               selectedEventIds,
               quantizedDeltaTick - lastDeltaTick,
               deltaValue - lastDeltaValue,
@@ -76,7 +76,7 @@ export const useDragSelectionGesture = (): MouseDownHandler<
 
         onMouseUp: () => {
           // Find events with the same tick and remove it
-          controlEditor.mutate(removeRedundantControlItems(selectedEventIds))
+          controlEditor.mutate(removeRedundantItems(selectedEventIds))
         },
       })
     },

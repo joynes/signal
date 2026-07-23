@@ -1,6 +1,7 @@
 import { useTheme } from "@emotion/react"
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
-import { ControlItem, isEventInRange, Range } from "@signal-app/core"
+import { isEventInRange, Range } from "@signal-app/core"
+import { ControlItem } from "@signal-app/control-editor"
 import { MouseEventHandler, useCallback, useMemo } from "react"
 import { Beats } from "../../../../components/GLNodes/Beats"
 import { Cursor } from "../../../../components/GLNodes/Cursor"

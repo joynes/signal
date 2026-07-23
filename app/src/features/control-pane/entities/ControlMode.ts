@@ -1,4 +1,4 @@
-import { ValueEventType } from "@signal-app/core"
+import { ValueEventType } from "@signal-app/control-editor"
 import { MIDIControlEvents } from "midifile-ts"
 
 export type ControlMode = { type: "velocity" } | ValueEventType

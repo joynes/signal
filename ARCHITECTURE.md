@@ -17,9 +17,11 @@ Active package modules in `packages` are:
 
 - `@signal-app/api`
 - `@signal-app/community`
+- `@signal-app/control-editor`
 - `@signal-app/core`
 - `dialog-hooks`
 - `@signal-app/firebaseui-web-react`
+- `@signal-app/observable`
 - `@signal-app/player`
 - `@signal-app/ui`
 
@@ -57,9 +59,11 @@ This section intentionally stays lightweight. See each package README for detail
 
 - [packages/api/README.md](packages/api/README.md)
 - [packages/community/README.md](packages/community/README.md)
+- [packages/control-editor/README.md](packages/control-editor/README.md)
 - [packages/core/README.md](packages/core/README.md)
 - [packages/dialog-hooks/README.md](packages/dialog-hooks/README.md)
 - [packages/firebaseui-web-react/README.md](packages/firebaseui-web-react/README.md)
+- [packages/observable/README.md](packages/observable/README.md)
 - [packages/player/README.md](packages/player/README.md)
 - [packages/ui/README.md](packages/ui/README.md)
 

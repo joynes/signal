@@ -1,15 +1,15 @@
 import {
+  ClipboardDataSchema,
   ControlEditor,
-  ControlEventsClipboardDataSchema,
-  createOrUpdateControlItemValue,
-  duplicateControlItems,
-  getControlItemsClipboardData,
+  createOrUpdateItemValue,
+  duplicateItems,
+  getItemsClipboardData,
   getValueEventType,
-  pasteControlItemsAtPosition,
-  removeControlItems,
+  pasteItemsAtPosition,
+  removeItems,
   TrackControlEditor,
   ValueEventType,
-} from "@signal-app/core"
+} from "@signal-app/control-editor"
 import { useCallback, useMemo } from "react"
 import { useHistory } from "../../../hooks/useHistory"
 import { usePlayer } from "../../../hooks/usePlayer"
@@ -34,7 +34,7 @@ export const useCreateOrUpdateControlEventsValue = () => {
       pushHistory()
 
       controlEditor.mutate(
-        createOrUpdateControlItemValue(selectedEventIds, value, position),
+        createOrUpdateItemValue(selectedEventIds, value, position),
       )
     },
     [selectedEventIds, controlEditor, position, pushHistory],
@@ -74,7 +74,7 @@ export const useDeleteControlSelection = () => {
 
     pushHistory()
 
-    controlEditor.mutate(removeControlItems(selectedEventIds))
+    controlEditor.mutate(removeItems(selectedEventIds))
     setSelection(null)
   }, [selectedEventIds, controlEditor, pushHistory, setSelection])
 }
@@ -87,9 +87,7 @@ export const useCopyControlSelection = () => {
     if (selectedEventIds.length === 0 || controlEditor === undefined) {
       return
     }
-    const data = controlEditor.query(
-      getControlItemsClipboardData(selectedEventIds),
-    )
+    const data = controlEditor.query(getItemsClipboardData(selectedEventIds))
     if (!data) {
       return
     }
@@ -110,7 +108,7 @@ export const usePasteControlSelection = () => {
       }
 
       const obj = e ? readJSONFromClipboard(e) : await readClipboardData()
-      const { data } = ControlEventsClipboardDataSchema.safeParse(obj)
+      const { data } = ClipboardDataSchema.safeParse(obj)
 
       if (
         !data ||
@@ -123,7 +121,7 @@ export const usePasteControlSelection = () => {
       }
 
       pushHistory()
-      controlEditor.mutate(pasteControlItemsAtPosition(data, position))
+      controlEditor.mutate(pasteItemsAtPosition(data, position))
     },
     [controlEditor, position, pushHistory],
   )
@@ -152,9 +150,7 @@ export const useDuplicateControlSelection = () => {
     pushHistory()
 
     // select the created events
-    const addedEventIds = controlEditor.mutate(
-      duplicateControlItems(selectedEventIds),
-    )
+    const addedEventIds = controlEditor.mutate(duplicateItems(selectedEventIds))
     setSelectedEventIds([...addedEventIds])
   }, [selectedEventIds, controlEditor, pushHistory, setSelectedEventIds])
 }
