@@ -88,7 +88,7 @@ This section intentionally stays lightweight. See each feature README for detail
 
 ## 6. Cross-Cutting Architectural Patterns
 
-- Mutation/query based domain commands (core), with per-domain Editor facade packages (`@signal-app/tempo-editor`, `@signal-app/control-editor`, e.g. `SongTempoEditor`) providing query/mutate/observe access without exposing Song internals.
+- Mutation/query based domain commands (core), with per-domain Editor facade packages (`@signal-app/tempo-editor`'s `createTempoEditor`, `@signal-app/control-editor`'s `createControlEditor`) providing query/mutate/observe access without exposing Song internals or the concrete editor class.
 - Feature-scoped state providers for timeline/editor concerns (app).
 - Promise-based interaction UX via `dialog-hooks`.
 - Repository abstraction for cloud/data boundaries.

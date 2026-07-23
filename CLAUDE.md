@@ -56,7 +56,7 @@ Signal is a web-based music sequencer built with React and TypeScript, with cros
 Representative core modules:
 
 - `SongStore` - Current song lifecycle and change notifications
-- Mutation/query modules - Song/track mutation orchestration (`SongCommand`/`SongTracksCommand`, `TrackEventsMutator`/`TrackEventsQuery`), built on by per-domain Editor facade packages (e.g. `@signal-app/tempo-editor`'s `SongTempoEditor`) exposing query/mutate/observe for app-side use
+- Mutation/query modules - Song/track mutation orchestration (`SongCommand`/`SongTracksCommand`, `TrackEventsMutator`/`TrackEventsQuery`), built on by per-domain Editor facade packages (e.g. `@signal-app/tempo-editor`'s `createTempoEditor`) exposing query/mutate/observe for app-side use
 - MIDI/device services and repositories
 
 **Key Views:**
