@@ -1,6 +1,6 @@
 import { Range } from "@signal-app/core"
 import { describe, expect, it } from "vitest"
-import { createSongTempoEditor } from "../testUtils"
+import { createTrackTempoEditor } from "../testUtils"
 import {
   getEventIdsInRange,
   getItemsByIds,
@@ -10,7 +10,7 @@ import {
 
 describe("tempo editor queries", () => {
   it("lists selected items and event IDs in a range", () => {
-    const editor = createSongTempoEditor([
+    const editor = createTrackTempoEditor([
       { tick: 10, bpm: 120 },
       { tick: 20, bpm: 150 },
     ])
@@ -28,7 +28,7 @@ describe("tempo editor queries", () => {
   })
 
   it("copies normalized TempoItems", () => {
-    const editor = createSongTempoEditor([
+    const editor = createTrackTempoEditor([
       { tick: 20, bpm: 120 },
       { tick: 40, bpm: 150 },
     ])

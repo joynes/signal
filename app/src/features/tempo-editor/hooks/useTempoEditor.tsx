@@ -1,4 +1,4 @@
-import { SongTempoEditor, TempoEditor } from "@signal-app/tempo-editor"
+import { createTempoEditor, TempoEditor } from "@signal-app/tempo-editor"
 import { atom, useAtomValue, useSetAtom, useStore } from "jotai"
 import { Store } from "jotai/vanilla/store"
 import {
@@ -56,7 +56,18 @@ export function TempoEditorProvider({
     }
   }, [store])
 
-  const tempoEditor = useMemo(() => new SongTempoEditor(song), [song])
+  const conductorTrack = song.conductorTrack
+  const tempoEditor = useMemo(
+    () =>
+      conductorTrack !== undefined
+        ? createTempoEditor(conductorTrack)
+        : undefined,
+    [conductorTrack],
+  )
+
+  if (tempoEditor === undefined) {
+    return <div>No conductor track found</div>
+  }
 
   return (
     <TempoEditorContext.Provider value={tempoEditor}>

@@ -1,14 +1,14 @@
 import { TempoEditorQueryContext } from "../queries/type"
 
-export declare const songTempoEditorMutatorBrand: unique symbol
+export declare const tempoEditorMutatorBrand: unique symbol
 
 export interface TempoEditorMutatorContext extends TempoEditorQueryContext {
-  readonly [songTempoEditorMutatorBrand]: true
+  readonly [tempoEditorMutatorBrand]: true
 }
 
-declare module "../SongTempoEditor" {
-  interface SongTempoEditor {
-    readonly [songTempoEditorMutatorBrand]: true
+declare module "../TrackTempoEditor" {
+  interface TrackTempoEditor {
+    readonly [tempoEditorMutatorBrand]: true
   }
 }
 

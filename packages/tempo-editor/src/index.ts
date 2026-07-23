@@ -1,5 +1,5 @@
+export * from "./createTempoEditor"
 export * from "./entities/clipboardTypes"
 export * from "./mutations"
 export * from "./queries"
-export * from "./SongTempoEditor"
 export * from "./type"

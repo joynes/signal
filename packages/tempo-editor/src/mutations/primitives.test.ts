@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { createSongTempoEditor } from "../testUtils"
+import { createTrackTempoEditor } from "../testUtils"
 import { addItem, removeItem, updateItem } from "./primitives"
 
 describe("tempo editor primitive mutations", () => {
   it("adds an item", () => {
-    const editor = createSongTempoEditor()
+    const editor = createTrackTempoEditor()
 
     const added = editor.mutate(addItem({ tick: 10, bpm: 120 }))
 
@@ -13,7 +13,7 @@ describe("tempo editor primitive mutations", () => {
   })
 
   it("removes an item", () => {
-    const editor = createSongTempoEditor([{ tick: 10, bpm: 120 }])
+    const editor = createTrackTempoEditor([{ tick: 10, bpm: 120 }])
     const [item] = editor.getItems()
 
     editor.mutate(removeItem(item.id))
@@ -22,7 +22,7 @@ describe("tempo editor primitive mutations", () => {
   })
 
   it("updates an item", () => {
-    const editor = createSongTempoEditor([{ tick: 10, bpm: 120 }])
+    const editor = createTrackTempoEditor([{ tick: 10, bpm: 120 }])
     const [item] = editor.getItems()
 
     editor.mutate(updateItem({ ...item, tick: 20, bpm: 150 }))

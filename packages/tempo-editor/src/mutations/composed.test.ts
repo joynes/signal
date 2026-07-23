@@ -1,7 +1,7 @@
 import { Range } from "@signal-app/core"
 import { describe, expect, it } from "vitest"
 import { getItemsByIds } from "../queries/items"
-import { createSongTempoEditor } from "../testUtils"
+import { createTrackTempoEditor } from "../testUtils"
 import {
   createOrUpdateItem,
   duplicateItems,
@@ -15,7 +15,7 @@ import {
 
 describe("tempo editor composed mutations", () => {
   it("removes selected items", () => {
-    const editor = createSongTempoEditor([
+    const editor = createTrackTempoEditor([
       { tick: 10, bpm: 120 },
       { tick: 20, bpm: 150 },
     ])
@@ -27,7 +27,7 @@ describe("tempo editor composed mutations", () => {
   })
 
   it("duplicates items using their selection span", () => {
-    const editor = createSongTempoEditor([
+    const editor = createTrackTempoEditor([
       { tick: 10, bpm: 100 },
       { tick: 20, bpm: 200 },
     ])
@@ -44,7 +44,7 @@ describe("tempo editor composed mutations", () => {
   })
 
   it("pastes clipboard items at the target tick", () => {
-    const editor = createSongTempoEditor()
+    const editor = createTrackTempoEditor()
 
     editor.mutate(
       pasteItemsAtPosition(
@@ -66,7 +66,7 @@ describe("tempo editor composed mutations", () => {
   })
 
   it("moves selected items and clamps their values", () => {
-    const editor = createSongTempoEditor([
+    const editor = createTrackTempoEditor([
       { tick: 10, bpm: 120 },
       { tick: 20, bpm: 180 },
     ])
@@ -88,7 +88,7 @@ describe("tempo editor composed mutations", () => {
   })
 
   it("removes redundant items at selected ticks", () => {
-    const editor = createSongTempoEditor([
+    const editor = createTrackTempoEditor([
       { tick: 10, bpm: 120 },
       { tick: 20, bpm: 150 },
     ])
@@ -104,7 +104,7 @@ describe("tempo editor composed mutations", () => {
   })
 
   it("creates an item or updates all items at the same tick", () => {
-    const editor = createSongTempoEditor([{ tick: 10, bpm: 120 }])
+    const editor = createTrackTempoEditor([{ tick: 10, bpm: 120 }])
 
     editor.mutate(createOrUpdateItem(10, 150))
     editor.mutate(createOrUpdateItem(20, 200))
@@ -116,7 +116,7 @@ describe("tempo editor composed mutations", () => {
   })
 
   it("updates tempo items across a quantized range", () => {
-    const editor = createSongTempoEditor([
+    const editor = createTrackTempoEditor([
       { tick: 0, bpm: 50 },
       { tick: 10, bpm: 50 },
       { tick: 20, bpm: 50 },
@@ -139,7 +139,7 @@ describe("tempo editor composed mutations", () => {
   })
 
   it("sets BPM only when the item exists", () => {
-    const editor = createSongTempoEditor([{ tick: 10, bpm: 120 }])
+    const editor = createTrackTempoEditor([{ tick: 10, bpm: 120 }])
     const [item] = editor.getItems()
 
     editor.mutate(setBpm(item.id, 150))

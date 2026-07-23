@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest"
 import { listItems } from "./queries/items"
-import { createSongTempoEditor } from "./testUtils"
+import { createTrackTempoEditor } from "./testUtils"
 
-describe("SongTempoEditor", () => {
+describe("TrackTempoEditor", () => {
   it("gets all tempo items and an item by ID", () => {
-    const editor = createSongTempoEditor([{ tick: 10, bpm: 120 }])
+    const editor = createTrackTempoEditor([{ tick: 10, bpm: 120 }])
     const [item] = editor.getItems()
 
     expect(editor.getItems()).toContainEqual(item)
@@ -13,7 +13,7 @@ describe("SongTempoEditor", () => {
   })
 
   it("adds, updates, and removes items", () => {
-    const editor = createSongTempoEditor()
+    const editor = createTrackTempoEditor()
 
     const [added] = editor.addItems([{ tick: 10, bpm: 120 }])
     editor.updateItems([{ ...added, tick: 20, bpm: 150 }])
@@ -23,7 +23,7 @@ describe("SongTempoEditor", () => {
   })
 
   it("applies queries and mutators", () => {
-    const editor = createSongTempoEditor()
+    const editor = createTrackTempoEditor()
 
     expect(editor.query(() => "query result")).toBe("query result")
     expect(editor.mutate(() => "mutation result")).toBe("mutation result")
@@ -31,7 +31,7 @@ describe("SongTempoEditor", () => {
   })
 
   it("observes tempo item changes", () => {
-    const editor = createSongTempoEditor()
+    const editor = createTrackTempoEditor()
     const listener = vi.fn()
     const unsubscribe = editor.observeItems(listener)
 
@@ -39,6 +39,6 @@ describe("SongTempoEditor", () => {
     unsubscribe()
     editor.addItems([{ tick: 20, bpm: 150 }])
 
-    expect(listener).toHaveBeenCalledTimes(2)
+    expect(listener).toHaveBeenCalledTimes(1)
   })
 })

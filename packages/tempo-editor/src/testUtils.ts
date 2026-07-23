@@ -1,23 +1,17 @@
-import {
-  bpmToUSecPerBeat,
-  Song,
-  setTempoMidiEvent,
-  Track,
-} from "@signal-app/core"
-import { SongTempoEditor } from "./SongTempoEditor"
+import { bpmToUSecPerBeat, setTempoMidiEvent, Track } from "@signal-app/core"
+import { TrackTempoEditor } from "./TrackTempoEditor"
 
-export const createSongTempoEditor = (
+export const createTrackTempoEditor = (
   items: readonly { tick: number; bpm: number }[] = [],
-): SongTempoEditor => {
-  const song = new Song()
-  song.addTrack(new Track())
+): TrackTempoEditor => {
+  const conductorTrack = new Track()
 
-  song.conductorTrack?.addEvents(
+  conductorTrack.addEvents(
     items.map((item) => ({
       ...setTempoMidiEvent(0, Math.floor(bpmToUSecPerBeat(item.bpm))),
       tick: item.tick,
     })),
   )
 
-  return new SongTempoEditor(song)
+  return new TrackTempoEditor(conductorTrack)
 }

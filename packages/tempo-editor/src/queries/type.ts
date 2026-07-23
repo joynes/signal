@@ -4,8 +4,8 @@ export interface TempoEditorQueryContext {
   readonly [tempoEditorQueryBrand]: true
 }
 
-declare module "../SongTempoEditor" {
-  interface SongTempoEditor {
+declare module "../TrackTempoEditor" {
+  interface TrackTempoEditor {
     readonly [tempoEditorQueryBrand]: true
   }
 }

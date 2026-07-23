@@ -14,7 +14,7 @@ Unlike `@signal-app/control-editor`, the `TempoItem` DTO itself (`entities/tempo
 
 ## Responsibilities
 
-- `TempoEditor` / `SongTempoEditor`: the facade over a `Song` (tempo lives on the conductor track, which can change out from under a `Song`, hence `observeItems` juggling both track- and conductor-track-level subscriptions), exposing `getItems`/`getById`/`addItems`/`removeItems`/`updateItems`/`observeItems`/`query`/`mutate`.
+- `createTempoEditor(conductorTrack: Track): TempoEditor` — the public constructor. The concrete class implementing it (`TrackTempoEditor`) is not exported; callers only ever see the `TempoEditor` interface (`observeItems`/`query`/`mutate`). It's scoped to a single conductor track instance, not a `Song` — callers are responsible for resolving `song.conductorTrack` and re-creating the editor if it changes (see `TempoEditorProvider` in `app`, which shows a fallback UI when there's no conductor track instead of constructing an editor with nothing to wrap).
 - `mutations/primitives.ts` (`addItem`/`removeItem`/`updateItem`) — thin, single-item operations, the only functions allowed to unsafely cast the branded mutator context back to the editor.
 - `mutations/composed.ts` — everything built from those primitives: `removeItems`, `duplicateItems`, `pasteItemsAtPosition`, `moveItems`, `removeRedundantItems`, `createOrUpdateItem`, `updateItemsInRange`, `setBpm`.
 - `queries/primitives.ts` / `queries/items.ts` — the read-side counterpart (`getItems`, `getItemById`, `listItems`, `getItemsByIds`, `getEventIdsInRange`, `getItemsClipboardData`).
@@ -22,7 +22,7 @@ Unlike `@signal-app/control-editor`, the `TempoItem` DTO itself (`entities/tempo
 
 ## Dependencies
 
-- `@signal-app/core` for `Song`, `Track`, `TempoItem` and its transforms, and shared helpers (`Range`, `closedRange`, `interpolate`).
+- `@signal-app/core` for `Track`, `TempoItem` and its transforms, and shared helpers (`Range`, `closedRange`, `interpolate`).
 - `@signal-app/observable` for `Unsubscribe`.
 - `midifile-ts` (peer) for `SetTempoEvent`.
 - `zod` (peer) for `ClipboardDataSchema`.
