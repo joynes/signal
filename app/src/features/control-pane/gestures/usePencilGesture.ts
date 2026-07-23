@@ -17,21 +17,17 @@ import { useControlEditor } from "../hooks/useControlEditor"
 import { useControlPane } from "../hooks/useControlPane"
 
 const useUpdateValueEvents = () => {
-  const controlEditor = useControlEditor()
   const { quantizeFloor, quantizeUnit } = useQuantizer()
 
   return useCallback(
-    (valueRange: Range, tickRange: Range) => {
-      controlEditor.mutate(
-        updateControlItemsInRange(
-          valueRange,
-          tickRange,
-          quantizeFloor,
-          quantizeUnit,
-        ),
-      )
-    },
-    [controlEditor, quantizeFloor, quantizeUnit],
+    (valueRange: Range, tickRange: Range) =>
+      updateControlItemsInRange(
+        valueRange,
+        tickRange,
+        quantizeFloor,
+        quantizeUnit,
+      ),
+    [quantizeFloor, quantizeUnit],
   )
 }
 
@@ -75,9 +71,11 @@ export const usePencilGesture = (): MouseDownHandler<
           )
           const tick = transform.getTick(local.x)
 
-          updateValueEvents(
-            Range.fromUnordered(lastValue, value),
-            Range.fromUnordered(lastTick, tick),
+          controlEditor.mutate(
+            updateValueEvents(
+              Range.fromUnordered(lastValue, value),
+              Range.fromUnordered(lastTick, tick),
+            ),
           )
 
           lastTick = tick
