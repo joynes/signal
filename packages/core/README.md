@@ -20,7 +20,7 @@ This allows the app layer to remain Jotai-based without coupling to core interna
 
 - Domain entities for song/track/measure/selection/transform/midi.
 - Song-level command functions (`SongCommand`/`SongTracksCommand` in `entities/song/commands`, e.g. `addNewTrack`, `moveTrack`) and track-level mutation/query functions (`TrackEventsMutator`/`TrackEventsQuery`) that execute edit operations against `Song`/`Track`.
-- Per-domain Editor facades (`editor/*`, e.g. `TempoEditor`/`SongTempoEditor`) that wrap the above behind an explicit `query`/`mutate`/`observe` surface, so app code doesn't touch `Song`/`Track` internals directly.
+- A public surface (mutation/query functions plus entities like `Track`, `Song`, `TempoItem`) that sibling Editor-facade packages build on — see `@signal-app/tempo-editor` and `@signal-app/control-editor`, which wrap it behind an explicit `query`/`mutate`/`observe` surface so app code doesn't touch `Song`/`Track` internals directly.
 - Store layer (`SongStore`, `MIDIDeviceStore`, `BluetoothMIDIDeviceStore`) with explicit observable events.
 - Data/repository layer including `IndexedDBStorage` and `SoundFontRepository`.
 
@@ -34,8 +34,8 @@ This allows the app layer to remain Jotai-based without coupling to core interna
 
 ## Architecture Notes
 
-- Layered exports from `index.ts`: `commands`, `entities`, `helpers`, `midi`, `repositories`, `services`, `stores`.
-- Mutation/query modules keep write/read logic grouped by editing concern; domains being migrated off direct app-side `Song`/`Track` access additionally get a dedicated Editor facade (see `editor/tempo`).
+- Layered exports from `index.ts`: `entities`, `helpers`, `midi`, `repositories`, `services`, `stores`.
+- Mutation/query modules keep write/read logic grouped by editing concern; domains being migrated off direct app-side `Song`/`Track` access additionally get a dedicated Editor facade in a sibling package (see `@signal-app/tempo-editor`, `@signal-app/control-editor`).
 - Domain model uses immutable-like replacement patterns in places (`tracks` ref updates) while preserving stable observable notifications.
 
 ## Track Query/Mutation Design Policy

@@ -1,4 +1,4 @@
-import { TempoItem } from "../../../entities/tempo/TempoItem"
+import { TempoItem } from "@signal-app/core"
 import { TempoEditorQuery, TempoEditorQueryContext } from "./type"
 
 type QueryTempoEditor = {
@@ -13,7 +13,7 @@ const asQueryTempoEditor = (
 export const getItems: TempoEditorQuery<readonly TempoItem[]> = (context) =>
   asQueryTempoEditor(context).getItems()
 
-export const getById =
+export const getItemById =
   (id: number): TempoEditorQuery<TempoItem | undefined> =>
   (context) =>
     asQueryTempoEditor(context).getById(id)

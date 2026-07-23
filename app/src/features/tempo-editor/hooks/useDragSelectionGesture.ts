@@ -2,7 +2,7 @@ import {
   getItemsByIds,
   moveItems,
   removeRedundantItems,
-} from "@signal-app/core"
+} from "@signal-app/tempo-editor"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"

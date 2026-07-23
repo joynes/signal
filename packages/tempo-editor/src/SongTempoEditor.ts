@@ -1,17 +1,16 @@
-import { Unsubscribe } from "@signal-app/observable"
-import { SetTempoEvent } from "midifile-ts"
-import { isSetTempoEvent, TrackEventOf } from "../../entities/event"
-import { Song } from "../../entities/song/Song"
-import { TempoItem } from "../../entities/tempo/TempoItem"
-import {
-  setTempoEventToTempoItem,
-  tempoItemToSetTempoEvent,
-} from "../../entities/tempo/transform"
 import {
   getTempoItemById,
   getTempoItems,
+  isSetTempoEvent,
+  Song,
+  setTempoEventToTempoItem,
+  TempoItem,
+  TrackEventOf,
+  tempoItemToSetTempoEvent,
   updateEvents,
-} from "../../entities/track"
+} from "@signal-app/core"
+import { Unsubscribe } from "@signal-app/observable"
+import { SetTempoEvent } from "midifile-ts"
 import { TempoEditorMutator } from "./mutations/type"
 import { TempoEditorQuery } from "./queries/type"
 import { TempoEditor } from "./type"
@@ -52,7 +51,7 @@ export class SongTempoEditor implements TempoEditor {
       updateEvents(items.map(tempoItemToSetTempoEvent)),
     )
 
-  observeTempoItems = (listener: () => void): Unsubscribe => {
+  observeItems = (listener: () => void): Unsubscribe => {
     let unsubscribeTrack: Unsubscribe | undefined
     let unsubscribeConductorTrack: Unsubscribe | undefined
 

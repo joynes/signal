@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { listItems } from "./queries/tempo"
+import { listItems } from "./queries/items"
 import { createSongTempoEditor } from "./testUtils"
 
 describe("SongTempoEditor", () => {
@@ -33,7 +33,7 @@ describe("SongTempoEditor", () => {
   it("observes tempo item changes", () => {
     const editor = createSongTempoEditor()
     const listener = vi.fn()
-    const unsubscribe = editor.observeTempoItems(listener)
+    const unsubscribe = editor.observeItems(listener)
 
     editor.addItems([{ tick: 10, bpm: 120 }])
     unsubscribe()

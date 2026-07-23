@@ -1,7 +1,9 @@
-import { Song } from "../../entities/song/Song"
-import { Track } from "../../entities/track"
-import { bpmToUSecPerBeat } from "../../helpers/bpm"
-import { setTempoMidiEvent } from "../../midi"
+import {
+  bpmToUSecPerBeat,
+  Song,
+  setTempoMidiEvent,
+  Track,
+} from "@signal-app/core"
 import { SongTempoEditor } from "./SongTempoEditor"
 
 export const createSongTempoEditor = (

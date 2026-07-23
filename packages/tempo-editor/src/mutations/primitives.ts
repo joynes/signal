@@ -1,4 +1,4 @@
-import { TempoItem } from "../../../entities/tempo/TempoItem"
+import { TempoItem } from "@signal-app/core"
 import { TempoEditorMutator, TempoEditorMutatorContext } from "./type"
 
 type MutableTempoEditor = {

@@ -1,4 +1,4 @@
-import { SongTempoEditor, TempoEditor } from "@signal-app/core"
+import { SongTempoEditor, TempoEditor } from "@signal-app/tempo-editor"
 import { atom, useAtomValue, useSetAtom, useStore } from "jotai"
 import { Store } from "jotai/vanilla/store"
 import {

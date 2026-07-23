@@ -1,4 +1,5 @@
-import { getEventIdsInRange, Range } from "@signal-app/core"
+import { Range } from "@signal-app/core"
+import { getEventIdsInRange } from "@signal-app/tempo-editor"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"

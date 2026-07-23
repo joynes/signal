@@ -23,6 +23,7 @@ Active package modules in `packages` are:
 - `@signal-app/firebaseui-web-react`
 - `@signal-app/observable`
 - `@signal-app/player`
+- `@signal-app/tempo-editor`
 - `@signal-app/ui`
 
 ## 2. High-Level Runtime Topology
@@ -65,6 +66,7 @@ This section intentionally stays lightweight. See each package README for detail
 - [packages/firebaseui-web-react/README.md](packages/firebaseui-web-react/README.md)
 - [packages/observable/README.md](packages/observable/README.md)
 - [packages/player/README.md](packages/player/README.md)
+- [packages/tempo-editor/README.md](packages/tempo-editor/README.md)
 - [packages/ui/README.md](packages/ui/README.md)
 
 ## 5. App Feature Architecture
@@ -86,7 +88,7 @@ This section intentionally stays lightweight. See each feature README for detail
 
 ## 6. Cross-Cutting Architectural Patterns
 
-- Mutation/query based domain commands (core), with per-domain Editor facades (e.g. `SongTempoEditor`) providing query/mutate/observe access without exposing Song internals.
+- Mutation/query based domain commands (core), with per-domain Editor facade packages (`@signal-app/tempo-editor`, `@signal-app/control-editor`, e.g. `SongTempoEditor`) providing query/mutate/observe access without exposing Song internals.
 - Feature-scoped state providers for timeline/editor concerns (app).
 - Promise-based interaction UX via `dialog-hooks`.
 - Repository abstraction for cloud/data boundaries.
@@ -156,7 +158,7 @@ Why this architecture is used:
 
 Related implementation techniques used across core:
 
-- `entities/track/mutations`, `entities/track/queries`, and `editor/tempo/{mutations,queries}` all follow the `primitives.ts` / `composed.ts` split.
+- `entities/track/mutations`, `entities/track/queries`, and the `mutations`/`queries` modules in the `@signal-app/tempo-editor` and `@signal-app/control-editor` packages all follow the `primitives.ts` / `composed.ts` split.
 - Higher-order combinators (`combineMutators` in `mutations/higherOrder.ts`) compose primitive mutators without exposing mutable internals.
 
 ## 7. Platform and External Dependencies

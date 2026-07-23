@@ -21,18 +21,3 @@ export const ArrangeEventsClipboardDataSchema = z.object({
 export type ArrangeEventsClipboardData = z.infer<
   typeof ArrangeEventsClipboardDataSchema
 >
-
-export const TempoItemClipboardDataSchema = z.object({
-  id: z.number(),
-  tick: z.number(),
-  bpm: z.number(),
-})
-
-export const TempoEventsClipboardDataSchema = z.object({
-  type: z.literal("tempo_events"),
-  items: z.array(TempoItemClipboardDataSchema),
-})
-
-export type TempoEventsClipboardData = z.infer<
-  typeof TempoEventsClipboardDataSchema
->

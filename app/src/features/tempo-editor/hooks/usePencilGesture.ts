@@ -1,4 +1,8 @@
-import { createOrUpdateItem, Range, updateItemsInRange } from "@signal-app/core"
+import { Range } from "@signal-app/core"
+import {
+  createOrUpdateItem,
+  updateItemsInRange,
+} from "@signal-app/tempo-editor"
 import { useCallback } from "react"
 import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"

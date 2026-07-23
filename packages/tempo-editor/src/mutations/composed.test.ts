@@ -1,12 +1,12 @@
+import { Range } from "@signal-app/core"
 import { describe, expect, it } from "vitest"
-import { Range } from "../../../entities/geometry/Range"
-import { getItemsByIds } from "../queries/tempo"
+import { getItemsByIds } from "../queries/items"
 import { createSongTempoEditor } from "../testUtils"
 import {
-  addClipboardTempoEvents,
   createOrUpdateItem,
   duplicateItems,
   moveItems,
+  pasteItemsAtPosition,
   removeItems,
   removeRedundantItems,
   setBpm,
@@ -47,7 +47,7 @@ describe("tempo editor composed mutations", () => {
     const editor = createSongTempoEditor()
 
     editor.mutate(
-      addClipboardTempoEvents(
+      pasteItemsAtPosition(
         {
           type: "tempo_events",
           items: [

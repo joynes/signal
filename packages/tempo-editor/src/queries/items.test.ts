@@ -1,12 +1,12 @@
+import { Range } from "@signal-app/core"
 import { describe, expect, it } from "vitest"
-import { Range } from "../../../entities/geometry/Range"
 import { createSongTempoEditor } from "../testUtils"
 import {
   getEventIdsInRange,
   getItemsByIds,
+  getItemsClipboardData,
   listItems,
-  tempoEventsToClipboardData,
-} from "./tempo"
+} from "./items"
 
 describe("tempo editor queries", () => {
   it("lists selected items and event IDs in a range", () => {
@@ -35,7 +35,7 @@ describe("tempo editor queries", () => {
     const items = editor.getItems()
 
     expect(
-      editor.query(tempoEventsToClipboardData(items.map((item) => item.id))),
+      editor.query(getItemsClipboardData(items.map((item) => item.id))),
     ).toMatchObject({
       type: "tempo_events",
       items: [

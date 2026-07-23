@@ -1,11 +1,13 @@
+import {
+  closedRange,
+  interpolate,
+  moveTempoItem,
+  Range,
+  TempoItem,
+} from "@signal-app/core"
 import { max, min } from "lodash"
-import { TempoEventsClipboardData } from "../../../entities/clipboard/clipboardTypes"
-import { Range } from "../../../entities/geometry/Range"
-import { TempoItem } from "../../../entities/tempo/TempoItem"
-import { moveTempoItem } from "../../../entities/tempo/transform"
-import { closedRange } from "../../../helpers/array"
-import { interpolate } from "../../../helpers/interpolate"
-import { getItemsByIds, listItems } from "../queries/tempo"
+import { ClipboardData } from "../entities/clipboardTypes"
+import { getItemsByIds, listItems } from "../queries/items"
 import { addItem, removeItem, updateItem } from "./primitives"
 import { TempoEditorMutator } from "./type"
 
@@ -71,8 +73,8 @@ export const duplicateItems =
     )(context).map((item) => item.id)
   }
 
-export const addClipboardTempoEvents =
-  (data: TempoEventsClipboardData, tick: number): TempoEditorMutator<void> =>
+export const pasteItemsAtPosition =
+  (data: ClipboardData, tick: number): TempoEditorMutator<void> =>
   (context) => {
     createOrUpdateItems(
       data.items.map(({ id: _, ...item }) => ({
