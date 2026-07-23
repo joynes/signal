@@ -161,6 +161,29 @@ Related implementation techniques used across core:
 - `entities/track/mutations`, `entities/track/queries`, and the `mutations`/`queries` modules in the `@signal-app/tempo-editor` and `@signal-app/control-editor` packages all follow the `primitives.ts` / `composed.ts` split.
 - Higher-order combinators (`combineMutators` in `mutations/higherOrder.ts`) compose primitive mutators without exposing mutable internals.
 
+### 6.3 Editor Facade Packages as an Optimization Boundary
+
+Per-domain Editor facade packages (`@signal-app/tempo-editor`, `@signal-app/control-editor`, and future ones following the same shape) exist for more than giving React a DTO instead of a raw `TrackEvent`/`midifile-ts` shape. Their `query`/`mutate`/`observeItems` surface is the *only* sanctioned access path between `app` and a domain's underlying storage.
+
+Primary structure:
+
+- App code reaches a domain's data exclusively through an Editor's `query`/`mutate`/`observeItems` functions (for example `editor.query(getItemsInRange(tickRange))`), never by reading a `Track`'s raw event array or filtering by event subtype itself.
+- What a query/mutate function does internally to satisfy a request — which data structure it reads, which algorithm it uses to search or filter — is free to change without changing the function's signature or its call sites.
+
+What this means in practice:
+
+- Most query implementations today do the simplest correct thing: read a track's full event list and filter/map it on every call. That is fine while the relevant event count is small.
+- Because the Editor interface is the only door in, an implementation like that can later be replaced with something cheaper — for example an index kept up to date incrementally as mutations happen, instead of being recomputed by scanning on every read — without touching `app` or the Editor's public function signatures at all.
+
+Why this architecture is used:
+
+- It decouples *when* a query-performance problem is discovered from *where* it has to be fixed. A query that's cheap today (few events) can become a bottleneck as event counts grow (dense note tracks, for instance); fixing that should mean changing one implementation module inside the Editor package, not auditing and rewriting every `app` hook that happens to read that kind of event.
+- It generalizes, one level up, the same "the read/write surface is the contract, internals can change freely" idea already used for `Track`'s `primitives.ts`/`composed.ts` split (§6.2): the Editor facade is the contract between `app` and `core`/its sibling packages, the way `composed.ts` is the contract between the rest of core and `Track`'s mutable internals.
+
+Related implementation techniques used across features:
+
+- `@signal-app/control-editor`'s `getItems` currently reads a track's full event list and filters it by predicate on every call — a known, live example of the kind of implementation detail this boundary is designed to let us change later without an `app`-side change.
+
 ## 7. Platform and External Dependencies
 
 Web platform dependencies:
