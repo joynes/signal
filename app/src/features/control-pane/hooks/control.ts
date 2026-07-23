@@ -1,13 +1,13 @@
 import {
   ClipboardDataSchema,
   ControlEditor,
+  createControlEditor,
   createOrUpdateItemValue,
   duplicateItems,
   getItemsClipboardData,
   getValueEventType,
   pasteItemsAtPosition,
   removeItems,
-  TrackControlEditor,
   ValueEventType,
 } from "@signal-app/control-editor"
 import { useCallback, useMemo } from "react"
@@ -46,7 +46,7 @@ export const useCreateOrUpdateControlEventsValue = () => {
 // (which has no ValueEventType) or before a track is selected. Unlike
 // useControlEditor(), which throws when there's nothing to give out, this
 // stays undefined-tolerant since "nothing to act on" is a normal state here.
-const useTrackControlEditorOrUndefined = (): ControlEditor | undefined => {
+const useControlEditorOrUndefined = (): ControlEditor | undefined => {
   const { selectedTrackId } = usePianoRoll()
   const { getTrack } = useSong()
   const { controlMode } = useControlPane()
@@ -57,7 +57,7 @@ const useTrackControlEditorOrUndefined = (): ControlEditor | undefined => {
     }
     const track = getTrack(selectedTrackId)
     return track !== undefined
-      ? new TrackControlEditor(track, controlMode)
+      ? createControlEditor(track, controlMode)
       : undefined
   }, [controlMode, getTrack, selectedTrackId])
 }
@@ -65,7 +65,7 @@ const useTrackControlEditorOrUndefined = (): ControlEditor | undefined => {
 export const useDeleteControlSelection = () => {
   const { pushHistory } = useHistory()
   const { selectedEventIds, setSelection } = useControlPane()
-  const controlEditor = useTrackControlEditorOrUndefined()
+  const controlEditor = useControlEditorOrUndefined()
 
   return useCallback(() => {
     if (selectedEventIds.length === 0 || controlEditor === undefined) {
@@ -81,7 +81,7 @@ export const useDeleteControlSelection = () => {
 
 export const useCopyControlSelection = () => {
   const { selectedEventIds } = useControlPane()
-  const controlEditor = useTrackControlEditorOrUndefined()
+  const controlEditor = useControlEditorOrUndefined()
 
   return useCallback(async () => {
     if (selectedEventIds.length === 0 || controlEditor === undefined) {
@@ -99,7 +99,7 @@ export const useCopyControlSelection = () => {
 export const usePasteControlSelection = () => {
   const { position } = usePlayer()
   const { pushHistory } = useHistory()
-  const controlEditor = useTrackControlEditorOrUndefined()
+  const controlEditor = useControlEditorOrUndefined()
 
   return useCallback(
     async (e?: ClipboardEvent) => {
@@ -140,7 +140,7 @@ export const useCutControlSelection = () => {
 export const useDuplicateControlSelection = () => {
   const { pushHistory } = useHistory()
   const { selectedEventIds, setSelectedEventIds } = useControlPane()
-  const controlEditor = useTrackControlEditorOrUndefined()
+  const controlEditor = useControlEditorOrUndefined()
 
   return useCallback(() => {
     if (selectedEventIds.length === 0 || controlEditor === undefined) {

@@ -10,8 +10,8 @@ Editor facade for pitchBend/controller automation lanes, split out of `@signal-a
 
 ## Responsibilities
 
-- `ControlItem` DTO (`{id, tick, value}`) so React never has to branch on `ControllerEvent` vs `PitchBendEvent` — a `TrackControlEditor` is already bound to one `ValueEventType` at construction.
-- `TrackControlEditor` / `ControlEditor`: the facade over a `Track`, exposing `getItems`/`getById`/`addItems`/`removeItems`/`updateItems`/`observeItems`/`createPreviewEvent`/`query`/`mutate`.
+- `ControlItem` DTO (`{id, tick, value}`) so React never has to branch on `ControllerEvent` vs `PitchBendEvent` — a `ControlEditor` is already bound to one `ValueEventType` at construction.
+- `createControlEditor(track, type): ControlEditor` — the public constructor. The concrete class implementing it (`TrackControlEditor`) is not exported; callers only ever see the `ControlEditor` interface (`observeItems`/`query`/`mutate`/`createPreviewEvent`).
 - `mutations/primitives.ts` (`addItem`/`removeItem`/`updateItem`) — thin, single-item operations, the only functions allowed to unsafely cast the branded mutator context back to the editor.
 - `mutations/composed.ts` — everything built from those primitives: `removeItems`, `moveItems`, `removeRedundantItems`, `duplicateItems`, `createOrUpdateItemValue`, `updateItemsInRange(WithEasing)`, `pasteItemsAtPosition`.
 - `queries/primitives.ts` / `queries/items.ts` — the read-side counterpart (`getItems`, `getItemById`, `getValueEventType`, `listItems`, `getItemsByIds`, `getItemsClipboardData`, `getItemsInRangeWithPrevious`).

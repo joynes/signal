@@ -1,5 +1,5 @@
+export * from "./createControlEditor"
 export * from "./entities"
 export * from "./mutations"
 export * from "./queries"
-export * from "./TrackControlEditor"
 export * from "./type"

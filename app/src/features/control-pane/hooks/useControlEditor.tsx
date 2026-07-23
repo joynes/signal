@@ -1,6 +1,6 @@
 import {
   ControlEditor,
-  TrackControlEditor,
+  createControlEditor,
   ValueEventType,
 } from "@signal-app/control-editor"
 import { createContext, FC, ReactNode, useContext, useMemo } from "react"
@@ -23,7 +23,7 @@ export const ControlEditorProvider: FC<{
         `ControlEditorProvider: track ${selectedTrackId} not found`,
       )
     }
-    return new TrackControlEditor(track, type)
+    return createControlEditor(track, type)
   }, [getTrack, selectedTrackId, type])
 
   return (
