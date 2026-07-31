@@ -1,10 +1,10 @@
+import { Point } from "@signal-app/geometry"
 import {
   getItemsByIds,
   moveItems,
   removeRedundantItems,
 } from "@signal-app/tempo-editor"
 import { useCallback } from "react"
-import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"

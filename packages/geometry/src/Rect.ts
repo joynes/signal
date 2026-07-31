@@ -1,4 +1,4 @@
-import { Point } from "./Point"
+import { Point } from "@signal-app/geometry"
 
 export interface Rect extends Point {
   readonly width: number

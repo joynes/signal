@@ -3,8 +3,8 @@ import {
   moveItems,
   removeRedundantItems,
 } from "@signal-app/control-editor"
+import { Point } from "@signal-app/geometry"
 import { useCallback } from "react"
-import { Point } from "../../../entities/geometry/Point"
 import { MouseDownHandler } from "../../../gesture/MouseGesture"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useHistory } from "../../../hooks/useHistory"

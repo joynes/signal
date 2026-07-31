@@ -1,6 +1,6 @@
 import { HitArea } from "@ryohey/webgl-react"
+import { Rect } from "@signal-app/geometry"
 import { FC, useCallback, useMemo } from "react"
-import { Rect } from "../../../../entities/geometry/Rect"
 import { useTickScroll } from "../../../../hooks/useTickScroll"
 import { LineGraphItems } from "../../../control-pane/components/LineGraph/LineGraphItems"
 import { transformEvents } from "../../helpers/transformEvents"

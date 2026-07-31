@@ -1,7 +1,7 @@
 import { ValueEventType } from "@signal-app/control-editor"
+import { Size } from "@signal-app/geometry"
 import { MIDIControlEvents } from "midifile-ts"
 import React, { FC, useMemo } from "react"
-import { Size } from "../../../../entities/geometry/Size"
 import { useControlValueEvents } from "../../hooks/useControlValueEvents"
 import LineGraphControl from "../LineGraph/LineGraph"
 
