@@ -8,11 +8,9 @@ import { useMutateTrack } from "../../../hooks/useCommand"
 import { useTickScroll } from "../../../hooks/useTickScroll"
 import { VelocityTransform } from "../entities/VelocityTransform"
 
-export const useVelocityPaintGesture = ({
-  velocityTransform,
-}: {
-  velocityTransform: VelocityTransform
-}): MouseDownHandler<[], React.MouseEvent> => {
+export const useVelocityPaintGesture = (
+  velocityTransform: VelocityTransform,
+): MouseDownHandler<[], React.MouseEvent> => {
   const { transform } = useTickScroll()
   const { scrollLeft } = useTickScroll()
   const { selectedTrackId, selectedNoteIds } = usePianoRoll()

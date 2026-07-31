@@ -4,23 +4,50 @@ import { Rect } from "@signal-app/geometry"
 import Color from "color"
 import { FC, useCallback, useMemo } from "react"
 import { colorToVec4, enhanceContrast } from "../../../../gl/color"
+import { useTickScroll } from "../../../../hooks/useTickScroll"
+import { usePianoRoll } from "../../../piano-roll/hooks/usePianoRoll"
+import { VelocityItem } from "../../entities/VelocityItem"
 import { VelocityTransform } from "../../entities/VelocityTransform"
-import { useDragVelocityGesture } from "../../gestures/useDragVelocityGesture"
 import { useVelocityItems } from "../../hooks/useVelocityItems"
 import { LegacyVelocityItems } from "./LegacyVelocityItems"
 import { IVelocityData, VelocityShader } from "./VelocityShader"
 
 export interface VelocityItemsProps {
   velocityTransform: VelocityTransform
+  onMouseDown: (e: MouseEvent, noteId: number) => void
   zIndex?: number
 }
 
+const itemWidth = 5
+
 export const VelocityItems: FC<VelocityItemsProps> = ({
   velocityTransform,
+  onMouseDown,
   ...props
 }) => {
-  const items = useVelocityItems(velocityTransform)
-  const onMouseDown = useDragVelocityGesture(velocityTransform)
+  const velocityItems = useVelocityItems()
+  const { transform } = useTickScroll()
+  const { selectedNoteIds } = usePianoRoll()
+
+  const transformEvent = useCallback(
+    (item: VelocityItem) => {
+      const x = transform.getX(item.tick)
+      return {
+        id: item.id,
+        x,
+        y: velocityTransform.getY(item.velocity),
+        width: itemWidth,
+        height: velocityTransform.getHeight(item.velocity),
+        isSelected: selectedNoteIds.includes(item.id),
+      }
+    },
+    [selectedNoteIds, transform, velocityTransform],
+  )
+
+  const items = useMemo(
+    () => velocityItems.map(transformEvent),
+    [velocityItems, transformEvent],
+  )
 
   return (
     <>
