@@ -4,9 +4,8 @@ import { Rect } from "@signal-app/geometry"
 import Color from "color"
 import { FC, useCallback, useMemo } from "react"
 import { colorToVec4, enhanceContrast } from "../../../../gl/color"
-import { observeDrag } from "../../../../helpers/observeDrag"
 import { VelocityTransform } from "../../entities/VelocityTransform"
-import { useChangeNotesVelocity } from "../../hooks/useChangeNotesVelocity"
+import { useDragVelocityGesture } from "../../gestures/useDragVelocityGesture"
 import { useVelocityItems } from "../../hooks/useVelocityItems"
 import { LegacyVelocityItems } from "./LegacyVelocityItems"
 import { IVelocityData, VelocityShader } from "./VelocityShader"
@@ -21,25 +20,7 @@ export const VelocityItems: FC<VelocityItemsProps> = ({
   ...props
 }) => {
   const items = useVelocityItems(velocityTransform)
-  const changeNotesVelocity = useChangeNotesVelocity()
-
-  const onMouseDown = useCallback(
-    (e: MouseEvent, noteId: number) => {
-      const startY = e.clientY - e.offsetY
-      const calcValue = (e: MouseEvent) => {
-        const offsetY = e.clientY - startY
-        return velocityTransform.getVelocity(offsetY)
-      }
-
-      e.stopPropagation()
-      changeNotesVelocity([noteId], calcValue(e))
-
-      observeDrag({
-        onMouseMove: (e) => changeNotesVelocity([noteId], calcValue(e)),
-      })
-    },
-    [changeNotesVelocity, velocityTransform],
-  )
+  const onMouseDown = useDragVelocityGesture(velocityTransform)
 
   return (
     <>
