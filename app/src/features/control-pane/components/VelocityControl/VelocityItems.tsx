@@ -1,16 +1,13 @@
 import { useTheme } from "@emotion/react"
 import { GLFallback, GLNode, HitArea, useTransform } from "@ryohey/webgl-react"
-import { isNoteEvent } from "@signal-app/core"
 import { Rect } from "@signal-app/geometry"
 import Color from "color"
 import { FC, useCallback, useMemo } from "react"
 import { colorToVec4, enhanceContrast } from "../../../../gl/color"
 import { observeDrag } from "../../../../helpers/observeDrag"
-import { useEventView } from "../../../../hooks/useEventView"
-import { useTickScroll } from "../../../../hooks/useTickScroll"
-import { usePianoRoll } from "../../../piano-roll/hooks/usePianoRoll"
 import { VelocityTransform } from "../../entities/VelocityTransform"
 import { useChangeNotesVelocity } from "../../hooks/useChangeNotesVelocity"
+import { useVelocityItems } from "../../hooks/useVelocityItems"
 import { LegacyVelocityItems } from "./LegacyVelocityItems"
 import { IVelocityData, VelocityShader } from "./VelocityShader"
 
@@ -23,27 +20,8 @@ export const VelocityItems: FC<VelocityItemsProps> = ({
   velocityTransform,
   ...props
 }) => {
-  const { selectedNoteIds } = usePianoRoll()
-  const { transform } = useTickScroll()
-  const windowedEvents = useEventView()
+  const items = useVelocityItems(velocityTransform)
   const changeNotesVelocity = useChangeNotesVelocity()
-
-  const items = useMemo(
-    () =>
-      windowedEvents.filter(isNoteEvent).map((note) => {
-        const x = transform.getX(note.tick)
-        const itemWidth = 5
-        return {
-          id: note.id,
-          x,
-          y: velocityTransform.getY(note.velocity),
-          width: itemWidth,
-          height: velocityTransform.getHeight(note.velocity),
-          isSelected: selectedNoteIds.includes(note.id),
-        }
-      }),
-    [windowedEvents, velocityTransform, transform, selectedNoteIds],
-  )
 
   const onMouseDown = useCallback(
     (e: MouseEvent, noteId: number) => {
