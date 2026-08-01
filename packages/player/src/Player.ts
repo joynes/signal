@@ -28,6 +28,7 @@ export interface IEventSource {
 export class Player {
   private scheduler: EventScheduler<PlayerEvent> | null = null
   private interval: number | null = null
+  private pendingStopFinalize = false
 
   private readonly _currentTempo = new ObservableValue(DEFAULT_TEMPO)
   private readonly _currentTick = new ObservableValue(0)
@@ -54,6 +55,16 @@ export class Player {
       console.warn("called play() while playing. aborted.")
       return
     }
+
+    // A previous stop() may not have finalized yet (its all-sounds-off is
+    // still pending for the next tick). Clear it out before starting a new
+    // timer so we don't end up with two intervals running concurrently.
+    this.pendingStopFinalize = false
+    if (this.interval !== null) {
+      clearInterval(this.interval)
+      this.interval = null
+    }
+
     this.scheduler = new EventScheduler<PlayerEvent>(
       (startTick, endTick) => this.eventSource.getEvents(startTick, endTick),
       () => this.allNotesOffEvents(),
@@ -81,7 +92,7 @@ export class Player {
     this._currentTick.set(tick)
 
     if (this.isPlaying) {
-      this.allSoundsOff()
+      this.scheduler?.scheduleStop(this.allSoundsOffEvents())
     }
 
     this.sendCurrentStateEvents()
@@ -134,6 +145,13 @@ export class Player {
     }))
   }
 
+  private allSoundsOffEvents(): DistributiveOmit<PlayerEvent, "tick">[] {
+    return range(0, this.numberOfChannels).map((ch) => ({
+      ...controllerMidiEvent(0, ch, MIDIControlEvents.ALL_SOUNDS_OFF, 0),
+      trackId: -1, // do not mute
+    }))
+  }
+
   private resetControllers() {
     // RP-15 controller reset (it does not do a full reset)
     for (const ch of range(0, this.numberOfChannels)) {
@@ -160,9 +178,22 @@ export class Player {
   }
 
   stop = () => {
-    this.scheduler = null
-    this.allSoundsOff()
+    if (this.scheduler === null) {
+      return
+    }
+
+    // Defer the all-sounds-off to the next timer tick instead of sending it
+    // immediately. Sending it right away can schedule it earlier than a
+    // note-on that was dispatched moments ago with a future timestamp
+    // (within the scheduler's look-ahead window), so the note-on would end
+    // up sounding after the all-sounds-off and never actually stop.
+    this.scheduler.scheduleStop(this.allSoundsOffEvents())
+    this.pendingStopFinalize = true
     this._isPlaying.set(false)
+  }
+
+  private finalizeStop() {
+    this.scheduler = null
 
     if (this.interval !== null) {
       clearInterval(this.interval)
@@ -253,6 +284,12 @@ export class Player {
         this.applyPlayerEvent(e)
       }
     })
+
+    if (this.pendingStopFinalize) {
+      this.pendingStopFinalize = false
+      this.finalizeStop()
+      return
+    }
 
     if (this.scheduler.scheduledTick >= this.eventSource.endOfSong) {
       this.stop()

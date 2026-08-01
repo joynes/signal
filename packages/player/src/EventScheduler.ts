@@ -32,6 +32,7 @@ export class EventScheduler<E extends SchedulableEvent> {
   private _prevTime: number | undefined = undefined
   private _getEvents: (startTick: number, endTick: number) => E[]
   private _createLoopEndEvents: () => Omit<E, "tick">[]
+  private _stopEvents: Omit<E, "tick">[] | null = null
 
   constructor(
     getEvents: (startTick: number, endTick: number) => E[],
@@ -58,6 +59,17 @@ export class EventScheduler<E extends SchedulableEvent> {
 
   seek(tick: number) {
     this._currentTick = this._scheduledTick = Math.max(0, tick)
+  }
+
+  /**
+   * Queue events (e.g. all-sounds-off) to be sent on the next readNextEvents
+   * call instead of immediately. This ensures they are scheduled with a
+   * timestamp at least as far ahead as the look-ahead window used for
+   * already-dispatched events, so they can't be scheduled to happen before
+   * a note-on that was sent moments earlier.
+   */
+  scheduleStop(events: Omit<E, "tick">[]) {
+    this._stopEvents = events
   }
 
   readNextEvents(bpm: number, timestamp: number): WithTimestamp<E>[] {
@@ -89,6 +101,17 @@ export class EventScheduler<E extends SchedulableEvent> {
     const endTick = nowTick + lookAheadTick
 
     this._prevTime = timestamp
+
+    if (this._stopEvents !== null) {
+      const stopEvents = this._stopEvents
+      this._stopEvents = null
+      this._currentTick = nowTick
+      this._scheduledTick = endTick
+
+      return stopEvents.map((e) =>
+        withTimestamp(nowTick)({ ...e, tick: endTick } as E),
+      )
+    }
 
     if (
       this.loop !== null &&
