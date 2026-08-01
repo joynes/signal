@@ -53,17 +53,19 @@ export class EventScheduler<E extends SchedulableEvent> {
   private _currentTick = 0
   private _scheduledTick = 0
   private _prevTime: number | undefined = undefined
-  private _createLoopEndEvents: () => readonly Omit<E, "tick">[]
-  private _stopEvents: Omit<E, "tick">[] | null = null
+  private _isStopScheduled = false
   private _scheduledSeekTick: number | null = null
 
   constructor(
     private readonly eventSource: EventSchedulerSource<E>,
-    createLoopEndEvents: () => readonly Omit<E, "tick">[],
+    private readonly createLoopEndEvents: () => readonly Omit<E, "tick">[],
+    private readonly createStopEvents: () => readonly Omit<
+      E,
+      "tick"
+    >[] = () => [],
     tick = 0,
     lookAheadTime = 100,
   ) {
-    this._createLoopEndEvents = createLoopEndEvents
     this._currentTick = tick
     this._scheduledTick = tick
     this.timebase = this.eventSource.timebase
@@ -82,15 +84,8 @@ export class EventScheduler<E extends SchedulableEvent> {
     this._scheduledSeekTick = tick
   }
 
-  /**
-   * Queue events (e.g. all-sounds-off) to be sent on the next readNextEvents
-   * call instead of immediately. This ensures they are scheduled with a
-   * timestamp at least as far ahead as the look-ahead window used for
-   * already-dispatched events, so they can't be scheduled to happen before
-   * a note-on that was sent moments earlier.
-   */
-  scheduleStop(events: Omit<E, "tick">[]) {
-    this._stopEvents = events
+  scheduleStop() {
+    this._isStopScheduled = true
   }
 
   readNextEvents(bpm: number, timestamp: number): SchedulerResult<E> {
@@ -126,13 +121,12 @@ export class EventScheduler<E extends SchedulableEvent> {
 
     this._prevTime = timestamp
 
-    if (this._stopEvents !== null) {
-      const stopEvents = this._stopEvents
-      this._stopEvents = null
+    if (this._isStopScheduled) {
+      this._isStopScheduled = false
       this._currentTick = nowTick
       this._scheduledTick = endTick
 
-      const events = stopEvents.map((e) =>
+      const events = this.createStopEvents().map((e) =>
         withTimestamp(nowTick)({ ...e, tick: endTick } as E),
       )
       return {
@@ -172,7 +166,7 @@ export class EventScheduler<E extends SchedulableEvent> {
 
       const events = [
         ...getEventsInRange(startTick, jump.from, nowTick),
-        ...this._createLoopEndEvents().map((e) =>
+        ...this.createLoopEndEvents().map((e) =>
           withTimestamp(currentTick)({ ...e, tick: jump.to } as E),
         ),
         ...this.eventSource

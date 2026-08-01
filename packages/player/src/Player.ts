@@ -53,6 +53,7 @@ export class Player {
     this.scheduler = new EventScheduler<PlayerEvent>(
       this.eventSource,
       () => this.allNotesOffEvents(),
+      () => this.allSoundsOffEvents(),
       this._currentTick.value,
       TIMER_INTERVAL + LOOK_AHEAD_TIME,
     )
@@ -156,16 +157,7 @@ export class Player {
   }
 
   stop = () => {
-    if (this.scheduler === null) {
-      return
-    }
-
-    // Defer the all-sounds-off to the next timer tick instead of sending it
-    // immediately. Sending it right away can schedule it earlier than a
-    // note-on that was dispatched moments ago with a future timestamp
-    // (within the scheduler's look-ahead window), so the note-on would end
-    // up sounding after the all-sounds-off and never actually stop.
-    this.scheduler.scheduleStop(this.allSoundsOffEvents())
+    this.scheduler?.scheduleStop()
   }
 
   private finalizeStop() {
