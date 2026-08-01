@@ -3,7 +3,7 @@ import range from "lodash/range.js"
 import throttle from "lodash/throttle.js"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
 import { EventScheduler } from "./EventScheduler.js"
-import { controllerMidiEvent, gsResetMidiEvent } from "./MidiEventFactory.js";
+import { controllerMidiEvent, gsResetMidiEvent } from "./MidiEventFactory.js"
 import { PlayerEvent } from "./PlayerEvent.js"
 import { SendableEvent, SynthOutput } from "./SynthOutput.js"
 import { DistributiveOmit } from "./types.js"
@@ -28,7 +28,6 @@ export interface IEventSource {
 export class Player {
   private scheduler: EventScheduler<PlayerEvent> | null = null
   private interval: number | null = null
-  private pendingStopFinalize = false
 
   private readonly _currentTempo = new ObservableValue(DEFAULT_TEMPO)
   private readonly _currentTick = new ObservableValue(0)
@@ -56,20 +55,10 @@ export class Player {
       return
     }
 
-    // A previous stop() may not have finalized yet (its all-sounds-off is
-    // still pending for the next tick). Clear it out before starting a new
-    // timer so we don't end up with two intervals running concurrently.
-    this.pendingStopFinalize = false
-    if (this.interval !== null) {
-      clearInterval(this.interval)
-      this.interval = null
-    }
-
     this.scheduler = new EventScheduler<PlayerEvent>(
-      (startTick, endTick) => this.eventSource.getEvents(startTick, endTick),
+      this.eventSource,
       () => this.allNotesOffEvents(),
       this._currentTick.value,
-      this.eventSource.timebase,
       TIMER_INTERVAL + LOOK_AHEAD_TIME,
     )
     this._isPlaying.set(true)
@@ -160,21 +149,20 @@ export class Player {
       )
     }
     // Full GS reset
-    this.sendEvent(gsResetMidiEvent(
-        0,
-        [
-          0x41, // Roland
-          0x10, // Device ID (defaults to 16 on Roland)
-          0x42, // GS
-          0x12, // Command ID (DT1)
-          0x40, // System parameter - Address
-          0x00, // Global parameter -  Address
-          0x7f, // GS Change - Address
-          0x00, // Turn on - Data
-          0x41, // Checksum
-          0xf7  // End of exclusive
-        ]
-    ))
+    this.sendEvent(
+      gsResetMidiEvent(0, [
+        0x41, // Roland
+        0x10, // Device ID (defaults to 16 on Roland)
+        0x42, // GS
+        0x12, // Command ID (DT1)
+        0x40, // System parameter - Address
+        0x00, // Global parameter -  Address
+        0x7f, // GS Change - Address
+        0x00, // Turn on - Data
+        0x41, // Checksum
+        0xf7, // End of exclusive
+      ]),
+    )
   }
 
   stop = () => {
@@ -188,12 +176,11 @@ export class Player {
     // (within the scheduler's look-ahead window), so the note-on would end
     // up sounding after the all-sounds-off and never actually stop.
     this.scheduler.scheduleStop(this.allSoundsOffEvents())
-    this.pendingStopFinalize = true
-    this._isPlaying.set(false)
   }
 
   private finalizeStop() {
     this.scheduler = null
+    this._isPlaying.set(false)
 
     if (this.interval !== null) {
       clearInterval(this.interval)
@@ -267,7 +254,7 @@ export class Player {
     const timestamp = performance.now()
 
     this.scheduler.loop = this.loop?.enabled ? this.loop : null
-    const events = this.scheduler.readNextEvents(
+    const { events, shouldStop } = this.scheduler.readNextEvents(
       this._currentTempo.value,
       timestamp,
     )
@@ -285,14 +272,8 @@ export class Player {
       }
     })
 
-    if (this.pendingStopFinalize) {
-      this.pendingStopFinalize = false
+    if (shouldStop) {
       this.finalizeStop()
-      return
-    }
-
-    if (this.scheduler.scheduledTick >= this.eventSource.endOfSong) {
-      this.stop()
     }
 
     this.syncPosition()

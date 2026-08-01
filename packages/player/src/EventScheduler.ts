@@ -9,6 +9,17 @@ export interface EventSchedulerLoop {
   end: number
 }
 
+export interface EventSchedulerSource<E extends SchedulableEvent> {
+  timebase: number
+  endOfSong: number
+  getEvents(startTick: number, endTick: number): readonly E[]
+}
+
+export interface SchedulerResult<E extends SchedulableEvent> {
+  events: readonly WithTimestamp<E>[]
+  shouldStop: boolean
+}
+
 type WithTimestamp<E> = {
   event: E
   timestamp: number
@@ -30,22 +41,19 @@ export class EventScheduler<E extends SchedulableEvent> {
   private _currentTick = 0
   private _scheduledTick = 0
   private _prevTime: number | undefined = undefined
-  private _getEvents: (startTick: number, endTick: number) => E[]
-  private _createLoopEndEvents: () => Omit<E, "tick">[]
+  private _createLoopEndEvents: () => readonly Omit<E, "tick">[]
   private _stopEvents: Omit<E, "tick">[] | null = null
 
   constructor(
-    getEvents: (startTick: number, endTick: number) => E[],
-    createLoopEndEvents: () => Omit<E, "tick">[],
+    private readonly eventSource: EventSchedulerSource<E>,
+    createLoopEndEvents: () => readonly Omit<E, "tick">[],
     tick = 0,
-    timebase = 480,
     lookAheadTime = 100,
   ) {
-    this._getEvents = getEvents
     this._createLoopEndEvents = createLoopEndEvents
     this._currentTick = tick
     this._scheduledTick = tick
-    this.timebase = timebase
+    this.timebase = this.eventSource.timebase
     this.lookAheadTime = lookAheadTime
   }
 
@@ -72,7 +80,7 @@ export class EventScheduler<E extends SchedulableEvent> {
     this._stopEvents = events
   }
 
-  readNextEvents(bpm: number, timestamp: number): WithTimestamp<E>[] {
+  readNextEvents(bpm: number, timestamp: number): SchedulerResult<E> {
     const withTimestamp =
       (currentTick: number) =>
       (e: E): WithTimestamp<E> => {
@@ -86,7 +94,10 @@ export class EventScheduler<E extends SchedulableEvent> {
       startTick: number,
       endTick: number,
       currentTick: number,
-    ) => this._getEvents(startTick, endTick).map(withTimestamp(currentTick))
+    ) =>
+      this.eventSource
+        .getEvents(startTick, endTick)
+        .map(withTimestamp(currentTick))
 
     if (this._prevTime === undefined) {
       this._prevTime = timestamp
@@ -108,9 +119,13 @@ export class EventScheduler<E extends SchedulableEvent> {
       this._currentTick = nowTick
       this._scheduledTick = endTick
 
-      return stopEvents.map((e) =>
+      const events = stopEvents.map((e) =>
         withTimestamp(nowTick)({ ...e, tick: endTick } as E),
       )
+      return {
+        events,
+        shouldStop: true,
+      }
     }
 
     if (
@@ -125,18 +140,25 @@ export class EventScheduler<E extends SchedulableEvent> {
       this._currentTick = currentTick
       this._scheduledTick = endTick2
 
-      return [
+      const events = [
         ...getEventsInRange(startTick, loop.end, nowTick),
         ...this._createLoopEndEvents().map((e) =>
           withTimestamp(currentTick)({ ...e, tick: loop.begin } as E),
         ),
         ...getEventsInRange(loop.begin, endTick2, currentTick),
       ]
+      return {
+        events,
+        shouldStop: false,
+      }
     } else {
       this._currentTick = nowTick
       this._scheduledTick = endTick
 
-      return getEventsInRange(startTick, endTick, nowTick)
+      return {
+        events: getEventsInRange(startTick, endTick, nowTick),
+        shouldStop: this._scheduledTick >= this.eventSource.endOfSong,
+      }
     }
   }
 }
