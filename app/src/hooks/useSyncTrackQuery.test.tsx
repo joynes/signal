@@ -2,6 +2,7 @@ import {
   emptyTrack,
   isPanEvent,
   NoteEvent,
+  selectorToQuery,
   TrackEvent,
   TrackEventOf,
 } from "@signal-app/core"
@@ -17,7 +18,7 @@ describe("useSyncTrackQueryInternal", () => {
     const { result } = renderHook(() =>
       useSyncTrackQueryInternal(
         track,
-        (events) => events.filter(isPanEvent).length,
+        selectorToQuery((events) => events.filter(isPanEvent).length),
         isPanEvent,
       ),
     )
@@ -32,7 +33,7 @@ describe("useSyncTrackQueryInternal", () => {
     )
 
     const { result } = renderHook(() =>
-      useSyncTrackQueryInternal(track, query, isPanEvent),
+      useSyncTrackQueryInternal(track, selectorToQuery(query), isPanEvent),
     )
 
     expect(result.current).toBe(1)
@@ -70,7 +71,7 @@ describe("useSyncTrackQueryInternal", () => {
     const query = vi.fn((events: readonly unknown[]) => events.length)
 
     const { result } = renderHook(() =>
-      useSyncTrackQueryInternal(undefined, query, isPanEvent),
+      useSyncTrackQueryInternal(undefined, selectorToQuery(query), isPanEvent),
     )
 
     expect(result.current).toBe(0)
