@@ -32,6 +32,30 @@ export const useGlobalKeyboardShortcut = () => {
     }
   }, [isSaved, localized])
 
+  const handleOpen = useCallback(async () => {
+    if (hasFSAccess) {
+      await openSong()
+    } else {
+      await openLegacy()
+    }
+  }, [openSong, openLegacy])
+
+  const handleSave = useCallback(async () => {
+    if (hasFSAccess) {
+      await saveSong()
+    } else {
+      await downloadSong()
+    }
+  }, [saveSong, downloadSong])
+
+  const handleSaveAs = useCallback(async () => {
+    if (hasFSAccess) {
+      await saveAsSong()
+    } else {
+      await downloadSong()
+    }
+  }, [saveAsSong, downloadSong])
+
   const actions = useMemo(
     () => [
       // Play/Pause (Space)
@@ -87,39 +111,39 @@ export const useGlobalKeyboardShortcut = () => {
       {
         code: "KeyS",
         metaKey: true,
-        run: hasFSAccess ? saveSong : downloadSong,
+        run: handleSave,
       },
       // Save (Alt-S)
       {
         code: "KeyS",
         altKey: true,
-        run: hasFSAccess ? saveSong : downloadSong,
+        run: handleSave,
       },
       // Save As (Shift-Meta-S)
       {
         code: "KeyS",
         shiftKey: true,
         metaKey: true,
-        run: hasFSAccess ? saveAsSong : downloadSong,
+        run: handleSaveAs,
       },
       // Save As (Shift-Alt-S)
       {
         code: "KeyS",
         shiftKey: true,
         altKey: true,
-        run: hasFSAccess ? saveAsSong : downloadSong,
+        run: handleSaveAs,
       },
       // Open (Meta-O)
       {
         code: "KeyO",
         metaKey: true,
-        run: hasFSAccess ? openSong : openLegacy,
+        run: handleOpen,
       },
       // Open (Alt-O)
       {
         code: "KeyO",
         altKey: true,
-        run: hasFSAccess ? openSong : openLegacy,
+        run: handleOpen,
       },
       // New (Meta-N)
       {
@@ -138,18 +162,16 @@ export const useGlobalKeyboardShortcut = () => {
       playOrPause,
       undo,
       redo,
-      saveAsSong,
       setOpenHelpDialog,
       stop,
       rewindOneBar,
       fastForwardOneBar,
       toggleRecording,
       setPath,
-      saveSong,
-      downloadSong,
-      openSong,
-      openLegacy,
       createNewSong,
+      handleOpen,
+      handleSave,
+      handleSaveAs,
     ],
   )
 
