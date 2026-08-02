@@ -2,7 +2,9 @@ import { useCallback, useMemo } from "react"
 import { useFastForwardOneBar, useRewindOneBar, useStop } from "../actions"
 import { hasFSAccess } from "../actions/file"
 import { fileInputID } from "../components/Navigation/LegacyFileMenu"
+import { useCloudFile } from "../features/cloud-file/hooks/useCloudFile"
 import { useLocalization } from "../localize/useLocalization"
+import { useAuth } from "./useAuth"
 import { useHistory } from "./useHistory"
 import { useKeyboardShortcut } from "./useKeyboardShortcut"
 import { usePlayer } from "./usePlayer"
@@ -13,6 +15,7 @@ import { useSongFile } from "./useSongFile"
 import { useToggleRecording } from "./useToggleRecording"
 
 export const useGlobalKeyboardShortcut = () => {
+  const { authUser } = useAuth()
   const { setOpenHelpDialog } = useRootView()
   const { setPath } = useRouter()
   const { playOrPause } = usePlayer()
@@ -24,6 +27,11 @@ export const useGlobalKeyboardShortcut = () => {
   const { undo, redo } = useHistory()
   const { createNewSong, openSong, saveSong, saveAsSong, downloadSong } =
     useSongFile()
+  const {
+    openSong: openCloudSong,
+    saveSong: saveCloudSong,
+    saveAsSong: saveCloudAsSong,
+  } = useCloudFile()
   const localized = useLocalization()
 
   const openLegacy = useCallback(async () => {
@@ -33,28 +41,34 @@ export const useGlobalKeyboardShortcut = () => {
   }, [isSaved, localized])
 
   const handleOpen = useCallback(async () => {
-    if (hasFSAccess) {
+    if (authUser) {
+      await openCloudSong()
+    } else if (hasFSAccess) {
       await openSong()
     } else {
       await openLegacy()
     }
-  }, [openSong, openLegacy])
+  }, [authUser, openCloudSong, openSong, openLegacy])
 
   const handleSave = useCallback(async () => {
-    if (hasFSAccess) {
+    if (authUser) {
+      await saveCloudSong()
+    } else if (hasFSAccess) {
       await saveSong()
     } else {
       await downloadSong()
     }
-  }, [saveSong, downloadSong])
+  }, [authUser, saveCloudSong, saveSong, downloadSong])
 
   const handleSaveAs = useCallback(async () => {
-    if (hasFSAccess) {
+    if (authUser) {
+      await saveCloudAsSong()
+    } else if (hasFSAccess) {
       await saveAsSong()
     } else {
       await downloadSong()
     }
-  }, [saveAsSong, downloadSong])
+  }, [authUser, saveCloudAsSong, saveAsSong, downloadSong])
 
   const actions = useMemo(
     () => [
