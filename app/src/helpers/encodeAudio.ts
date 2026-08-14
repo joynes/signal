@@ -2,11 +2,14 @@ import { Mp3Encoder } from "@breezystack/lamejs"
 import { max } from "lodash"
 import { encode } from "wav-encoder"
 
-export const encodeMp3 = async (audioBuffer: AudioBuffer) => {
+export const encodeMp3 = async (
+  audioBuffer: AudioBuffer,
+  bitrateKbps = 128,
+) => {
   const mp3Encoder = new Mp3Encoder(
     audioBuffer.numberOfChannels,
     audioBuffer.sampleRate,
-    128,
+    bitrateKbps,
   )
   const mp3Data: Uint8Array[] = []
 

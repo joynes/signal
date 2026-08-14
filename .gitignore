@@ -28,6 +28,7 @@ build/Release
 
 # Dependency directories
 node_modules
+.signal-control-token
 jspm_packages
 
 # Optional npm cache directory
