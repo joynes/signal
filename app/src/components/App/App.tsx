@@ -7,6 +7,7 @@ import {
 import React from "react"
 import { HelmetProvider } from "react-helmet-async"
 import { ActionDialog } from "../../components/Dialog/ActionDialog"
+import { ControlBridge } from "../../components/ControlBridge/ControlBridge"
 import { isRunningInElectron } from "../../helpers/platform"
 import { ArrangeViewProvider } from "../../hooks/useArrangeView"
 import { AuthProvider } from "../../hooks/useAuth"
@@ -43,6 +44,7 @@ export function App() {
                             <ArrangeViewProvider>
                               <TempoEditorProvider>
                                 <GlobalCSS />
+                                <ControlBridge />
                                 {isRunningInElectron() && (
                                   <ElectronCallbackHandler />
                                 )}

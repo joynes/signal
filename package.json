@@ -7,6 +7,9 @@
     "build": "npm run build:app",
     "build:app": "turbo build && cpx \"app/dist/**/*\" dist",
     "serve": "npx http-server dist",
+    "serve:control": "node tools/signal-bridge-server.mjs",
+    "mcp": "node tools/signal-mcp-server.mjs",
+    "test:mcp": "node tools/test-signal-mcp.mjs",
     "test": "turbo test",
     "lint": "biome lint .",
     "format": "biome format . --write",
@@ -47,6 +50,7 @@
   ],
   "packageManager": "npm@11.10.1",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "optics-ts": "^2.4.1"
   }
 }
