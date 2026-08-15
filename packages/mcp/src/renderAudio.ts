@@ -66,7 +66,7 @@ const encodeMp3 = (
 }
 
 export type RenderAudioOptions = {
-  filePath: string
+  filePath?: string
   format: "mp3" | "wav"
   soundFontPath?: string
   durationSeconds?: number
@@ -119,12 +119,13 @@ export const renderMidiAudio = async (
     )
   }
 
-  const outputPath = resolve(options.filePath)
   const encoded =
     options.format === "mp3"
       ? encodeMp3(left, right, sampleRate, bitrateKbps)
       : new Uint8Array(audioToWav([left, right], sampleRate))
-  await writeFile(outputPath, encoded)
+  const outputPath =
+    options.filePath === undefined ? undefined : resolve(options.filePath)
+  if (outputPath !== undefined) await writeFile(outputPath, encoded)
   return {
     filePath: outputPath,
     format: options.format,
@@ -133,5 +134,6 @@ export const renderMidiAudio = async (
     bitrateKbps: options.format === "mp3" ? bitrateKbps : undefined,
     soundFontPath,
     byteLength: encoded.byteLength,
+    bytes: new Uint8Array(encoded),
   }
 }

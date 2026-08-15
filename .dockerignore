@@ -1,5 +1,7 @@
 .git
-.cache
-.idea
-.vscode
-node_modules
+**/node_modules
+**/dist
+**/.turbo
+coverage
+.env*
+*.log
